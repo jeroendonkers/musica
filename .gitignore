@@ -1,0 +1,9 @@
+/bin
+/deploy
+/docs
+/.classpath
+/.project
+/.cache
+/.settings
+/makejar.bat
+/MainClass.txt
