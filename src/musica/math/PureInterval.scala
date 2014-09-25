@@ -17,7 +17,7 @@ class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with Rea
        if (that>0) new PureInterval(pwr(numer,that),pwr(denom,that))
        else PureInterval.Prime
    } 
-   override def unary_- :PureInterval = PureInterval.Octave - this 
+   override def unary_- :PureInterval = PureInterval.Prime - this 
  
    // normalize to rational between 1/1 and 2/1
    override def normalize(): PureInterval = {
@@ -51,15 +51,15 @@ object PureInterval {
     val SyntonicComma = (Fifth * 4) - (MajorThird + (Octave * 2))
     val EnharmonicComma = Octave - (MajorThird * 3)
 
-   def JitLimit7(f3: Int, f5: Int, f7: Int): PureInterval = {
+   def JILimit7(f3: Int, f5: Int, f7: Int): PureInterval = {
       (Fifth * f3 + MajorThird * f5 + MajorSeventh * f7).normalize
     }
     
-    def JitLimit5(f3: Int, f5: Int): PureInterval = {
+    def JILimit5(f3: Int, f5: Int): PureInterval = {
       (Fifth * f3 + MajorThird * f5).normalize
     }
     
-    def JitLimit3(f3: Int): PureInterval = {
+    def JILimit3(f3: Int): PureInterval = {
       (Fifth * f3).normalize
     }
       

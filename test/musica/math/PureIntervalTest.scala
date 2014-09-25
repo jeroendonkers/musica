@@ -50,6 +50,11 @@ class PureIntervalTest {
       assertEquals(a * 0,PureInterval.Prime)
    }
    
+   @Test def TestNegate() {
+     val a = PureInterval(5,4)
+     assertEquals(-a,PureInterval(4,5))
+   }
+   
    @Test def TestNormalizeDown() {
       val a = PureInterval(13,4)
       assertEquals(a.normalize,PureInterval(13,8))
@@ -63,6 +68,37 @@ class PureIntervalTest {
    @Test def TestNormalizeNot() {      
       val a = PureInterval(16,13)
       assertEquals(a.normalize,PureInterval(16,13))
+   }
+   
+   @Test def TestOnInt() {
+     val a = PureInterval(5,4)
+     assertEquals(a.on(100),Rational(500,4))
+   }
+   
+   @Test def TestOn() {
+     val a = PureInterval(5,4)
+     assertEquals(a.on(100.0),125.0,0.001)
+   }
+   
+   @Test def TestConv1() {
+     val a = PureInterval(2,1)
+     val b = RealInterval(200)
+     assertEquals(a+b,RealInterval(1400))
+   }
+   
+    @Test def TestJIlimit3() {
+     val a = PureInterval.JILimit3(1)
+     assertEquals(a,PureInterval(3,2))
+   }
+   
+   @Test def TestJIlimit5() {
+     val a = PureInterval.JILimit5(12,-7)
+     assertEquals(a,PureInterval.PythagoreanComma )
+   }
+   
+   @Test def TestJIlimit7() {
+     val a = PureInterval.JILimit7(3,4,2)
+     assertEquals(a,PureInterval(91875,65536))
    }
    
 }
