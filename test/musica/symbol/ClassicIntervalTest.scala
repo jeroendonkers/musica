@@ -23,25 +23,35 @@ class ClassicIntervalTest {
     assertEquals(e.chr, -27)
   }
   
-  @Test def ClassicIntervalDevTest() {
+  @Test def ClassicIntervalDevTest1() {
     val a = new ClassicInterval(0,1)
-    assertEquals(a.dev,1)        
-    
-    val b = new ClassicInterval(4,7)
-    assertEquals(b.dev,0)
-    
-    val c = new ClassicInterval(1,2)
-    assertEquals(c.dev,1)
-    
-   val d = new ClassicInterval(8,14)
-    println(d.normstep)
-    assertEquals(d.dev,1)
-    
-    //val e = new ClassicInterval(-1,-2)
-    //println(e.normstep)
-    //assertEquals(e.dev,-1)
-    
-
+    assertEquals(a.size,1)        
   }
+  
+  @Test def ClassicIntervalDevTest2() {
+    val b = new ClassicInterval(4)
+    assertEquals(b.size,7)
+  }  
+   
+  @Test def ClassicIntervalDevTest3() {
+    val c = new ClassicInterval(1,-1)
+    assertEquals(c.size,1)
+  }
+  
+  @Test def ClassicIntervalDevTest4() {
+    val d = new ClassicInterval(8,0)
+    assertEquals(d.size,14)
+  }
+  
+  @Test def ClassicIntervalDevTest5() {
+    val d = new ClassicInterval(-1,0)
+    assertEquals(d.size,2)
+  }
+  
+  @Test def ClassicIntervalDevTest6() {
+    val d = new ClassicInterval(-8,1)
+    assertEquals(d.size,15)
+  }
+    
   
 }
