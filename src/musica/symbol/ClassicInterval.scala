@@ -41,12 +41,15 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
        case 0 => "Major" 
        case 1 => "Augmented"
        case -1 => "Minor"
-       case -2 => "Dimished"
+       case -2 => "Diminished"
        case _ => "Irregular ("+dev+")"  
      }
      val sign = if (step<0) " down" else ""
      aspect + " "+ basname + sign                  
    }
+   
+   def on(c: ClassicNote): ClassicNote = c + this
+   def below(c: ClassicNote): ClassicNote = c - this
    
 }
 
@@ -58,6 +61,7 @@ object ClassicInterval {
   val basicsize = Array(0,2,4,5,7,9,11)
   
   def apply(step: Int, dev: Int = 0) = new ClassicInterval(step,dev)
+  def apply(note1: ClassicNote, note2: ClassicNote) = note1.interval(note2)
   
   def Prime = ClassicInterval(0)
   def MinorSecond = ClassicInterval(1)
@@ -77,6 +81,7 @@ object ClassicInterval {
 class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
   val step = if (stp<0 || stp>7) 0 else stp 
   val chr = ClassicNote.NotePos(step) + dev + octave*12
+  val midicode = chr+60
   
   def +(that: ClassicInterval): ClassicNote = {
      if (that.step <0) this - (-that) else {   
@@ -105,6 +110,23 @@ class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
       (if (dev>0) ("#"*dev) else (if (dev<0) ("b" * (-dev)) else "")) +
       (if (octave>0) "+"+octave else (if (octave<0) ""+octave else ""))
   } 
+  
+  def interval(that: ClassicNote): ClassicInterval = {
+    val newstep = that.step + that.octave*7 - step - octave*7
+    val chrdiv = that.chr - chr
+    val bassize = ClassicInterval(newstep).size 
+    val dev = (if (newstep==0) chrdiv else chrdiv.abs) - bassize
+    ClassicInterval(newstep, dev)
+  }
+  
+  override def equals(that: Any): Boolean = {
+  that match {
+       case that: ClassicNote=> (this.step == that.step) && (this.dev == that.dev) && (this.octave == that.octave)
+       case _ => false
+     }
+   }
+  
+  def isEnharmonic(that: ClassicNote): Boolean = this.chr == that.chr
 }
 
 object ClassicNote {

@@ -146,4 +146,28 @@ class ClassicIntervalTest {
       assertEquals("Ab-1",c.toString())
     }
     
+     @Test def NoteIntervaltest1() {
+      val a = ClassicNote(4)
+      val b = ClassicNote(6)
+      val c = a.interval(b)
+      assertEquals("Major Third",c.toString())
+    }
+     
+         
+     @Test def NoteIntervaltest2() {
+      val a = ClassicNote(0,-1)
+      val b = ClassicNote(4,1)
+      val c = a.interval(b)
+      assertEquals("Irregular (2) Fifth",c.toString())
+    }
+    
+     @Test def Noteenhtest1() {
+      val a = ClassicNote(0,1)
+      val b = ClassicNote(1,-1)
+      assertTrue(a.isEnharmonic(b))
+      assertFalse(a == b)
+    }
+  
+     
+     
 }
