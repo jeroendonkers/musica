@@ -34,6 +34,26 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
      val basname = if (step.abs<15) ClassicInterval.IntervalName(step.abs) else
                         ClassicInterval.IntervalName(normstep)+" "+(octaves*8)+"va"
      val aspect = if (ClassicInterval.Canbepure(normstep)) dev match {
+       case 0 => "P" 
+       case 1 => "A"
+       case -1 => "d" 
+       case _ => if (dev<0) "i("+(-dev)+")" else "I("+dev+")"  
+     } else dev match {
+       case 0 => "M" 
+       case 1 => "A"
+       case -1 => "m"
+       case -2 => "d"
+       case _ => if (dev<0) "i("+(-dev)+")" else "I("+dev+")"
+     }
+     val sign = if (step<0) "-" else ""
+     sign + aspect + (step.abs+1)                
+   }
+   
+   
+    def name(): String = {
+     val basname = if (step.abs<15) ClassicInterval.IntervalName(step.abs) else
+                        ClassicInterval.IntervalName(normstep)+" "+(octaves*8)+"va"
+     val aspect = if (ClassicInterval.Canbepure(normstep)) dev match {
        case 0 => "Pure" 
        case 1 => "Augmented"
        case -1 => "Diminished" 
@@ -49,13 +69,15 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
      aspect + " "+ basname + sign                  
    }
    
+   
+   
    def on(c: ClassicNote): ClassicNote = c + this
    def below(c: ClassicNote): ClassicNote = c - this
    
 }
 
 object ClassicInterval {
-  val IntervalName =  Array ("Prime", "Second","Third", "Fourth", 
+  val IntervalName =  Array ("Unison", "Second","Third", "Fourth", 
       "Fifth", "Sixth", "Seventh", "Octave", "Ninth", "Tenth", "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth")
   
   val Canbepure = Array(true, false, false, true, true, false, false)
@@ -63,7 +85,10 @@ object ClassicInterval {
   
   def apply(step: Int, dev: Int = 0) = new ClassicInterval(step,dev)
   def apply(note1: ClassicNote, note2: ClassicNote) = note1.interval(note2)
+  def apply(s: String) =  ClassicIntervalParser(s)
+  implicit def fromString(s: String): ClassicInterval = ClassicInterval(s)
   
+   
   def Prime = ClassicInterval(0)
   def MinorSecond = ClassicInterval(1,-1)
   def MajorSecond = ClassicInterval(1)
@@ -147,6 +172,9 @@ object ClassicNote {
   def apply(stp: Int, dev: Int = 0, octave: Int = 0) = 
     new ClassicNote(stp,dev,octave)
   
+  def apply(s: String) =  ClassicNoteParser(s)
+  implicit def fromString(s: String): ClassicNote = ClassicNote(s)
+  
  def FifthCircle(i: Int) = ClassicNote(0) + (ClassicInterval.Fifth * i). normalize 
 }
 
@@ -156,6 +184,8 @@ class ClassicScale(val step: List[ClassicInterval]) {
 
 object ClassicScale {
   def apply(step: List[ClassicInterval]) = new ClassicScale(step)
+  
+  def apply(st: String) = new ClassicScale(st.split(",").toList.map(s => ClassicInterval(s)))
   
   def Major = ClassicInterval.MajorScale 
   def Minor = ClassicInterval.MinorScale

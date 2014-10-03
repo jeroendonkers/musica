@@ -97,32 +97,34 @@ class ClassicIntervalTest {
   
   @Test def ClassicIntervalStrTest1() {
      val a = ClassicInterval(12,-1)
-     assertEquals("Minor Thirteenth", a.toString())
+     assertEquals("Minor Thirteenth", a.name)
+     assertEquals("m13", a.toString)
   }
   
     @Test def ClassicIntervalStrTest2() {
      val a = ClassicInterval(11,-1)
-     assertEquals("Diminished Twelfth", a.toString())
+     assertEquals("d12", a.toString)
     }
 
     @Test def ClassicIntervalStrTest3() {
      val a = ClassicInterval(33,-4)
-     assertEquals("Irregular (-4) Sixth 32va", a.toString())
+     assertEquals("Irregular (-4) Sixth 32va", a.name)
+     assertEquals("i(4)34", a.toString)
     }
 
     @Test def ClassicIntervalStrTest4() {
      val a = ClassicInterval(-2)
-     assertEquals("Major Third down", a.toString())
+     assertEquals("Major Third down", a.name)
     }
     
     @Test def ClassicIntervalNormTest1() {
      val a = ClassicInterval(11,-1).normalize()
-     assertEquals("Diminished Fifth", a.toString())
+     assertEquals("Diminished Fifth", a.name)
     }
     
     @Test def ClassicIntervalInvertTest1() {
      val a = ClassicInterval(1,0).invert()
-     assertEquals("Minor Seventh", a.toString())
+     assertEquals("Minor Seventh", a.name)
     }
     
     @Test def NotePlusIntervaltest1() {
@@ -150,7 +152,7 @@ class ClassicIntervalTest {
       val a = ClassicNote(4)
       val b = ClassicNote(6)
       val c = a.interval(b)
-      assertEquals("Major Third",c.toString())
+      assertEquals("Major Third",c.name)
     }
      
          
@@ -158,7 +160,7 @@ class ClassicIntervalTest {
       val a = ClassicNote(0,-1)
       val b = ClassicNote(4,1)
       val c = a.interval(b)
-      assertEquals("Irregular (2) Fifth",c.toString())
+      assertEquals("Irregular (2) Fifth",c.name)
     }
     
      @Test def Noteenhtest1() {
@@ -175,4 +177,23 @@ class ClassicIntervalTest {
         assertEquals(c,ClassicInterval(ClassicNote(0),d))
      } 
      }
+     
+     @Test def classicNoteParserTest() {
+       assertEquals(ClassicNote("C"),ClassicNote(0))
+        assertEquals(ClassicNote("C####"),ClassicNote(0,4))
+        assertEquals(ClassicNote("D+5"),ClassicNote(1,0,5))
+       assertEquals(ClassicNote("Ab-4"),ClassicNote(5,-1,-4))
+       assertEquals(ClassicNote("ZZZ"),ClassicNote(0))
+      }
+     
+      @Test def classicIntervalParserTest() {
+       assertEquals(ClassicInterval("P1"),ClassicInterval(0))
+        assertEquals(ClassicInterval("m3"),ClassicInterval(2,-1))
+        assertEquals(ClassicInterval("A5"),ClassicInterval(4,1))
+       assertEquals(ClassicInterval("i(3)6"),ClassicInterval(5,-3))
+       assertEquals(ClassicInterval("-M2"),ClassicInterval(-1,0))
+       assertEquals(ClassicInterval("-I(20)32"),ClassicInterval(-31,20))
+        assertEquals(ClassicInterval("XXX"),ClassicInterval(0))
+      }
+    
 }
