@@ -168,6 +168,11 @@ class ClassicIntervalTest {
       assertFalse(a == b)
     }
   
-     
-     
+     @Test def circelfifthTest() {
+     for (i <- -12 to 12) {  
+        val c = (ClassicInterval.Fifth* i).normalize
+        val d=ClassicNote.FifthCircle(i)
+        assertEquals(c,ClassicInterval(ClassicNote(0),d))
+     } 
+     }
 }

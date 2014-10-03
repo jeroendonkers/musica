@@ -4,21 +4,22 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
   // negative step means interval downwards.
   // dev = deviation from basic size
   val normstep = step.abs % 7
-  val size =  ClassicInterval.basicsize(normstep) + 12 * (step.abs/7) + dev
+  val size =  ClassicInterval.Basicsize(normstep) + 12 * (step.abs/7) + dev
   val octaves = step.abs/7
-  val canbepure = ClassicInterval.canbepure(normstep)
+  val canbepure = ClassicInterval.Canbepure(normstep)
   
    def normalize(): ClassicInterval = {
-    new ClassicInterval(if (step<0) 7-normstep else normstep, dev)    
+    if (step>=0) new ClassicInterval(normstep, dev)
+    else ClassicInterval((7-normstep) % 7, -dev - (if (canbepure) 0 else 1))
   }
     
-  def +(that: ClassicInterval) = 
+  def +(that: ClassicInterval): ClassicInterval = if (that.step<0) this - -that else
      new ClassicInterval(step + that.step, size + that.size - ClassicInterval(step + that.step).size)
-  def -(that: ClassicInterval) = 
+  def -(that: ClassicInterval): ClassicInterval = if (that.step<0) this + -that else
      new ClassicInterval(step - that.step, size - that.size - ClassicInterval(step - that.step).size)
   def *(that: Int) = 
-     new ClassicInterval(step * that, size * that - ClassicInterval(step * that).size)
-  def unary_- :ClassicInterval = ClassicInterval.Prime - this
+     new ClassicInterval(step * that, size * that.abs - ClassicInterval(step * that).size)
+  def unary_- :ClassicInterval = ClassicInterval(-step,dev)
   
   def invert(): ClassicInterval = ClassicInterval.Octave - this
   
@@ -30,9 +31,9 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
    }
   
    override def toString(): String = {
-     val basname = if (step.abs<15) ClassicInterval.intervalName(step.abs) else
-                        ClassicInterval.intervalName(normstep)+" "+(octaves*8)+"va"
-     val aspect = if (ClassicInterval.canbepure(normstep)) dev match {
+     val basname = if (step.abs<15) ClassicInterval.IntervalName(step.abs) else
+                        ClassicInterval.IntervalName(normstep)+" "+(octaves*8)+"va"
+     val aspect = if (ClassicInterval.Canbepure(normstep)) dev match {
        case 0 => "Pure" 
        case 1 => "Augmented"
        case -1 => "Diminished" 
@@ -54,29 +55,37 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
 }
 
 object ClassicInterval {
-  val intervalName =  Array ("Prime", "Second","Third", "Fourth", 
+  val IntervalName =  Array ("Prime", "Second","Third", "Fourth", 
       "Fifth", "Sixth", "Seventh", "Octave", "Ninth", "Tenth", "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth")
   
-  val canbepure = Array(true, false, false, true, true, false, false)
-  val basicsize = Array(0,2,4,5,7,9,11)
+  val Canbepure = Array(true, false, false, true, true, false, false)
+  val Basicsize = Array(0,2,4,5,7,9,11)
   
   def apply(step: Int, dev: Int = 0) = new ClassicInterval(step,dev)
   def apply(note1: ClassicNote, note2: ClassicNote) = note1.interval(note2)
   
   def Prime = ClassicInterval(0)
-  def MinorSecond = ClassicInterval(1)
-  def MajorSecond = ClassicInterval(1,-1)
+  def MinorSecond = ClassicInterval(1,-1)
+  def MajorSecond = ClassicInterval(1)
   def MinorThird = ClassicInterval(2,-1)
   def MajorThird = ClassicInterval(2)
   def Fourth = ClassicInterval(3)
   def Fifth = ClassicInterval(4)
   def MinorSixth = ClassicInterval(5,-1)
-  def MajorSixth = ClassicInterval(0)
+  def MajorSixth = ClassicInterval(5)
   def MinorSeventh = ClassicInterval(6,-1)
   def MajorSeventh = ClassicInterval(6)
   def Octave = ClassicInterval(7)
  
+  
+  def MajorScale = ClassicScale(List(Prime, MajorSecond, MajorThird, Fourth, Fifth, MajorSixth, MajorSeventh))
+  def MinorScale = ClassicScale(List(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MinorSeventh))
+  def HarmonicMinorScale = ClassicScale(List(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MajorSeventh))
+  def MelodicMinorScale = ClassicScale(List(Prime, MajorSecond, MinorThird, Fourth, Fifth, MajorSixth, MajorSeventh))
+  
 }
+
+
 
 class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
   val step = if (stp<0 || stp>7) 0 else stp 
@@ -100,7 +109,7 @@ class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
       val ns = that.step % 7
       val newstep = (step - ns + (if (ns>step) 7 else 0)) % 7
       val newoctave = octave + (step - that.step) / 7 - (if (that.step>step) 1 else 0)
-      val newdev = (chr - that.size) - (ClassicNote(newstep,0,newoctave).chr )
+      val newdev = if (that.step % 7 ==0) (dev-that.dev) else ((chr - that.size) - (ClassicNote(newstep,0,newoctave).chr))
       new ClassicNote(newstep,newdev, newoctave)
      }
   }
@@ -127,6 +136,8 @@ class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
    }
   
   def isEnharmonic(that: ClassicNote): Boolean = this.chr == that.chr
+
+  def normalize() = new ClassicNote(step,dev,0)
 }
 
 object ClassicNote {
@@ -135,5 +146,20 @@ object ClassicNote {
   
   def apply(stp: Int, dev: Int = 0, octave: Int = 0) = 
     new ClassicNote(stp,dev,octave)
+  
+ def FifthCircle(i: Int) = ClassicNote(0) + (ClassicInterval.Fifth * i). normalize 
+}
+
+class ClassicScale(val step: List[ClassicInterval]) {
+   def on(c: ClassicNote) = step.map(e => e.on(c))
+}
+
+object ClassicScale {
+  def apply(step: List[ClassicInterval]) = new ClassicScale(step)
+  
+  def Major = ClassicInterval.MajorScale 
+  def Minor = ClassicInterval.MinorScale
+  def HarmonicMinor = ClassicInterval.HarmonicMinorScale
+  def MelodicMinor = ClassicInterval.MelodicMinorScale
   
 }
