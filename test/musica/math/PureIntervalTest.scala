@@ -48,7 +48,17 @@ class PureIntervalTest {
       val a = PureInterval(5,4)
       assertEquals(a * 3,PureInterval(125,64))
       assertEquals(a * 0,PureInterval.Prime)
+      assertEquals(a * (-2), PureInterval(16,25))
+      
+      assertEquals( a* (-2), -(a*2))
    }
+   
+   @Test def TestDiv() {
+      val a = PureInterval(2,1)
+      assertEquals(a / 3,CentsInterval(400.0))
+  
+   }
+   
    
    @Test def TestNegate() {
      val a = PureInterval(5,4)
@@ -92,7 +102,7 @@ class PureIntervalTest {
    }
    
    @Test def TestJIlimit5() {
-     val a = PureInterval.JILimit5(12,-7)
+     val a = PureInterval.JILimit5(12,0)
      assertEquals(a,PureInterval.PythagoreanComma )
    }
    

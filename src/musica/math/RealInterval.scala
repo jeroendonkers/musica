@@ -45,6 +45,7 @@ object CentsInterval {
 object RealInterval {
   def apply(d: Double) = CentsInterval(d)
   implicit def fromDouble(d: Double): RealInterval = CentsInterval(d) 
+  implicit def toDouble(r: RealInterval): Double = r.cents
   def apply(n: Int, m: Int) = PureInterval(n,m)
   def Octave = PureInterval.Octave
   def Prime = PureInterval.Prime

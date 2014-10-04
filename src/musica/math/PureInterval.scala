@@ -11,11 +11,12 @@ class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with Rea
      if (to<=0) 1 else _pwr(base, to)
    }
   
-   def +(that: PureInterval) = new PureInterval(numer * that.numer, denom * that.denom)
-   def -(that: PureInterval) = new PureInterval(numer * that.denom, denom * that.numer)
+   def +(that: PureInterval) = PureInterval(numer * that.numer, denom * that.denom)
+   def -(that: PureInterval) = PureInterval(numer * that.denom, denom * that.numer)
    def *(that: Int) = {
-       if (that>0) new PureInterval(pwr(numer,that),pwr(denom,that))
-       else PureInterval.Prime
+       if (that>0) PureInterval(pwr(numer,that),pwr(denom,that))
+       else if (that==0) PureInterval.Prime
+       else PureInterval(pwr(denom,-that),pwr(numer,-that))
    } 
    override def unary_- :PureInterval = PureInterval.Prime - this 
  
@@ -30,22 +31,26 @@ class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with Rea
    def  on(f: Int): Rational = {
     this * Rational(f,1)
   }
+   
+    def  on(f: Rational): Rational = {
+    this * f
+  }
 }
 
 object PureInterval {
     def apply(n: Int, d: Int) = new PureInterval(n, d)
     def apply(n: Long, d: Long) = new PureInterval(n, d)
-    val Prime = new PureInterval(1, 1)
-    val Octave = new PureInterval(2, 1)
-    val Fifth = new PureInterval(3, 2)
-    val Fourth = new PureInterval(4, 3)
-    val MajorThird = new PureInterval(5, 4)
-    val MinorThird = new PureInterval(6, 5)
-    val MajorSeventh = new PureInterval(7, 6)
-    val MinorSeventh = new PureInterval(8, 7)
-    val MajorTone = new PureInterval(9,8)
-    val MinorTone = new PureInterval(10,9)
-    val SemiTone = new PureInterval(16,15)
+    val Prime = PureInterval(1, 1)
+    val Octave = PureInterval(2, 1)
+    val Fifth = PureInterval(3, 2)
+    val Fourth = PureInterval(4, 3)
+    val MajorThird = PureInterval(5, 4)
+    val MinorThird = PureInterval(6, 5)
+    val MajorSeventh = PureInterval(7, 6)
+    val MinorSeventh = PureInterval(8, 7)
+    val MajorTone = PureInterval(9,8)
+    val MinorTone = PureInterval(10,9)
+    val SemiTone = PureInterval(16,15)
     
     val PythagoreanComma = (Fifth * 12) - (Octave * 7)
     val SyntonicComma = (Fifth * 4) - (MajorThird + (Octave * 2))
