@@ -30,6 +30,8 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
      }
    }
   
+  def isEnharmonic(that: ClassicInterval): Boolean = this.size == that.size
+  
    override def toString(): String = {
      val basname = if (step.abs<15) ClassicInterval.IntervalName(step.abs) else
                         ClassicInterval.IntervalName(normstep)+" "+(octaves*8)+"va"
@@ -117,6 +119,7 @@ class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
   val chr = ClassicNote.NotePos(step) + dev + octave*12
   val midicode = chr+60
   
+  
   def +(that: ClassicInterval): ClassicNote = {
      if (that.step <0) this - (-that) else {   
     
@@ -163,11 +166,14 @@ class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) {
   def isEnharmonic(that: ClassicNote): Boolean = this.chr == that.chr
 
   def normalize() = new ClassicNote(step,dev,0)
-}
+  
+  def fifth() = ClassicNote.BasicFifth(step) + dev*7
+} 
 
 object ClassicNote {
   val NoteName = Array('C', 'D', 'E', 'F', 'G', 'A', 'B')
   val NotePos = Array(0,2,4,5,7,9,11)
+  val BasicFifth = Array(0,2,4,-1,1,3,5)
   
   def apply(stp: Int, dev: Int = 0, octave: Int = 0) = 
     new ClassicNote(stp,dev,octave)

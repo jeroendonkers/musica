@@ -180,6 +180,7 @@ class ClassicIntervalTest {
      
      @Test def classicNoteParserTest() {
        assertEquals(ClassicNote("C"),ClassicNote(0))
+       assertEquals(ClassicNote("C0"),ClassicNote(0))
         assertEquals(ClassicNote("C####"),ClassicNote(0,4))
         assertEquals(ClassicNote("D+5"),ClassicNote(1,0,5))
        assertEquals(ClassicNote("Ab-4"),ClassicNote(5,-1,-4))

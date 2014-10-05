@@ -31,5 +31,6 @@ class Rational(n: Long, d: Long) {
 }
 
 object Rational {
-  def apply(n: Int, d: Int) = new Rational(n,d)  
+  def apply(n: Int, d: Int) = new Rational(n,d) 
+    
 }

@@ -1,4 +1,6 @@
 package musica.math
+import musica.symbol.ClassicNoteParser
+import musica.symbol.ClassicNote
 
 class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with RealInterval {
    
@@ -40,6 +42,7 @@ class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with Rea
 object PureInterval {
     def apply(n: Int, d: Int) = new PureInterval(n, d)
     def apply(n: Long, d: Long) = new PureInterval(n, d)
+    def appy(i: PureInterval) = PureInterval(i.numer, i.denom)
     val Prime = PureInterval(1, 1)
     val Octave = PureInterval(2, 1)
     val Fifth = PureInterval(3, 2)
@@ -55,7 +58,7 @@ object PureInterval {
     val PythagoreanComma = (Fifth * 12) - (Octave * 7)
     val SyntonicComma = (Fifth * 4) - (MajorThird + (Octave * 2))
     val EnharmonicComma = Octave - (MajorThird * 3)
-
+    
    def JILimit7(f3: Int, f5: Int, f7: Int): PureInterval = {
       (Fifth * f3 + MajorThird * f5 + MajorSeventh * f7).normalize
     }
@@ -67,6 +70,29 @@ object PureInterval {
     def JILimit3(f3: Int): PureInterval = {
       (Fifth * f3).normalize
     }
-      
+    
+    def Eitz(s: String) = { // octaves are interpreted as Eitz rows.
+      val n = ClassicNote(s)
+      ((Fifth * n.fifth) + (SyntonicComma * n.octave)).normalize
+    }
+    
+    def Eitz(s: String, l: Int) = { // octaves are ignored
+      val n = ClassicNote(s)
+      ((Fifth * n.fifth) + (SyntonicComma * l)).normalize
+    }
+    
+    def Eitz(s: String, d: Double) =  { // produces a cents interval
+      val n = ClassicNote(s)
+      ((Fifth * n.fifth) + (SyntonicComma * d)).normalize
+    }
+    
+     
 }
 
+
+object EitzInterval { 
+  def apply(s: String) = PureInterval.Eitz(s)
+  def apply(s: String, l: Int) = PureInterval.Eitz(s,l)
+  def apply(s: String, d: Double) = PureInterval.Eitz(s,d)
+  
+}

@@ -19,7 +19,7 @@ object ClassicNoteParser extends RegexParsers {
     case a => a.toInt
   }  | """-\d+""".r ^^ {
     case a => a.toInt
-  }
+  }  | "0" ^^ { case _ => 0 }
   
   def note: Parser[ClassicNote] = notename ~ (sharp | flat) ~ octave^^ { 
     case a ~ b ~ c  => ClassicNote(a,b,c)

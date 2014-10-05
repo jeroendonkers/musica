@@ -24,4 +24,20 @@ object PureIntervalEx {
   	
   	val e = PureInterval.JILimit5(4,-1)
   	println(e) // 81/80
+  	
+  	val f = RealInterval(c) // explicit conversion
+  	println(f) //  424.364... c
+  	
+  
+  	println(EitzInterval("C0")) // 1/1
+  	println(EitzInterval("E-1")) // 5/4 = pure third
+  	println(EitzInterval("E+1")) // 6561/5120
+  	println(EitzInterval("Bb+1")) // 9/5
+  	println(EitzInterval("F##+4")) // 68630377364883/42949672960000
+  	
+  	println(EitzInterval("E", -1)) // 5/4 = pure third
+  	println(EitzInterval("D", -1/3.0)) // third comma: 196.741... c
+  	
+  	
+  	
   }}

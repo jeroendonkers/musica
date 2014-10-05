@@ -40,10 +40,12 @@ class CentsInterval(c: Double) extends RealInterval {
 
 object CentsInterval {
   def apply(d: Double) = new CentsInterval(d)
+  def appy(i: RealInterval) = CentsInterval(i.cents)
 }
 
 object RealInterval {
   def apply(d: Double) = CentsInterval(d)
+  def appy(i: RealInterval) = CentsInterval(i.cents)
   implicit def fromDouble(d: Double): RealInterval = CentsInterval(d) 
   implicit def toDouble(r: RealInterval): Double = r.cents
   def apply(n: Int, m: Int) = PureInterval(n,m)
