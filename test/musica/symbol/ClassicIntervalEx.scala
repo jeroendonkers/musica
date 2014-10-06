@@ -52,70 +52,44 @@ object classicIntervalTry {
     println(t.normalize.name) // Minor Second
     println(u.normalize.name) // Diminished Fifth
     
+    println( s + t - u*2 ) // A26
+    println( -s )// -P5
     
+    println (s on "C#") // G#
+    println (t below "Ab+2")  // G
     
-    /*
-    
-     val c = ClassicNote(0,-1)
-    
-    for (i <- 0 to 20) {  
-       val b = ClassicNote(i % 7,-2, i/7-1)
-       println(""+c+"-"+b+": "+c.interval(b))
-      
-    }
-   */
-     
-   
-  /*  
-    for (i <- -12 to 12) {  
-      println(ClassicInterval.Fifth* i)
-      val c = (ClassicInterval.Fifth* i).normalize
-      println(c)
-     //  println(i+" "+c.step + " "+ c.normstep + " "+ c.octaves+ " "+ c.dev)
-   
-      val d=ClassicNote.FifthCircle(i)
-      println(d)
-      println(ClassicInterval(ClassicNote(0),d))
-    }
-   
-   */  
-    
-   //  ClassicScale.Minor.on(ClassicNote.FifthCircle(-3)).foreach(e => println(e))
- /*
-    println(ClassicNoteParser("C#-3"))
-    println(ClassicNoteParser("Ebbb"))
-    println(ClassicNoteParser("A+3"))
-    println(ClassicNoteParser("Z"))
-    * 
-    */
-    
-    
-  //  println(ClassicIntervalParser("i(-0)12").name)
-   /* 
-    val a: ClassicNote = "Ab"
-    val i: ClassicInterval = "P5"
-    println(i.on(a))
-    println (i + "m3")
-    println (a + "P4")
-   
-   * 
-    
-    
-    
-    println( ClassicInterval("C","E##+1") )
+    println (s invert) // P4
+    println (t invert) // M7
     
     val scale = ClassicScale("P1,M2,M3,P4,P5,M6,M7")
-    val b = scale.on("C#")
-    println(b)
-   
     
-    val c = ClassicNote("Abb")
-    println(c.fifth)
-    println(ClassicNote.FifthCircle(-11))
-    * 
-    * */
+    
+    println ( scale on "C#" ) // List(C#, D#, E#, F#, G#, A#, B#)
+    val scale2 = ClassicScale("P1","M2","M3","P4","P5","M6","M7")
+    val l: List[ClassicInterval] = List("P1","M2","M3","P4","P5","M6","M7")
+    val scale3 = ClassicScale(l)
+    
+    println(scale.step(-4))   // -P5
+    println(scale.step(-4) on "Ab")  // Db
+    
+    for (i <- -4 to 1) { println( ""+i+": "+(scale.step(i)) +" "+(scale.step(i) on "Ab")) }
+        // -4: -P5 Db
+        // -3: -P4 Eb
+        // -2: -m3 F
+        // -1: -m2 G
+        // 0: P1 Ab
+        // 1: M2 Bb
+    
+   val pentatonic = ClassicScale("P1,M2,P4,P5,M6")   
+   val wholenote = ClassicScale("P1,M2,M3,A4,A5,A6")
+    
+    println ( pentatonic on "F" ) // List(F, G, Bb, C+1, D+1)
+    println ( wholenote on "C" ) // List(C, D, E, F#, G#, A#)
   
-    
+    println (ClassicScale.Major on "C")   // List(C, D, E, F, G, A, B)
+    println (ClassicScale.Minor on "C")   // List(C, D, Eb, F, G, Ab, Bb)
+    println (ClassicScale.HarmonicMinor on "C")  // List(C, D, Eb, F, G, Ab, B)
+    println (ClassicScale.MelodicMinor on "C")  // List(C, D, Eb, F, G, A, B)
 }
   
 }

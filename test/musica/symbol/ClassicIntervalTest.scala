@@ -71,6 +71,10 @@ class ClassicIntervalTest {
    
   @Test def ClassicIntervalSubTest1() {
      assertEquals(ClassicInterval.MinorThird,ClassicInterval.Fifth-ClassicInterval.MajorThird)
+     assertEquals(-ClassicInterval.MinorThird,ClassicInterval.MajorThird - ClassicInterval.Fifth)
+     assertEquals(-ClassicInterval.Fifth,(-ClassicInterval.MajorThird) - ClassicInterval.MinorThird)
+     assertEquals(ClassicInterval.Fifth,(ClassicInterval.MajorThird) - (-ClassicInterval.MinorThird))
+     
   }
 
   @Test def ClassicIntervalMulTest1() {
@@ -195,6 +199,16 @@ class ClassicIntervalTest {
        assertEquals(ClassicInterval("-M2"),ClassicInterval(-1,0))
        assertEquals(ClassicInterval("-I(20)32"),ClassicInterval(-31,20))
         assertEquals(ClassicInterval("XXX"),ClassicInterval(0))
+      }
+      
+      @Test def classicScaleTest() {
+          val scale = ClassicScale("P1,M2,M3,P4,P5,M6,M7")
+          val scale2 = ClassicScale("P1","M2","M3","P4","P5","M6","M7")
+          val l: List[ClassicInterval] = List("P1","M2","M3","P4","P5","M6","M7")
+          val scale3 = ClassicScale(l)
+          val a = scale on "C#"
+          assertEquals(a(1), ClassicNote("D#"))
+        
       }
     
 }
