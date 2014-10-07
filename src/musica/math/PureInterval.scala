@@ -42,7 +42,11 @@ class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with Rea
 object PureInterval {
     def apply(n: Int, d: Int) = new PureInterval(n, d)
     def apply(n: Long, d: Long) = new PureInterval(n, d)
-    def appy(i: PureInterval) = PureInterval(i.numer, i.denom)
+    def apply(i: PureInterval) = new PureInterval(i.numer, i.denom)
+    def apply(s: String) =  RealIntervalParser.pure(s)
+    implicit def fromString(s: String): PureInterval = PureInterval(s)  
+    
+    
     val Prime = PureInterval(1, 1)
     val Octave = PureInterval(2, 1)
     val Fifth = PureInterval(3, 2)
@@ -76,17 +80,16 @@ object PureInterval {
       ((Fifth * n.fifth) + (SyntonicComma * n.octave)).normalize
     }
     
-    def Eitz(s: String, l: Int) = { // octaves are ignored
+    def Eitz(s: String, l: Int) = { // octaves are NOT ignored
       val n = ClassicNote(s)
-      ((Fifth * n.fifth) + (SyntonicComma * l)).normalize
+      ((Fifth * n.fifth) + (SyntonicComma * l)).normalize + Octave * n.octave
     }
     
     def Eitz(s: String, d: Double) =  { // produces a cents interval
       val n = ClassicNote(s)
-      ((Fifth * n.fifth) + (SyntonicComma * d)).normalize
+      ((Fifth * n.fifth) + (SyntonicComma * d)).normalize  + Octave * n.octave
     }
     
-     
 }
 
 

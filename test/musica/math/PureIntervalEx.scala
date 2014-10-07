@@ -28,6 +28,7 @@ object PureIntervalEx {
   	val f = RealInterval(c) // explicit conversion
   	println(f) //  424.364... c
   	
+  	val g: PureInterval = "2/3" 
   
   	println(EitzInterval("C0")) // 1/1
   	println(EitzInterval("E-1")) // 5/4 = pure third
@@ -35,9 +36,12 @@ object PureIntervalEx {
   	println(EitzInterval("Bb+1")) // 9/5
   	println(EitzInterval("F##+4")) // 68630377364883/42949672960000
   	
+  	
+  	
   	println(EitzInterval("E", -1)) // 5/4 = pure third
   	println(EitzInterval("D", -1/3.0)) // third comma: 196.741... c
   	
-  	
+    println(EitzInterval("E+1", -1)) // 5/2 = pure third + octave
+    
   	
   }}

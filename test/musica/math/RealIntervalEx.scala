@@ -8,6 +8,7 @@ object RealIntervalEx {
   	val a = CentsInterval( 200.0 ) 
  	val b = RealInterval( 1100 )  //  creates a CentsInterval
 	val c: RealInterval  = 1000.0  // implicit conversion 
+	val y: RealInterval = "1000.0c" // another conversion (mind the "c"!)
 
 	val d = (a + b) * 3 - (c / 2.5) + 230.0
 	

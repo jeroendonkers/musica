@@ -34,18 +34,21 @@ trait RealInterval {
 class CentsInterval(c: Double) extends RealInterval {
   lazy override val cents = c
   lazy val value = Math.pow(2,c/1200.0)
-  override def toString = "" + cents + " c"
+  override def toString = "" + cents + "c"
   override def unary_- :CentsInterval = CentsInterval(-cents)
 } 
 
 object CentsInterval {
   def apply(d: Double) = new CentsInterval(d)
-  def appy(i: RealInterval) = CentsInterval(i.cents)
+  def appy(i: RealInterval) = new CentsInterval(i.cents)
 }
 
 object RealInterval {
-  def apply(d: Double) = CentsInterval(d)
-  def appy(i: RealInterval) = CentsInterval(i.cents)
+  def apply(d: Double) = new CentsInterval(d)
+  def appy(i: RealInterval) = new CentsInterval(i.cents)
+  def apply(s: String) =  RealIntervalParser(s)
+  implicit def fromString(s: String): RealInterval = RealInterval(s)  
+  
   implicit def fromDouble(d: Double): RealInterval = CentsInterval(d) 
   implicit def toDouble(r: RealInterval): Double = r.cents
   def apply(n: Int, m: Int) = PureInterval(n,m)

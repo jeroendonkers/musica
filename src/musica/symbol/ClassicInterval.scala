@@ -84,6 +84,8 @@ class ClassicInterval(val step: Int, val dev: Int = 0) {
    def on(c: ClassicNote): ClassicNote = c + this
    def below(c: ClassicNote): ClassicNote = c - this
    
+   def on(l: List[ClassicNote]): List[ClassicNote] = l.map(c => this on c)
+   def below(l: List[ClassicNote]): List[ClassicNote] = l.map(c => this below c)  
 }
 
 object ClassicInterval {
