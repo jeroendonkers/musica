@@ -83,7 +83,7 @@ object RealIntervalParser  extends RegexParsers {
     
     
     
-    def pure: Parser[PureInterval] = eitzpure | ratio
+    def pure: Parser[PureInterval] = eitzpure | eitzpureimpl | ratio
     
     def pure(input: String): PureInterval = parseAll(pure, input) match {
     case Success(result, _) => result

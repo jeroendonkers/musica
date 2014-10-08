@@ -33,8 +33,8 @@ object PureIntervalEx {
   
   	println(EitzInterval("C^0")) // 1/1
   	println(EitzInterval("E^-1")) // 5/4 = pure third
-  	println(EitzInterval("E+1^1")) // 6561/5120
-  	println(EitzInterval("Bb^+1")) // 9/5
+  	println(EitzInterval("E+1^+1")) // 6561/5120
+  	println(EitzInterval("Bb+1")) // 9/5
   	println(EitzInterval("F##^+4")) // 68630377364883/42949672960000
   	
   	
