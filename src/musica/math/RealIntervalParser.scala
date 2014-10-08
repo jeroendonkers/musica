@@ -37,19 +37,26 @@ object RealIntervalParser  extends RegexParsers {
   
   
   def slash: Parser[String] = "/"
+  def hat: Parser[String] = "^"   
+    
     
   def int: Parser[Int] = """\d+""".r ^^ {
     case a => a.toInt
   } 
   
   
-    def eitzpure: Parser[PureInterval] =  note  ^^ { 
-    case n  => EitzInterval(n.toString())
+    def eitzpureimpl: Parser[PureInterval] =  note  ^^ { 
+    case n  => EitzInterval(n)
     } 
+    
+    def eitzpure: Parser[PureInterval] =  note ~ hat ~ octave  ^^ { 
+    case n ~ h ~ i => EitzInterval(n,i)
+    } 
+     
   
-    def eitz: Parser[RealInterval] = note ~ slash ~ int ^^ { 
-    case n ~ s ~ t => EitzInterval(n.normalize().toString(), 1.0 * n.octave / t)
-    } | eitzpure
+    def eitz: Parser[RealInterval] = note ~ hat ~ octave ~ slash ~ int ^^ { 
+    case n ~ h ~ u ~s ~ t => EitzInterval(n, Rational(u, t))
+    } | eitzpure | eitzpureimpl
   
     def ratio: Parser[PureInterval] = int ~ slash ~ int  ^^ {
       case n ~ s ~ m =>  PureInterval(n,m)
@@ -82,4 +89,6 @@ object RealIntervalParser  extends RegexParsers {
     case Success(result, _) => result
     case failure : NoSuccess => PureInterval(1,1)
     }
+    
+    
 }

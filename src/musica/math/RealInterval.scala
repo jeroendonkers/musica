@@ -1,4 +1,6 @@
 package musica.math
+import musica.symbol.ClassicNote
+
 
 trait RealInterval {
   protected val ln2 = Math.log(2)
@@ -32,6 +34,9 @@ trait RealInterval {
 }
 
 class CentsInterval(c: Double) extends RealInterval {
+  
+  def this(r: RealInterval) = this(r.cents) 
+  
   lazy override val cents = c
   lazy val value = Math.pow(2,c/1200.0)
   override def toString = "" + cents + "c"
@@ -55,3 +60,18 @@ object RealInterval {
   def Octave = PureInterval.Octave
   def Prime = PureInterval.Prime
 }
+
+
+class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) {
+    
+  def this(note: ClassicNote, comma: Rational) = 
+    this( ((PureInterval.Fifth * note.fifth) +
+         (PureInterval.SyntonicComma * comma.value)).normalize  
+         + CentsInterval(1200) * note.octave,  note,  comma) 
+       
+  override def toString = "" + note + "^"+(if(comma.numer>0) "+" + comma else if (comma.numer<0) comma else "0")
+  
+ 
+  
+}
+

@@ -8,9 +8,9 @@ class Rational(n: Long, d: Long) {
     else gcd(y % x, x)
     }
    
-   private val g = gcd(n, d)
-   val numer: Long = n/g
-   val denom: Long = d/g
+   private val g = if(n!=0 && d!=0) gcd(n.abs, d.abs) else 1
+   val numer: Long = if (n==0 || d==0) 0 else n/g
+   val denom: Long = if (n==0 || d==0) 1 else d/g
    val value: Double = 1.0 * numer/denom;
 
    def +(that: Rational) = new Rational(numer * that.denom + that.numer * denom,denom * that.denom)

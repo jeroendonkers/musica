@@ -4,6 +4,8 @@ import musica.symbol.ClassicNote
 
 class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with RealInterval {
    
+   def this(p: PureInterval) = this(p.numer,p.denom) 
+   
    private def pwr(base: Long, to: Int): Long = {
          def _pwr(result: Long, exp: Int): Long = {exp match {
             case 0 => 1 
@@ -74,28 +76,25 @@ object PureInterval {
     def JILimit3(f3: Int): PureInterval = {
       (Fifth * f3).normalize
     }
+
+}
+
+class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) {
+  def this(note: ClassicNote) = 
+     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note.normalize, note.octave)
     
-    def Eitz(s: String) = { // octaves are interpreted as Eitz rows.
-      val n = ClassicNote(s)
-      ((Fifth * n.fifth) + (SyntonicComma * n.octave)).normalize
-    }
+  def this(note: ClassicNote, comma: Int) = 
+     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note, comma)
     
-    def Eitz(s: String, l: Int) = { // octaves are NOT ignored
-      val n = ClassicNote(s)
-      ((Fifth * n.fifth) + (SyntonicComma * l)).normalize + Octave * n.octave
-    }
-    
-    def Eitz(s: String, d: Double) =  { // produces a cents interval
-      val n = ClassicNote(s)
-      ((Fifth * n.fifth) + (SyntonicComma * d)).normalize  + Octave * n.octave
-    }
-    
+  override def toString = "" + note + "^"+(if(comma>0) "+" + comma else if (comma<0) comma else "0")
+  
 }
 
 
 object EitzInterval { 
-  def apply(s: String) = PureInterval.Eitz(s)
-  def apply(s: String, l: Int) = PureInterval.Eitz(s,l)
-  def apply(s: String, d: Double) = PureInterval.Eitz(s,d)
+  def apply(s: ClassicNote) = new PureEitzInterval(s)
+  def apply(s: ClassicNote, l: Int) = new PureEitzInterval(s,l)
+  def apply(s: ClassicNote, r: Rational) = new RealEitzInterval(s,r)
+  def apply(s: String) =  RealIntervalParser.pure(s)
   
 }

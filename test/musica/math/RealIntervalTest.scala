@@ -62,7 +62,7 @@ class RealIntervalTest {
 
 @Test def testtoString() {
   var a: RealInterval = 900
-  assertEquals(a.toString, "900.0 c")
+  assertEquals(a.toString, "900.0c")
 }  
 
 @Test def teston() {
