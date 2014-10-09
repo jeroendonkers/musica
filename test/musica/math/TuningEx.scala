@@ -6,16 +6,30 @@ object TuningEx {
     def main(args: Array[String]): Unit = {
       
       
-      val eq = Tuning("0c,100c,200c,300c,400c,500c,600c,700c,800c,900c,1000c,1100c")
-      val agricola = Tuning("135/128,9/8,1215/1024,81/64,4/3,45/32,3/2,405/256,27/16,16/9,243/128");
-      val werckmeister3 = Tuning("C^0,C#^-1,D^-1/2,Eb^0,E^-3/4,F^0,G^-1/4,G#^-1,A^-3/4,Bb^0,B^-3/4") 
-
+      val eq = Tuning.ET12
+      val agricola = Tuning("1/1,135/128,9/8,1215/1024,81/64,4/3,45/32,3/2,405/256,27/16,16/9,243/128");
+      val werckmeister3 = Tuning("C^0,C#^-1,D^-1/2,Eb^0,E^-3/4,F^0,F#^-1,G^-1/4,G#^-1,A^-3/4,Bb^0,B^-3/4") 
+      val architas = Tuning.fromRatios("28/27,8/7,9/8,28/27,8/7,9/8")
+      
+      
       
       println(eq.steplist)
       println(agricola.steplist)
       println(werckmeister3.steplist)
-      
+      println(architas.steplist) 
  
-
+      println(eq.centlist)
+      println(agricola.centlist)
+      println(werckmeister3.centlist)
+      println(architas.centlist) 
+      
+      println(eq.steplist)
+      
+      println ((agricola - eq).centlist)  
+      println (agricola.intervals(7).steplist)
+     
+      println ((werckmeister3 - eq).centlist)
+      println ((werckmeister3.intervals(7) - Tuning(PureInterval.Fifth,12)).centlist)
+      println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
     }
 }
