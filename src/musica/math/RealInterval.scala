@@ -1,6 +1,4 @@
 package musica.math
-import musica.symbol.ClassicNote
-
 
 trait RealInterval {
   protected val ln2 = Math.log(2)
@@ -13,8 +11,6 @@ trait RealInterval {
        case _ => false
      }
    }
-
-  
   
   def +(that: RealInterval) = CentsInterval(cents + that.cents) 
   def -(that: RealInterval) = CentsInterval(cents - that.cents)
@@ -31,6 +27,23 @@ trait RealInterval {
   def  on(f: Double): Double = {
     f * value
   }
+  
+  def isPure(): Boolean = {
+      this match {
+      case a: PureInterval => true
+      case _ => false
+     }
+  }
+  
+  def isEitz(): Boolean = {
+      this match {
+      case a: PureEitzInterval => true
+      case b: RealEitzInterval => true
+      case _ => false
+     }
+  }
+  
+  
 }
 
 class CentsInterval(c: Double) extends RealInterval {
@@ -59,19 +72,5 @@ object RealInterval {
   def apply(n: Int, m: Int) = PureInterval(n,m)
   def Octave = PureInterval.Octave
   def Prime = PureInterval.Prime
-}
-
-
-class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) {
-    
-  def this(note: ClassicNote, comma: Rational) = 
-    this( ((PureInterval.Fifth * note.fifth) +
-         (PureInterval.SyntonicComma * comma.value)).normalize  
-         + CentsInterval(1200) * note.octave,  note,  comma) 
-       
-  override def toString = "" + note + "^"+(if(comma.numer>0) "+" + comma else if (comma.numer<0) comma else "0")
-  
- 
-  
 }
 

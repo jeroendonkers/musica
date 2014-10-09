@@ -1,6 +1,4 @@
 package musica.math
-import musica.symbol.ClassicNoteParser
-import musica.symbol.ClassicNote
 
 class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with RealInterval {
    
@@ -79,22 +77,4 @@ object PureInterval {
 
 }
 
-class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) {
-  def this(note: ClassicNote) = 
-     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note.normalize, note.octave)
-    
-  def this(note: ClassicNote, comma: Int) = 
-     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note, comma)
-    
-  override def toString = "" + note + "^"+(if(comma>0) "+" + comma else if (comma<0) comma else "0")
-  
-}
 
-
-object EitzInterval { 
-  def apply(s: ClassicNote) = new PureEitzInterval(s)
-  def apply(s: ClassicNote, l: Int) = new PureEitzInterval(s,l)
-  def apply(s: ClassicNote, r: Rational) = new RealEitzInterval(s,r)
-  def apply(s: String) =  RealIntervalParser.pure(s)
-  
-}

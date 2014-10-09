@@ -4,9 +4,6 @@ import musica.symbol.ClassicNote
 
 object RealIntervalParser  extends RegexParsers {
   
-  
-  // Eitz notation
-  
    def notename: Parser[Int] = """[A-G]""".r ^^ {
     case a => ((a.charAt(0).toInt - 'A'.toInt) + 5) % 7 
   }
@@ -45,13 +42,13 @@ object RealIntervalParser  extends RegexParsers {
   } 
   
   
-    def eitzpureimpl: Parser[PureInterval] =  note  ^^ { 
+    def eitzpureimpl: Parser[PureEitzInterval] =  note  ^^ { 
     case n  => EitzInterval(n)
     } 
     
-    def eitzpure: Parser[PureInterval] =  note ~ hat ~ octave  ^^ { 
+    def eitzpure: Parser[PureEitzInterval] =  note ~ hat ~ octave  ^^ { 
     case n ~ h ~ i => EitzInterval(n,i)
-    } 
+    } | eitzpureimpl
      
   
     def eitz: Parser[RealInterval] = note ~ hat ~ octave ~ slash ~ int ^^ { 
@@ -75,15 +72,22 @@ object RealIntervalParser  extends RegexParsers {
     
     def interval: Parser[RealInterval] = eitz | ratio | cents
     
+    def pure: Parser[PureInterval] = eitzpure | ratio
+        
     def apply(input: String): RealInterval = parseAll(interval, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => RealInterval(1)
     }
     
+    def eitz(input: String): RealInterval = parseAll(eitz, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => PureInterval(1,1)
+    }   
     
-    
-    
-    def pure: Parser[PureInterval] = eitzpure | eitzpureimpl | ratio
+    def pureEitz(input: String): PureEitzInterval = parseAll(eitzpure, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => EitzInterval("C")
+    }   
     
     def pure(input: String): PureInterval = parseAll(pure, input) match {
     case Success(result, _) => result

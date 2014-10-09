@@ -15,4 +15,9 @@ object Tuning {
   def apply(steps: RealInterval*) = new Tuning(steps.toList)
   def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
   
+  def fromRatios(st: String) = {
+    val rs = st.split(",").toList.map(s => RealInterval(s))
+    
+  }
+  
 }
