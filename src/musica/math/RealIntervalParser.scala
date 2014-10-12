@@ -59,6 +59,12 @@ object RealIntervalParser  extends RegexParsers {
       case n ~ s ~ m =>  PureInterval(n,m)
     }
     
+    def sratio: Parser[Rational] = octave ~ slash ~ int  ^^ {
+      case n ~ s ~ m =>  Rational(n,m)
+    } | octave ^^ {
+      case n => Rational(n,1)
+    }
+    
     def c: Parser[String] = "c"
     def double: Parser[Double] = """\d+.\d+""".r ^^ { 
       case d => d.toDouble
@@ -94,5 +100,8 @@ object RealIntervalParser  extends RegexParsers {
     case failure : NoSuccess => PureInterval(1,1)
     }
     
-    
+    def aratio(input: String): Rational = parseAll(sratio, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => Rational(0,1)
+    }
 }

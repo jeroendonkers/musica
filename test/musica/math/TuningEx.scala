@@ -31,5 +31,15 @@ object TuningEx {
       println ((werckmeister3 - eq).centlist)
       println ((werckmeister3.intervals(7) - Tuning(PureInterval.Fifth,12)).centlist)
       println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
+      
+      val qrt = Rational(-1,4)
+      val meantone = Tuning.fromFifths("Eb,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
+      println(meantone.steplist)
+      val sauveur = Tuning.fromFifths("Eb,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
+      println(sauveur.steplist)
+      
+      val bachkellner = Tuning.fromFifths("C,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0", PureInterval.PythagoreanComma)
+      println(bachkellner.steplist)
+      
     }
 }

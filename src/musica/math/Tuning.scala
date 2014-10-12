@@ -1,4 +1,5 @@
 package musica.math
+import musica.symbol.ClassicNote
 
 class Tuning(val steplist: List[RealInterval]) {
    def step(i: Int): RealInterval = {
@@ -41,6 +42,39 @@ object Tuning {
   def fromRatios(iis: PureInterval*): Tuning = fromRatios(iis.toList)
   def fromRatios(st: String): Tuning = { 
      fromRatios(st.split(",").toList.map(s => PureInterval(s)))
+  }
+  
+  // ASSELIN's notation of temperaments, using circle of fifths
+  def fromFifths(start: Int, devs: List[Rational], comma: RealInterval): Tuning = {
+    
+       // compute temperated fifths
+       val f = devs.map( a => PureInterval.Fifth + comma * a.value)
+       
+       // add fifth together in order of Circle 
+      def fsum(f: Int, i: RealInterval, a: List[RealInterval]): List[(ClassicNote, RealInterval)] = {
+      a match {
+        case List() => List()
+        case x :: b => (ClassicNote.FifthCircle(f), (i+x).normalize) :: fsum(f+1, i+x, b)
+      }
+     }
+     val g = (ClassicNote.FifthCircle(start), RealInterval(0)) :: fsum(start+1,RealInterval(0),f)
+     
+     // sort the fifths on order of the scale
+     def compare(a: (ClassicNote, RealInterval), b:  (ClassicNote, RealInterval)): Boolean = a._1.chr < b._1.chr
+     val h = g.sortWith(compare).map(e => e._2)
+     
+     // subtract interval at C
+     val i = h.map(e => (e-h(0)).normalize)
+    
+     // create tuning
+      new Tuning(i)
+   }
+  
+  def fromFifths(st: String,  comma: RealInterval = PureInterval.SyntonicComma): Tuning = {  
+    val terms = st.split(",").toList
+    val note: ClassicNote = terms(0)
+    val rations = terms.tail.map(s => RealIntervalParser.aratio(s))   
+    fromFifths(note.fifth,rations, comma)
   }
   
   def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
