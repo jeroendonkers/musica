@@ -1,5 +1,5 @@
 package musica.math
-import musica.symbol.ClassicNote
+import musica.symbol._
 
 class Tuning(val steplist: List[RealInterval]) {
    def step(i: Int): RealInterval = {
@@ -21,7 +21,25 @@ class Tuning(val steplist: List[RealInterval]) {
   def intervals(stepsize: Int) = Tuning(steplist.zipWithIndex.map(e =>
     e match {case (a,i) => step(i+stepsize)-a }
     ))
+    
+  def mapTo(scale: ClassicScale, base: ClassicNote)  = new MappedTuning(steplist, scale, base)
 }
+
+
+class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val base: ClassicNote) extends Tuning(steplist) {
+   
+   val notelist = scale.on(base)
+   def mappedStep(i: Int): (ClassicNote, RealInterval) = (scale.step(i).on(base), step(i)) 
+   
+   val centmap = notelist.zip(centlist)
+   val valuemap = notelist.zip(valuelist)
+   
+   def intervals(v: ClassicInterval): List[(ClassicNote, RealInterval)] = 
+     notelist.zip(intervals(v.size).steplist)
+     
+}
+
+
 
 object Tuning {
   
@@ -29,6 +47,8 @@ object Tuning {
   def apply(step: List[RealInterval]) = new Tuning(step)
   def apply(steps: RealInterval*) = new Tuning(steps.toList)
   def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
+  
+ 
   
   def fromRatios(rs: List[PureInterval]): Tuning = {
     def incsum(i: PureInterval, a: List[PureInterval]): List[PureInterval] = {

@@ -119,6 +119,8 @@ object ClassicInterval {
   def MinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MinorSeventh)
   def HarmonicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MajorSeventh)
   def MelodicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
+  def ChromaticScale = ClassicScale(Prime, MinorSecond, MajorSecond, MinorThird, MajorThird,
+                      Fourth, Fifth, MinorSixth, MajorSixth, MinorSeventh, MajorSeventh)
   
 }
 
@@ -215,5 +217,6 @@ object ClassicScale {
   def Minor = ClassicInterval.MinorScale
   def HarmonicMinor = ClassicInterval.HarmonicMinorScale
   def MelodicMinor = ClassicInterval.MelodicMinorScale
+  def Chromatic = ClassicInterval.ChromaticScale
   
 }
