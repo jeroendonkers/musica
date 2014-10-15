@@ -101,25 +101,25 @@ object ClassicInterval {
   implicit def fromString(s: String): ClassicInterval = ClassicInterval(s)
   
    
-  def Prime = ClassicInterval(0)
-  def MinorSecond = ClassicInterval(1,-1)
-  def MajorSecond = ClassicInterval(1)
-  def MinorThird = ClassicInterval(2,-1)
-  def MajorThird = ClassicInterval(2)
-  def Fourth = ClassicInterval(3)
-  def Fifth = ClassicInterval(4)
-  def MinorSixth = ClassicInterval(5,-1)
-  def MajorSixth = ClassicInterval(5)
-  def MinorSeventh = ClassicInterval(6,-1)
-  def MajorSeventh = ClassicInterval(6)
-  def Octave = ClassicInterval(7)
+  val Prime = ClassicInterval(0)
+  val MinorSecond = ClassicInterval(1,-1)
+  val MajorSecond = ClassicInterval(1)
+  val MinorThird = ClassicInterval(2,-1)
+  val MajorThird = ClassicInterval(2)
+  val Fourth = ClassicInterval(3)
+  val Fifth = ClassicInterval(4)
+  val MinorSixth = ClassicInterval(5,-1)
+  val MajorSixth = ClassicInterval(5)
+  val MinorSeventh = ClassicInterval(6,-1)
+  val MajorSeventh = ClassicInterval(6)
+  val Octave = ClassicInterval(7)
  
   
-  def MajorScale = ClassicScale(Prime, MajorSecond, MajorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
-  def MinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MinorSeventh)
-  def HarmonicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MajorSeventh)
-  def MelodicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
-  def ChromaticScale = ClassicScale(Prime, MinorSecond, MajorSecond, MinorThird, MajorThird,
+  val MajorScale = ClassicScale(Prime, MajorSecond, MajorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
+  val MinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MinorSeventh)
+  val HarmonicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MajorSeventh)
+  val MelodicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
+  val ChromaticScale = ClassicScale(Prime, MinorSecond, MajorSecond, MinorThird, MajorThird,
                       Fourth, Fifth, MinorSixth, MajorSixth, MinorSeventh, MajorSeventh)
   
 }

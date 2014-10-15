@@ -37,9 +37,17 @@ class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val ba
    val centmap = sequence.notelist.zip(centlist)
    val valuemap = sequence.notelist.zip(valuelist)
    
-   def intervals(v: ClassicInterval): List[(ClassicNote, RealInterval)] = 
-     sequence.notelist.zip(intervals(v.size).steplist)
+   def intervals(v: ClassicInterval): MappedTuning = 
+     new MappedTuning(intervals(v.size).steplist, scale,base)
      
+   def compare(v: ClassicInterval, p: PureInterval): MappedTuning = 
+     new MappedTuning((intervals(v.size) - Tuning(p,size)).steplist, scale,base)
+   
+   override def -(that: Tuning) = new MappedTuning(steplist.zip(that.steplist).map(e => 
+      e match {case (a,b) => a-b }), scale, base)  
+   
+   override def +(that: Tuning) = new MappedTuning(steplist.zip(that.steplist).map(e => 
+      e match {case (a,b) => a+b }), scale, base)  
 }
 
 
@@ -51,7 +59,9 @@ object Tuning {
   def apply(steps: RealInterval*) = new Tuning(steps.toList)
   def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
   
- 
+  def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
+
+  val ET12 = ET(12)
   
   def fromRatios(rs: List[PureInterval]): Tuning = {
     def incsum(i: PureInterval, a: List[PureInterval]): List[PureInterval] = {
@@ -102,7 +112,5 @@ object Tuning {
     fromFifths(note.fifth,rations, comma)
   }
   
-  def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
-
-  val ET12 = ET(12)
+ 
 }

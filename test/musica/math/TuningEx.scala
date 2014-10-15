@@ -41,5 +41,8 @@ object TuningEx {
       val bachkellner = Tuning.fromFifths("C,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0", PureInterval.PythagoreanComma)
       println(bachkellner.centmap)
       
+      println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
+      println(sauveur.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
+      
     }
 }
