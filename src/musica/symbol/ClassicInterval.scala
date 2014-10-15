@@ -196,10 +196,23 @@ object ClassicNote {
  def FifthCircle(i: Int) = ClassicNote(0) + (ClassicInterval.Fifth * i). normalize 
 }
 
+
+class NoteSequence(val notelist: List[ClassicNote]) {
+  val size = notelist.size
+  
+}
+
+object NoteSequence {
+  def apply(notes: ClassicNote*) = new NoteSequence(notes.toList)
+  def apply(notes: List[ClassicNote]) = new NoteSequence(notes)
+  def apply(st: String) = new NoteSequence(st.split(",").toList.map(s => ClassicNote(s)))
+  def apply(scale: ClassicScale, note: ClassicNote) = new NoteSequence(scale.steplist.map(e => e.on(note)))
+}
+
 class ClassicScale(val steplist: List[ClassicInterval]) {
    
    def this(stps: ClassicInterval*) { this(stps.toList) }
-   def on(c: ClassicNote) = steplist.map(e => e.on(c))
+   def on(c: ClassicNote) = NoteSequence(this,c)
    def step(i: Int): ClassicInterval = {
      val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
      val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
@@ -212,6 +225,10 @@ object ClassicScale {
   def apply(steps: ClassicInterval*) = new ClassicScale(steps.toList)
   def apply(steps: List[ClassicInterval]) = new ClassicScale(steps)
   def apply(st: String) = new ClassicScale(st.split(",").toList.map(s => ClassicInterval(s)))
+  
+  def apply(notes: NoteSequence) = new ClassicScale(
+         if (notes.size==0) List() else
+         notes.notelist.map(a => ClassicInterval(notes.notelist(0),a)))
   
   def Major = ClassicInterval.MajorScale 
   def Minor = ClassicInterval.MinorScale

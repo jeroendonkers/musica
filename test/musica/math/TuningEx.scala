@@ -34,12 +34,12 @@ object TuningEx {
       
       val qrt = Rational(-1,4)
       val meantone = Tuning.fromFifths("Eb,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
-      println(meantone.steplist)
+      println(meantone.centmap)
       val sauveur = Tuning.fromFifths("Eb,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
-      println(sauveur.steplist)
+      println(sauveur.centmap)
       
       val bachkellner = Tuning.fromFifths("C,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0", PureInterval.PythagoreanComma)
-      println(bachkellner.steplist)
+      println(bachkellner.centmap)
       
     }
 }

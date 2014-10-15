@@ -28,14 +28,17 @@ class Tuning(val steplist: List[RealInterval]) {
 
 class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val base: ClassicNote) extends Tuning(steplist) {
    
-   val notelist = scale.on(base)
+   def this(steplist: List[RealInterval], seq: NoteSequence) = this(steplist, ClassicScale(seq), 
+       if (seq.size==0) ClassicNote("C") else seq.notelist(0))
+  
+   val sequence = scale.on(base)
    def mappedStep(i: Int): (ClassicNote, RealInterval) = (scale.step(i).on(base), step(i)) 
    
-   val centmap = notelist.zip(centlist)
-   val valuemap = notelist.zip(valuelist)
+   val centmap = sequence.notelist.zip(centlist)
+   val valuemap = sequence.notelist.zip(valuelist)
    
    def intervals(v: ClassicInterval): List[(ClassicNote, RealInterval)] = 
-     notelist.zip(intervals(v.size).steplist)
+     sequence.notelist.zip(intervals(v.size).steplist)
      
 }
 
@@ -63,9 +66,10 @@ object Tuning {
   def fromRatios(st: String): Tuning = { 
      fromRatios(st.split(",").toList.map(s => PureInterval(s)))
   }
+
   
   // ASSELIN's notation of temperaments, using circle of fifths
-  def fromFifths(start: Int, devs: List[Rational], comma: RealInterval): Tuning = {
+  def fromFifths(start: Int, devs: List[Rational], comma: RealInterval): MappedTuning = {
     
        // compute temperated fifths
        val f = devs.map( a => PureInterval.Fifth + comma * a.value)
@@ -81,16 +85,17 @@ object Tuning {
      
      // sort the fifths on order of the scale
      def compare(a: (ClassicNote, RealInterval), b:  (ClassicNote, RealInterval)): Boolean = a._1.chr < b._1.chr
-     val h = g.sortWith(compare).map(e => e._2)
+     val h = g.sortWith(compare)
      
      // subtract interval at C
-     val i = h.map(e => (e-h(0)).normalize)
-    
+     val intervals = h.map(e => (e._2-h(0)._2).normalize)
+     val notes = NoteSequence(h.map(e => e._1))
+     
      // create tuning
-      new Tuning(i)
+      new MappedTuning(intervals, notes)
    }
   
-  def fromFifths(st: String,  comma: RealInterval = PureInterval.SyntonicComma): Tuning = {  
+  def fromFifths(st: String,  comma: RealInterval = PureInterval.SyntonicComma): MappedTuning = {  
     val terms = st.split(",").toList
     val note: ClassicNote = terms(0)
     val rations = terms.tail.map(s => RealIntervalParser.aratio(s))   
