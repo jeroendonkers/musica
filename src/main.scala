@@ -85,7 +85,7 @@ object main extends SimpleSwingApplication {
          val start: ClassicNote = selectstart.item
          val sf = start.fifth
          for (i <- 0 to 10) {
-           steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + ":"
+           steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + "-" + ClassicNote.FifthCircle(i + sf+1).toString +  ":"
          }
         
       }
