@@ -1,10 +1,12 @@
+package musica.asselin
+
 import musica.math._
 import musica.symbol._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
-import java.awt.Toolkit
 import event._
-import collection.mutable.ArrayBuffer
+import musica.symbol.ClassicNote.fromString
+import scala.swing.ComboBox.stringEditor
 
 class StepPanel(val nr: Int) extends FlowPanel {
   val label = new Label(""+nr+":")
