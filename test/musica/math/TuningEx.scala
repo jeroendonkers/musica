@@ -33,12 +33,12 @@ object TuningEx {
       println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
       
       val qrt = Rational(-1,4)
-      val meantone = Tuning.fromFifths("Eb,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
+      val meantone = Tuning.fromFifths("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
       println(meantone.centmap)
-      val sauveur = Tuning.fromFifths("Eb,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
+      val sauveur = Tuning.fromFifths("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
       println(sauveur.centmap)
       
-      val bachkellner = Tuning.fromFifths("C,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0", PureInterval.PythagoreanComma)
+      val bachkellner = Tuning.fromFifths("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
       println(bachkellner.centmap)
       
       println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )

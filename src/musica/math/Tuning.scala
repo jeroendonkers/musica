@@ -3,9 +3,13 @@ import musica.symbol._
 
 class Tuning(val steplist: List[RealInterval]) {
    def step(i: Int): RealInterval = {
-     val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
-     val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
-     (PureInterval(2,1) * octave) + steplist(idx)
+     if (size == 0) {
+       RealInterval(0)
+     } else {
+       val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
+       val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
+       (PureInterval(2,1) * octave) + steplist(idx)
+     }
    }
    val size = steplist.size   
    
@@ -105,11 +109,16 @@ object Tuning {
       new MappedTuning(intervals, notes)
    }
   
-  def fromFifths(st: String,  comma: RealInterval = PureInterval.SyntonicComma): MappedTuning = {  
+  def fromFifths(st: String): MappedTuning = {  
     val terms = st.split(",").toList
-    val note: ClassicNote = terms(0)
-    val rations = terms.tail.map(s => RealIntervalParser.aratio(s))   
-    fromFifths(note.fifth,rations, comma)
+    if (terms.size < 2) {
+      new MappedTuning(List(), ClassicScale(List()), "C")
+    } else {
+       val note: ClassicNote = terms(0)
+       val comma = if (terms(1)=="S") PureInterval.SyntonicComma else PureInterval.PythagoreanComma
+       val rations = terms.tail.tail.map(s => RealIntervalParser.aratio(s))   
+       fromFifths(note.fifth,rations, comma)
+    }
   }
   
  
