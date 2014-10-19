@@ -1,5 +1,6 @@
 package musica.math
 import musica.symbol._
+import scala.xml.XML
 
 class Tuning(val steplist: List[RealInterval]) {
    def step(i: Int): RealInterval = {
@@ -27,8 +28,19 @@ class Tuning(val steplist: List[RealInterval]) {
     ))
     
   def mapTo(scale: ClassicScale, base: ClassicNote)  = new MappedTuning(steplist, scale, base)
+ 
+
+   
 }
 
+
+case class HauptwerkSpecs(name: String, 
+                          shortname: String, 
+                          filetag: String, 
+                          id: String,
+                          version: String =  "1.0",
+                          refnote: ClassicNote = ClassicNote("A"), 
+                          reffreq: Double = 440.0)   
 
 class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val base: ClassicNote) extends Tuning(steplist) {
    
@@ -51,7 +63,51 @@ class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val ba
       e match {case (a,b) => a-b }), scale, base)  
    
    override def +(that: Tuning) = new MappedTuning(steplist.zip(that.steplist).map(e => 
-      e match {case (a,b) => a+b }), scale, base)  
+      e match {case (a,b) => a+b }), scale, base)
+   
+   def frequency(n: Int, refnote: ClassicNote, reffreq: Double): (ClassicNote, Double) = {
+     val refstep = scale.stepNumber(ClassicInterval(base, refnote))
+     val refint = if (refstep>=0) step(refstep) else RealInterval(0)
+     val st = mappedStep(n)
+     (st._1,(st._2 - refint).on(reffreq))
+   }
+   
+    def frequencies(n: List[Int], refnote: ClassicNote, reffreq: Double): List[(ClassicNote, Double)] = {
+     val refstep = scale.stepNumber(ClassicInterval(base, refnote))
+     val refint = if (refstep>=0) step(refstep) else RealInterval(0)
+     n.map( e=> mappedStep(e) ). map ( f => f match { case (a,b) => (a, (b-refint).on(reffreq))})
+   }
+  
+    def exportHauptwerk(path: String, specs: HauptwerkSpecs): Unit = {
+     
+     XML.save(path+"/"+specs.filetag+".Temperament_Hauptwerk_xml",
+         
+ <Hauptwerk FileFormat="Temperament" FileFormatVersion="4.00">
+  <ObjectList ObjectType="_General">
+  <_General>
+	<Sys_ObjectID>1</Sys_ObjectID>
+	<UniqueTemperamentID>{ specs.id }</UniqueTemperamentID>
+	<Name>{ specs.name }</Name>
+	<ShortName>{ specs.shortname }</ShortName>
+	<SupplierID>888888</SupplierID>
+	<SupplierName>Musica Scala Library</SupplierName>
+	<Comments></Comments>
+	<TemperamentVersion>{ specs.version }</TemperamentVersion>
+  </_General>
+  </ObjectList>
+  <ObjectList ObjectType="note">
+   { frequencies(List.range(-60,73), specs.refnote, specs.reffreq). 
+     map(e => { e match { case (a,b) => {
+  <note>
+     <MIDINoteNumberOnEightFootStop>{ a.midicode }</MIDINoteNumberOnEightFootStop>
+     <PitchHz>{ b }</PitchHz>
+  </note>
+		    }}})}
+  </ObjectList>
+ </Hauptwerk>,
+                     
+   "UTF-8", true, null)   
+   }
 }
 
 

@@ -214,9 +214,15 @@ class ClassicScale(val steplist: List[ClassicInterval]) {
    def this(stps: ClassicInterval*) { this(stps.toList) }
    def on(c: ClassicNote) = NoteSequence(this,c)
    def step(i: Int): ClassicInterval = {
-     val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
-     val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
-     (ClassicInterval(7) * octave) + steplist(idx)
+     if (size==0) ClassicInterval(0) else {
+       val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
+       val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
+       (ClassicInterval(7) * octave) + steplist(idx)
+     }  
+   }
+   
+   def stepNumber(c: ClassicInterval): Int = {
+     steplist.indexOf(c)
    }
    val size = steplist.size
 }

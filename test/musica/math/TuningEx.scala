@@ -44,5 +44,15 @@ object TuningEx {
       println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
       println(sauveur.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
       
+      println(meantone.frequency(0, "A",415))
+      
+      println(meantone.frequencies(List.range(0,12), "A",415))
+      
+                      
+      meantone.exportHauptwerk("./data",HauptwerkSpecs("1/4 syntonic comma meantone","1/4 meantone", "quarter_meantone",
+                     "800001","1.0"))  
+                                 
+      bachkellner.exportHauptwerk("./data",HauptwerkSpecs("Bach Kellner proposed","Kellner", "kellner",
+                     "800002","1.0"))                 
     }
 }
