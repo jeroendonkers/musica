@@ -29,18 +29,63 @@ class Tuning(val steplist: List[RealInterval]) {
     
   def mapTo(scale: ClassicScale, base: ClassicNote)  = new MappedTuning(steplist, scale, base)
  
-
+ def save(path: String, name: String, filetag: String, 
+               version: String =  "1.0"): Unit = {
+     
+     XML.save(path+"/"+filetag+".Tuning_Musica_xml",
+         
+ <musica FileFormat="Tuning" FileFormatVersion="1.00">
+  <head>
+	<name>{ name }</name>
+	<version>{ version }</version>
+    <size>{ size }</size>
+  </head>
+  <steplist>
+   { steplist.zipWithIndex.map ( s => 
+     <step>
+       <index>{ s._2 }</index>
+       <value>{ s._1.toString }</value>
+     </step> )}
+  </steplist>
+ </musica>,
+                   
+   "UTF-8", true, null)   
+   }
    
 }
 
 
-case class HauptwerkSpecs(name: String, 
-                          shortname: String, 
-                          filetag: String, 
-                          id: String,
-                          version: String =  "1.0",
-                          refnote: ClassicNote = ClassicNote("A"), 
-                          reffreq: Double = 440.0)   
+object Tuning {
+  
+  def apply(i: RealInterval, n: Int) = new Tuning(List.range(1,n+1).map(e => i))
+  def apply(step: List[RealInterval]) = new Tuning(step)
+  def apply(steps: RealInterval*) = new Tuning(steps.toList)
+  def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
+  
+  def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
+
+  val ET12 = ET(12)
+  
+  def fromRatios(rs: List[PureInterval]): Tuning = {
+    def incsum(i: PureInterval, a: List[PureInterval]): List[PureInterval] = {
+      a match {
+        case List() => List()
+        case x :: b => i+x :: incsum(i+x, b)
+      }
+    }
+    new Tuning(PureInterval(1,1) :: incsum(PureInterval(1,1),rs))
+  }
+  def fromRatios(iis: PureInterval*): Tuning = fromRatios(iis.toList)
+  def fromRatios(st: String): Tuning = { 
+     fromRatios(st.split(",").toList.map(s => PureInterval(s)))
+  }
+
+  
+}
+
+
+
+
 
 class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val base: ClassicNote) extends Tuning(steplist) {
    
@@ -78,25 +123,58 @@ class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val ba
      n.map( e=> mappedStep(e) ). map ( f => f match { case (a,b) => (a, (b-refint).on(reffreq))})
    }
   
-    def exportHauptwerk(path: String, specs: HauptwerkSpecs): Unit = {
+    override def save(path: String, name: String, filetag: String, 
+               version: String =  "1.0"): Unit = {
      
-     XML.save(path+"/"+specs.filetag+".Temperament_Hauptwerk_xml",
+     XML.save(path+"/"+filetag+".Tuning_Musica_xml",
+         
+ <musica FileFormat="Tuning" FileFormatVersion="1.00">
+  <head>
+	<name>{ name }</name>
+	<version>{ version }</version>
+    <size>{ size }</size>
+    <mapped>true</mapped>
+  </head>
+  <steplist>
+   { steplist.zip(sequence.notelist).zipWithIndex.map ( s => 
+     <step>
+       <index>{ s._2 }</index>
+       <note>{ s._1._2.toString }</note>
+       <value>{ s._1._1.toString }</value>
+     </step> )}
+  </steplist>
+ </musica>,
+                   
+   "UTF-8", true, null)   
+   }
+    
+    
+    def exportHauptwerk(path: String,
+                          name: String, 
+                          shortname: String, 
+                          filetag: String, 
+                          id: String,
+                          version: String =  "1.0",
+                          refnote: ClassicNote = ClassicNote("A"), 
+                          reffreq: Double = 440.0): Unit = {
+     
+     XML.save(path+"/"+filetag+".Temperament_Hauptwerk_xml",
          
  <Hauptwerk FileFormat="Temperament" FileFormatVersion="4.00">
   <ObjectList ObjectType="_General">
   <_General>
 	<Sys_ObjectID>1</Sys_ObjectID>
-	<UniqueTemperamentID>{ specs.id }</UniqueTemperamentID>
-	<Name>{ specs.name }</Name>
-	<ShortName>{ specs.shortname }</ShortName>
+	<UniqueTemperamentID>{ id }</UniqueTemperamentID>
+	<Name>{ name }</Name>
+	<ShortName>{ shortname }</ShortName>
 	<SupplierID>888888</SupplierID>
 	<SupplierName>Musica Scala Library</SupplierName>
 	<Comments></Comments>
-	<TemperamentVersion>{ specs.version }</TemperamentVersion>
+	<TemperamentVersion>{ version }</TemperamentVersion>
   </_General>
   </ObjectList>
   <ObjectList ObjectType="note">
-   { frequencies(List.range(-60,73), specs.refnote, specs.reffreq). 
+   { frequencies(List.range(-60,73), refnote, reffreq). 
      map(e => { e match { case (a,b) => {
   <note>
      <MIDINoteNumberOnEightFootStop>{ a.midicode }</MIDINoteNumberOnEightFootStop>
@@ -112,70 +190,84 @@ class MappedTuning(steplist: List[RealInterval], val scale: ClassicScale, val ba
 
 
 
-object Tuning {
-  
-  def apply(i: RealInterval, n: Int) = new Tuning(List.range(1,n+1).map(e => i))
-  def apply(step: List[RealInterval]) = new Tuning(step)
-  def apply(steps: RealInterval*) = new Tuning(steps.toList)
-  def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
-  
-  def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
 
-  val ET12 = ET(12)
-  
-  def fromRatios(rs: List[PureInterval]): Tuning = {
-    def incsum(i: PureInterval, a: List[PureInterval]): List[PureInterval] = {
-      a match {
-        case List() => List()
-        case x :: b => i+x :: incsum(i+x, b)
-      }
-    }
-    new Tuning(PureInterval(1,1) :: incsum(PureInterval(1,1),rs))
-  }
-  def fromRatios(iis: PureInterval*): Tuning = fromRatios(iis.toList)
-  def fromRatios(st: String): Tuning = { 
-     fromRatios(st.split(",").toList.map(s => PureInterval(s)))
-  }
+// ASSELIN's notation of temperaments, using circle of fifths
 
-  
-  // ASSELIN's notation of temperaments, using circle of fifths
-  def fromFifths(start: Int, devs: List[Rational], comma: RealInterval): MappedTuning = {
+class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInterval) {
     
-       // compute temperated fifths
-       val f = devs.map( a => PureInterval.Fifth + comma * a.value)
+            // compute temperated fifths
+      private val f = devs.map( a => PureInterval.Fifth + comma * a.value)
        
        // add fifth together in order of Circle 
-      def fsum(f: Int, i: RealInterval, a: List[RealInterval]): List[(ClassicNote, RealInterval)] = {
+      private def fsum(f: Int, i: RealInterval, a: List[RealInterval]): List[(ClassicNote, RealInterval)] = {
       a match {
         case List() => List()
         case x :: b => (ClassicNote.FifthCircle(f), (i+x).normalize) :: fsum(f+1, i+x, b)
       }
      }
-     val g = (ClassicNote.FifthCircle(start), RealInterval(0)) :: fsum(start+1,RealInterval(0),f)
+     private  val g = (ClassicNote.FifthCircle(start), RealInterval(0)) :: fsum(start+1,RealInterval(0),f)
+     
+     val fifths = g.map(e=> e._1)
      
      // sort the fifths on order of the scale
-     def compare(a: (ClassicNote, RealInterval), b:  (ClassicNote, RealInterval)): Boolean = a._1.chr < b._1.chr
-     val h = g.sortWith(compare)
+     private def compare(a: (ClassicNote, RealInterval), b:  (ClassicNote, RealInterval)): Boolean = a._1.chr < b._1.chr
+     private val h = g.sortWith(compare)
      
      // subtract interval at C
      val intervals = h.map(e => (e._2-h(0)._2).normalize)
      val notes = NoteSequence(h.map(e => e._1))
      
      // create tuning
+  def mappedTuning: MappedTuning = {    
       new MappedTuning(intervals, notes)
+    
+  }
+  
+      def save(path: String, name: String, filetag: String, 
+               version: String =  "1.0"): Unit = {
+     
+     XML.save(path+"/"+filetag+".FifthTuning_Musica_xml",
+         
+ <musica FileFormat="FifthTuning" FileFormatVersion="1.00">
+  <head>
+	<name>{ name }</name>
+	<version>{ version }</version>
+    <size>{ devs.size }</size>
+    <comma>{ comma.toString }</comma>
+  </head>
+  <steplist>
+   { devs.zip(fifths).zipWithIndex.map ( s => 
+     <step>
+       <index>{ s._2 }</index>
+       <note>{ s._1._2.toString }</note>
+       <value>{ s._1._1.toString }</value>
+     </step> )}
+  </steplist>
+ </musica>,
+                   
+   "UTF-8", true, null)   
    }
   
-  def fromFifths(st: String): MappedTuning = {  
+  
+}
+
+
+object FifthTuning {
+  def apply(start: Int, devs: List[Rational], comma: RealInterval) = new
+      FifthTuning(start, devs, comma)
+ 
+  def apply(st: String) = {  
     val terms = st.split(",").toList
     if (terms.size < 2) {
-      new MappedTuning(List(), ClassicScale(List()), "C")
+      new FifthTuning(0,List(), PureInterval.SyntonicComma)
     } else {
        val note: ClassicNote = terms(0)
        val comma = if (terms(1)=="S") PureInterval.SyntonicComma else PureInterval.PythagoreanComma
        val rations = terms.tail.tail.map(s => RealIntervalParser.aratio(s))   
-       fromFifths(note.fifth,rations, comma)
+       new FifthTuning(note.fifth,rations, comma)
     }
   }
   
- 
+  
 }
+

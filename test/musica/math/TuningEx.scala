@@ -33,13 +33,13 @@ object TuningEx {
       println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
       
       val qrt = Rational(-1,4)
-      val meantone = Tuning.fromFifths("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
+      val meantone = FifthTuning("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4").mappedTuning
       println(meantone.centmap)
-      val sauveur = Tuning.fromFifths("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
+      val sauveur = FifthTuning("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5").mappedTuning
       println(sauveur.centmap)
       
-      val bachkellner = Tuning.fromFifths("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
-      println(bachkellner.centmap)
+      val bachkellner = FifthTuning("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
+      println(bachkellner.mappedTuning.centmap)
       
       println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
       println(sauveur.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
@@ -49,10 +49,14 @@ object TuningEx {
       println(meantone.frequencies(List.range(0,12), "A",415))
       
                       
-      meantone.exportHauptwerk("./data",HauptwerkSpecs("1/4 syntonic comma meantone","1/4 meantone", "quarter_meantone",
-                     "800001","1.0"))  
+      meantone.exportHauptwerk("./data","1/4 syntonic comma meantone","1/4 meantone", "quarter_meantone",
+                     "800001","1.0")
                                  
-      bachkellner.exportHauptwerk("./data",HauptwerkSpecs("Bach Kellner proposed","Kellner", "kellner",
-                     "800002","1.0"))                 
+      bachkellner.mappedTuning.exportHauptwerk("./data","Bach Kellner proposed","Kellner", "kellner",
+                     "800002","1.0")
+      bachkellner.save("./data","Bach Kellner proposed","bachkellner")     
+         
+       meantone.save("./data","1/4 syntonic comma meantone","quarter_meantone")
+        agricola.save("./data","Agricola","agricola")
     }
 }

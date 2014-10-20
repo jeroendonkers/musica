@@ -95,7 +95,7 @@ object main extends SimpleSwingApplication {
       def getTuning() = {
            val input = steps.map(a => a.valuefield.text).mkString(",")
            val comma = selectcomma.item.substring(0,1)
-           Tuning.fromFifths(""+selectstart.item + ","+comma+","+input)
+           FifthTuning(""+selectstart.item + ","+comma+","+input).mappedTuning
       }
       
       def compute() = {
@@ -183,11 +183,9 @@ object main extends SimpleSwingApplication {
         d.reactions += {
            case ButtonClicked(`cancelbutton`) => { d.close() }
            case ButtonClicked(`savebutton`) => {
-             val specs = new HauptwerkSpecs(nametext.text, shortnametext.text,
-                 filetagtext.text, idtext.text, versiontext.text)
             
-             if (specs.name =="" || specs.shortname=="" ||  specs.filetag=="" ||
-                 specs.id == "" || specs.version=="") {
+             if (nametext.text == "" ||  shortnametext.text == "" ||
+                 filetagtext.text == "" ||  idtext.text == "" || versiontext.text == "") {
                
                Dialog.showMessage(null, "Pleae fill all fields", "", Dialog.Message.Error)
                
@@ -199,7 +197,8 @@ object main extends SimpleSwingApplication {
              val result = chooser.showSaveDialog(null)
              if (result == FileChooser.Result.Approve) {
                 var dir = chooser.selectedFile.getAbsolutePath()
-                getTuning.exportHauptwerk(dir, specs)
+                getTuning.exportHauptwerk(dir, nametext.text, shortnametext.text,
+                 filetagtext.text, idtext.text, versiontext.text)
                 d.close()
                 Dialog.showMessage(null, "Exported to Hauptwerk Temperament file", "")
             }}}
