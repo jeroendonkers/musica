@@ -80,7 +80,16 @@ object Tuning {
      fromRatios(st.split(",").toList.map(s => PureInterval(s)))
   }
 
-  
+  def loadXML(filename: String): Tuning = {
+    
+    val tuningElem = scala.xml.XML.loadFile(filename)
+    
+    val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
+     (steplist \ "step").map (step => (step \ "value").text)
+    }}
+    val steps = stepstoomany(0).map(s => RealInterval(s)).toList
+    new Tuning(steps)
+  }
 }
 
 
