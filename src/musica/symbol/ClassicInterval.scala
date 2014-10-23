@@ -1,7 +1,7 @@
 package musica.symbol
 
 class ClassicInterval(val step: Int, val dev: Int = 0)
-  extends SymbolicInterval with SI[ClassicInterval, ClassicNote] {
+  extends SymbolicInterval[ClassicInterval, ClassicNote] {
   // negative step means interval downwards.
   // dev = deviation from basic size
   val normstep = step.abs % 7
@@ -106,7 +106,7 @@ object ClassicInterval {
 
 
 class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) 
- extends SymbolicNote with SN[ClassicNote, ClassicInterval]{
+ extends SymbolicNote[ClassicNote, ClassicInterval]{
   val step = if (stp<0 || stp>7) 0 else stp 
   val chr = ClassicNote.NotePos(step) + dev + octave*12
   val midicode = chr+60

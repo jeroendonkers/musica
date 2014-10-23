@@ -1,23 +1,21 @@
 package musica.symbol
 
-trait SymbolicInterval {
+trait SymbolicIntervalBase {
    val step: Int
    val dev: Int
    val size: Int
    
 }
 
-trait SymbolicNote {
+trait SymbolicNoteBase {
    val step: Int
    val dev: Int
    val octave: Int
    val chr: Int
+   val octavesteps: Int
 }
 
-trait SI[I <: SymbolicInterval, N <: SymbolicNote]  {   
-   val step: Int
-   val dev: Int
-   val size: Int
+trait SymbolicInterval[I <: SymbolicIntervalBase, N <: SymbolicNoteBase] extends SymbolicIntervalBase {   
 
   def create(step: Int, dev: Int): I
   
@@ -62,12 +60,7 @@ trait SI[I <: SymbolicInterval, N <: SymbolicNote]  {
 }
 
 
-trait SN[N <: SymbolicNote, I <: SymbolicInterval]  {   
-   val step: Int
-   val dev: Int
-   val octave: Int
-   val chr: Int
-   val octavesteps: Int
+trait SymbolicNote[N <: SymbolicNoteBase, I <: SymbolicIntervalBase] extends SymbolicNoteBase {   
    
    def create(step: Int, dev: Int, octave: Int): N
    def createInterval(step: Int, dev: Int): I
@@ -111,7 +104,6 @@ trait SN[N <: SymbolicNote, I <: SymbolicInterval]  {
     def isEnharmonic(that: N): Boolean = this.chr == that.chr
 
     def normalize(): N = create(step,dev,0)
-  
     
     def equalTo(t: N): Boolean = (step == t.step) && (dev == t.dev) && (octave == t.octave)
     
