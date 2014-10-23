@@ -4,28 +4,14 @@ class ClassicInterval(val step: Int, val dev: Int = 0)
   extends SymbolicInterval[ClassicInterval, ClassicNote] {
   // negative step means interval downwards.
   // dev = deviation from basic size
-  val normstep = step.abs % 7
-  val size =  ClassicInterval.Basicsize(normstep) + 12 * (step.abs/7) + dev
-  val octaves = step.abs/7
-  val canbepure = ClassicInterval.Canbepure(normstep)
- 
+  val octavesteps = 7
+  val octavesize = 12
+    
+  def canbepure(st: Int) = ClassicInterval.Canbepure(st % 7)
+  def basicsize(st: Int) = ClassicInterval.Basicsize(st % 7)
   def create(st: Int, dv: Int) = new ClassicInterval(st,dv)
   
-  def normalize(): ClassicInterval = {
-    if (step>=0) new ClassicInterval(normstep, dev)
-    else ClassicInterval((7-normstep) % 7, -dev - (if (canbepure) 0 else 1))
-  }
-  
-  def invert(): ClassicInterval = ClassicInterval.Octave - this.normalize
-  
-  override def equals(that: Any): Boolean = {
-  that match {
-       case that: ClassicInterval => equalTo(that)
-       case _ => false
-     }
-   }
-  
-    override def toString(): String = {
+  override def toString(): String = {
      val aspect = if (ClassicInterval.Canbepure(normstep)) dev match {
        case 0 => "P" 
        case 1 => "A"
@@ -62,11 +48,8 @@ class ClassicInterval(val step: Int, val dev: Int = 0)
      aspect + " "+ basname + sign                  
    }
    
-   def on(c: ClassicNote): ClassicNote = c + this
-   def below(c: ClassicNote): ClassicNote = c - this
-   
-   def on(l: List[ClassicNote]): List[ClassicNote] = l.map(c => this on c)
-   def below(l: List[ClassicNote]): List[ClassicNote] = l.map(c => this below c)  
+
+
 }
 
 object ClassicInterval {
@@ -105,29 +88,26 @@ object ClassicInterval {
 }
 
 
-class ClassicNote(stp: Int, val dev: Int = 0, val octave: Int = 0) 
- extends SymbolicNote[ClassicNote, ClassicInterval]{
-  val step = if (stp<0 || stp>7) 0 else stp 
-  val chr = ClassicNote.NotePos(step) + dev + octave*12
-  val midicode = chr+60
+class ClassicNote(val step: Int, val dev: Int = 0, val octave: Int = 0) 
+ extends SymbolicNote[ClassicNote, ClassicInterval] with MidiCode {
+ 
   val octavesteps = 7
+  val octavesize = 12
   def create(stp: Int, dv: Int, oct: Int) = new ClassicNote(stp,dv,oct)
   def createInterval(stp: Int, dv: Int) = new ClassicInterval(stp,dv)
   
+  def notepos(st: Int) = ClassicNote.NotePos(st % 7) 
+  val midicode = chr+60
+  
+  
   override def toString(): String = {
-    ClassicNote.NoteName(step) + 
+    ClassicNote.NoteName(step % 7) + 
       (if (dev>0) ("#"*dev) else (if (dev<0) ("b" * (-dev)) else "")) +
       (if (octave>0) "+"+octave else (if (octave<0) ""+octave else ""))
   } 
   
-  override def equals(that: Any): Boolean = {
-  that match {
-       case that: ClassicNote=> equalTo(that)
-       case _ => false
-     }
-   }
-  
-  def fifth() = ClassicNote.BasicFifth(step) + dev*octavesteps
+ 
+  def fifth() = ClassicNote.BasicFifth(step % 7) + dev*octavesteps
 } 
 
 object ClassicNote {
@@ -145,10 +125,7 @@ object ClassicNote {
 }
 
 
-class NoteSequence(val notelist: List[ClassicNote]) {
-  val size = notelist.size
-  
-}
+class NoteSequence(notelist: List[ClassicNote]) extends SymbolicNoteSequence[ClassicNote](notelist)
 
 object NoteSequence {
   def apply(notes: ClassicNote*) = new NoteSequence(notes.toList)
@@ -157,22 +134,10 @@ object NoteSequence {
   def apply(scale: ClassicScale, note: ClassicNote) = new NoteSequence(scale.steplist.map(e => e.on(note)))
 }
 
-class ClassicScale(val steplist: List[ClassicInterval]) {
-   
-   def this(stps: ClassicInterval*) { this(stps.toList) }
-   def on(c: ClassicNote) = NoteSequence(this,c)
-   def step(i: Int): ClassicInterval = {
-     if (size==0) ClassicInterval(0) else {
-       val octave = if (i>=0) (i / size) else  ((i+1) / size) - 1  
-       val idx = if (i>=0) (i % size) else (size-1- ((-i-1) % size))    
-       (ClassicInterval(7) * octave) + steplist(idx)
-     }  
-   }
-   
-   def stepNumber(c: ClassicInterval): Int = {
-     steplist.indexOf(c)
-   }
-   val size = steplist.size
+class ClassicScale(steplist: List[ClassicInterval]) 
+  extends SymbolicScale[ClassicNote,ClassicInterval](steplist){
+   val prime = ClassicInterval(0)
+   val octave = ClassicInterval(7)
 }
 
 object ClassicScale {

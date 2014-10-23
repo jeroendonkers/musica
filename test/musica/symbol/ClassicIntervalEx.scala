@@ -5,6 +5,10 @@ object classicIntervalTry {
 
   def main(args: Array[String]): Unit = {
     
+    
+    val ll = NoteSequence("A","B")
+    println(ll)
+    
     val n = ClassicNote("C#+1")
     val a: ClassicNote = "Abb"
     
@@ -62,9 +66,17 @@ object classicIntervalTry {
     println (t invert) // M7
     
     val scale = ClassicScale("P1,M2,M3,P4,P5,M6,M7")
-    
-    
     println ( scale on "C#" ) // List(C#, D#, E#, F#, G#, A#, B#)
+    
+    val x = scale.steplist.map(e => 1)
+    println(x)
+    
+    val seq = scale on "C#"
+    val seq2 = NoteSequence(scale,"C#")
+    
+    println(seq2)
+    /*
+    
     val scale2 = ClassicScale("P1","M2","M3","P4","P5","M6","M7")
     val l: List[ClassicInterval] = List("P1","M2","M3","P4","P5","M6","M7")
     val scale3 = ClassicScale(l)
@@ -90,6 +102,8 @@ object classicIntervalTry {
     println (ClassicScale.Minor on "C")   // List(C, D, Eb, F, G, Ab, Bb)
     println (ClassicScale.HarmonicMinor on "C")  // List(C, D, Eb, F, G, Ab, B)
     println (ClassicScale.MelodicMinor on "C")  // List(C, D, Eb, F, G, A, B)
+    * 
+    */
 }
   
 }
