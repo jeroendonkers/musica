@@ -9,7 +9,7 @@ class ClassicIntervalTest {
     val c = new ClassicNote(2,1,0)
     assertEquals("E#", c.toString())
     val d = new ClassicNote(8,-3,2)
-    assertEquals("Dbbb+2",d.toString())
+    assertEquals("Cbbb+2",d.toString())
     val e = new ClassicNote(4,+2,-3)
     assertEquals("G##-3",e.toString())
   }
@@ -18,7 +18,7 @@ class ClassicIntervalTest {
     val c = ClassicNote(2,1,0)
     assertEquals(5, c.chr)
     val d = ClassicNote(8,-3,2)
-    assertEquals(23, d.chr)
+    assertEquals(21, d.chr)
     val e = ClassicNote(4,+2,-3)
     assertEquals(-27, e.chr)
   }

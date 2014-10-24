@@ -1,33 +1,28 @@
 package musica.symbol
 /**
  * 
- *  Traits for implementing a system for symbolic intervals and notes
- *  the classic western system is implemented in ClassicNote and ClassicInterval
+ *  Abstract classes for implementing a system for symbolic intervals and notes
+ *  the classic western system is implemented in ClassicNote and ClassicInterval 
+ *  But Indian, Arabic, Turkish and Chinese systems are also possible.
  * 
  * 
- *  Classes need to come in pairs (Notes and their intervals), so these traits are developed
- *  as a pair of interdependent traits, supported by basic traits.
+ *  Classes need to come in pairs (Notes and their intervals), so these abstract classes are developed
+ *  as a pair of interdependent classes, supported by basic classess.
  *  
  *  You need to extend SymbolicInterval and SymbolicNote and use both new classes in the type parameters.  
  *  
  *  Implement the constructor functions "create" and "createInterval" as indicated below
  *  
- *  implement all the indicated value fields in the base classes    
- *  You also must define the value "octavesteps" in the both classes
  *  
  *          
  */
 
 
 // do not extend this trait
-trait SymbolicIntervalBase {
-   val step: Int      		// parameter in constructor
-   val dev: Int  			// parameter in constructor
+abstract class SymbolicIntervalBase(val step: Int,   val dev: Int, val octavesteps: Int, val octavesize: Int) {
    
-   val octavesteps: Int 	// implement this value!  how many steps is an octave (7 in classic)
-   val octavesize: Int       // implement this value!  how big is the octave?  (12 in classic)
-   def canbepure(st: Int): Boolean   // implement this value!  can this interval be pure (like pure fifth)?
-   def basicsize(st: Int): Int       // implement this value!  size of the normalized interval
+   def canbepure(st: Int): Boolean   // implement this function!  can this interval be pure (like pure fifth)?
+   def basicsize(st: Int): Int       // implement this function!  size of the normalized interval
   
    lazy val normstep = step.abs % octavesteps  // steps of normalized interval
    lazy val octaves = step.abs / octavesteps   // number of octaves in interval
@@ -37,14 +32,10 @@ trait SymbolicIntervalBase {
 }
 
 // do not extend this trait
-trait SymbolicNoteBase {
-   val step: Int        // implement this value! (values only between 0 and octavesteps)
-   val dev: Int         // implement this value! 
-   val octave: Int      // implement this value! 
+abstract class SymbolicNoteBase(stp: Int, val dev: Int,  val octave: Int,  val octavesteps: Int, val octavesize: Int ) {    
+   val step = if (stp<0 || stp>=octavesteps) 0 else stp
    
-   val octavesteps: Int 	// implement this value!  how many steps is an octave (7 in classic)
-   val octavesize: Int       // implement this value!  how big is the octave?  (12 in classic)
-   def notepos(st: Int): Int  // implement this
+   def notepos(st: Int): Int  // implement this function !
     
    lazy val chr = notepos(step) + dev + octave*octavesize
    
@@ -58,7 +49,9 @@ trait MidiCode extends SymbolicNoteBase {
  }
 
 // you have to extend this
-trait SymbolicInterval[I <: SymbolicIntervalBase, N <: SymbolicNoteBase] extends SymbolicIntervalBase {   
+abstract class SymbolicInterval[I <: SymbolicIntervalBase, N <: SymbolicNoteBase]
+(step: Int, dev: Int, octavesteps: Int, octavesize: Int) 
+extends SymbolicIntervalBase(step,dev, octavesteps, octavesize) {   
 
   def create(step: Int, dev: Int): I // implement this constructor
 
@@ -123,8 +116,9 @@ trait SymbolicInterval[I <: SymbolicIntervalBase, N <: SymbolicNoteBase] extends
   
 }
 
-
-trait SymbolicNote[N <: SymbolicNoteBase, I <: SymbolicIntervalBase] extends SymbolicNoteBase {   
+abstract class SymbolicNote[N <: SymbolicNoteBase, I <: SymbolicIntervalBase]
+(stp: Int, dev: Int,  octave: Int, octavesteps: Int, octavesize: Int) 
+extends SymbolicNoteBase(stp, dev, octave, octavesteps, octavesize) {   
    
    type NN = N
      

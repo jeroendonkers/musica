@@ -1,14 +1,12 @@
 package musica.symbol
 
-class ClassicInterval(val step: Int, val dev: Int = 0)
-  extends SymbolicInterval[ClassicInterval, ClassicNote] {
+class ClassicInterval(step: Int, dev: Int=0)
+  extends SymbolicInterval[ClassicInterval, ClassicNote](step, dev,7,12) {
   // negative step means interval downwards.
   // dev = deviation from basic size
-  val octavesteps = 7
-  val octavesize = 12
     
-  def canbepure(st: Int) = ClassicInterval.Canbepure(st % 7)
-  def basicsize(st: Int) = ClassicInterval.Basicsize(st % 7)
+  def canbepure(st: Int) = ClassicInterval.Canbepure(st)
+  def basicsize(st: Int) = ClassicInterval.Basicsize(st)
   def create(st: Int, dv: Int) = new ClassicInterval(st,dv)
   
   override def toString(): String = {
@@ -88,15 +86,13 @@ object ClassicInterval {
 }
 
 
-class ClassicNote(val step: Int, val dev: Int = 0, val octave: Int = 0) 
- extends SymbolicNote[ClassicNote, ClassicInterval] with MidiCode {
+class ClassicNote(stp: Int, dev: Int = 0, octave: Int = 0) 
+ extends SymbolicNote[ClassicNote, ClassicInterval](stp, dev, octave,7,12) with MidiCode {
  
-  val octavesteps = 7
-  val octavesize = 12
   def create(stp: Int, dv: Int, oct: Int) = new ClassicNote(stp,dv,oct)
   def createInterval(stp: Int, dv: Int) = new ClassicInterval(stp,dv)
   
-  def notepos(st: Int) = ClassicNote.NotePos(st % 7) 
+  def notepos(st: Int) = ClassicNote.NotePos(st) 
   val midicode = chr+60
   
   
