@@ -3,7 +3,7 @@ import musica.symbol._
 import scala.xml.XML
 
 class MappedTuning[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](steplist: List[RealInterval],
-    val scale: SymbolicScale[N,I], val base:N) extends Tuning(steplist) {
+    val scale: SymbolicScale[N,I], val base:N, name: String) extends Tuning(steplist,name) {
    
    //def this(steplist: List[RealInterval], seq: NoteSequence) = this(steplist, ClassicScale(seq), 
    //    if (seq.size==0) ClassicNote("C") else seq.notelist(0))
@@ -15,16 +15,16 @@ class MappedTuning[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](steplist: 
    val valuemap = sequence.notelist.zip(valuelist)
    
    def intervals(v: ClassicInterval): MappedTuning[N,I] = 
-     new MappedTuning(intervals(v.size).steplist, scale,base)
+     new MappedTuning(intervals(v.size).steplist, scale,base,"")
      
    def compare(v: ClassicInterval, p: PureInterval): MappedTuning[N,I] = 
-     new MappedTuning((intervals(v.size) - Tuning(p,size)).steplist, scale,base)
+     new MappedTuning((intervals(v.size) - Tuning(p,size)).steplist, scale,base,"")
    
    override def -(that: Tuning) = new MappedTuning(steplist.zip(that.steplist).map(e => 
-      e match {case (a,b) => a-b }), scale, base)  
+      e match {case (a,b) => a-b }), scale, base,"")  
    
    override def +(that: Tuning) = new MappedTuning(steplist.zip(that.steplist).map(e => 
-      e match {case (a,b) => a+b }), scale, base)
+      e match {case (a,b) => a+b }), scale, base,"")
    
    def frequency(n: Int, refnote: N, reffreq: Double): (N, Double) = {
      val refstep = scale.stepNumber(base.interval(refnote))
@@ -68,11 +68,11 @@ class MappedTuning[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](steplist: 
 
 
 
-class ClassicMappedTuning(steplist: List[RealInterval],  scale: ClassicScale, base:ClassicNote)
-extends MappedTuning(steplist,scale,base) {
+class ClassicMappedTuning(steplist: List[RealInterval],  scale: ClassicScale, base:ClassicNote, name: String="")
+extends MappedTuning(steplist,scale,base,name) {
     
-    def this(steplist: List[RealInterval], seq: NoteSequence) = this(steplist, ClassicScale(seq), 
-       if (seq.size==0) ClassicNote("C") else seq.notelist(0))
+    def this(steplist: List[RealInterval], seq: NoteSequence, name: String) = this(steplist, ClassicScale(seq), 
+       if (seq.size==0) ClassicNote("C") else seq.notelist(0), name)
   
     def exportHauptwerk(path: String,
                           name: String, 
@@ -116,7 +116,7 @@ extends MappedTuning(steplist,scale,base) {
 
 // ASSELIN's notation of temperaments, using circle of fifths
 
-class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInterval) {
+class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInterval, val name: String="") {
     
             // compute temperated fifths
       private val f = devs.map( a => PureInterval.Fifth + comma * a.value)
@@ -142,7 +142,7 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
      
      // create tuning
      def mappedTuning: ClassicMappedTuning = {    
-        new ClassicMappedTuning(intervals, notes)
+        new ClassicMappedTuning(intervals, notes, name)
      }
   
       def save(path: String, name: String, filetag: String, 
@@ -156,6 +156,7 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
 	<version>{ version }</version>
     <size>{ devs.size }</size>
     <comma>{ comma.toString }</comma>
+    <start>{ ClassicNote.FifthCircle(start) }</start>
   </head>
   <steplist>
    { devs.zip(fifths).zipWithIndex.map ( s => 
@@ -175,10 +176,10 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
 
 
 object FifthTuning {
-  def apply(start: Int, devs: List[Rational], comma: RealInterval) = new
-      FifthTuning(start, devs, comma)
+  def apply(start: Int, devs: List[Rational], comma: RealInterval,name: String) = new
+      FifthTuning(start, devs, comma,name)
  
-  def apply(st: String) = {  
+  def apply(st: String, name: String = "") = {  
     val terms = st.split(",").toList
     if (terms.size < 2) {
       new FifthTuning(0,List(), PureInterval.SyntonicComma)
@@ -186,9 +187,36 @@ object FifthTuning {
        val note: ClassicNote = terms(0)
        val comma = if (terms(1)=="S") PureInterval.SyntonicComma else PureInterval.PythagoreanComma
        val rations = terms.tail.tail.map(s => RealIntervalParser.aratio(s))   
-       new FifthTuning(note.fifth,rations, comma)
+       new FifthTuning(note.fifth,rations, comma, name)
     }
   }
   
-  
+   def loadXML(filename: String): Either[FifthTuning, String] = {
+    
+    try {
+      val tuningElem = scala.xml.XML.loadFile(filename)
+          
+      if ((tuningElem \  "@FileFormat").text != "FifthTuning") {
+        throw new Exception("Wrong file type \nexpecting FifthTuning_Musica_xml.")  
+      } 
+      
+      val start = ((tuningElem \ "head") \ "start"). text 
+      val comma = ((tuningElem \ "head") \ "comma"). text      
+      val name = ((tuningElem \ "head") \ "name"). text
+ 
+      val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
+       (steplist \ "step").map (step => (step \ "value").text)
+      }}
+    
+      if (stepstoomany(0).size != 11) {
+         throw new Exception("Error in file: expected 11 steps.") 
+      }   
+      
+      val steps = stepstoomany(0).mkString(",")
+    
+      Left(FifthTuning(start+","+comma+","+steps,name))
+    } catch {
+      case e: Exception => Right(e.getMessage)
+    } 
+  }
 }

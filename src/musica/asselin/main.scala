@@ -4,22 +4,12 @@ import musica.math._
 import musica.symbol._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
+import scala.swing.GridBagPanel._
 import event._
 import musica.symbol.ClassicNote.fromString
 import scala.swing.ComboBox.stringEditor
 import javax.swing.SwingConstants
 import java.io._
-
-class StepPanel(val nr: Int) extends FlowPanel {
-  val label = new Label(""+nr+":")
-  val valuefield = new TextField {
-    columns = 10
-    text = "-1/4"
-  }
-  contents += label
-  contents += valuefield
-}
-
 
 case class Preset(name: String, start: String, comma: String, steps: String)
 
@@ -27,11 +17,13 @@ object main extends SimpleSwingApplication {
   
   val presets_meantone: List[Preset] = List(
       Preset("Pythagorean","Gb","S","0,0,0,0,0,0,0,0,0,0,0"),
-      Preset("1/3 meantone","Eb","S","-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3"),
+      Preset("1/3 meantone","Eb","S","-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3,-1/3"), 
+      Preset("2/7 meantone","Eb","S","-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7"),
       Preset("1/4 meantone","Eb","S","-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4"),
       Preset("1/5 meantone","Eb","S","-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5"),
       Preset("1/6 meantone","Eb","S","-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6"),
-      Preset("2/7 meantone","Eb","S","-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7,-2/7"),
+      Preset("1/8 meantone","Eb","S","-1/8,-1/8,-1/8,-1/8,-1/8,-1/8,-1/8,-1/8,-1/8,-1/8,-1/8"),
+      Preset("1/10 meantone","Eb","S","-1/10,-1/10,-1/10,-1/10,-1/10,-1/10,-1/10,-1/10,-1/10,-1/10,-1/10"),
       Preset("equal","Ab","S","-1/11,-1/11,-1/11,-1/11,-1/11,-1/11,-1/11,-1/11,-1/11,-1/11,-1/11")
       )
     val presets_germanitalian: List[Preset] = List(    
@@ -40,7 +32,8 @@ object main extends SimpleSwingApplication {
       Preset("Werckmeister III","Eb","P","0,0,0,-1/4,-1/4,-1/4,0,0,-1/4,0,0"),
       Preset("Werckmeister IV","Eb","P","+1/3,-1/3,0,-1/3,0,-1/3,0,-1/3,0,-1/3,0"),
       Preset("Valotti","Eb","P","0,0,0,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,0,0"),
-      Preset("Barca","Bb","S","0,0,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,0,0,0")
+      Preset("Barca","Bb","S","0,0,-1/6,-1/6,-1/6,-1/6,-1/6,-1/6,0,0,0"),
+      Preset("Lehman-Bach","Eb","P","-1/12,+1/12,-1/6,-1/6,-1/6,-1/6,-1/6,0,0,0,-1/12")
       )
      val presets_french: List[Preset] = List( 
       Preset("Chaumont","Eb","S","-1/6,-1/6,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
@@ -51,52 +44,97 @@ object main extends SimpleSwingApplication {
     
     
      title = "Asselin" 
-     val scalepanel = new GridPanel(14,1)
+       
      
-     val commabox = new FlowPanel
-     commabox.contents += new Label("Comma:")
      val selectcomma = new ComboBox(List("Syntonic","Pythagorean"))
-     commabox.contents += selectcomma
-     scalepanel.contents += commabox
-     
-     val startbox = new FlowPanel
-     startbox.contents += new Label("Starting fifth:")
      val selectstart = new ComboBox(List("Cb","Gb","Db","Ab","Eb","Bb","F","C"))
-     startbox.contents += selectstart
-     scalepanel.contents += startbox
+     val computebutton = new Button { text = "Compute" }
      
-     val steps = Array.range(1 ,12).map(a => new StepPanel(a))
-     steps.foreach(a => scalepanel.contents+= a)
-      
-     val button = new Button {
-        text = "Compute"
+     class StepPanel(val nr: Int) {
+      val label = new Label(""+nr+":") { horizontalAlignment = Alignment.Center }
+      val valuefield = new TextField {  columns = 10 } 
       }
-     scalepanel.contents += button
+
+     val steps = Array.range(1 ,12).map(a => new StepPanel(a))
+     
+     val scalepanel = new GridBagPanel { grid =>
+          val cl = new Constraints
+          cl.fill = Fill.Horizontal
+          cl.insets = new Insets(1,5,1,5)
+          cl.anchor = Anchor.West
+          cl.weightx = 1.0
+          cl.weighty = 1.0  
+          
+          cl.grid = (1,1) ;   layout( new Label("Comma:") { horizontalAlignment = Alignment.Right }) = cl
+          cl.grid = (2,1) ;   layout(selectcomma) = cl       
+          cl.grid = (1,2) ;   layout( new Label("Starting fifth:") { horizontalAlignment = Alignment.Left }) = cl
+          cl.grid = (2,2) ;   layout(selectstart) = cl       
+ 
+           steps.foreach(a =>  {
+              cl.grid = (1,a.nr+3) ;   layout( a.label) = cl
+              cl.grid = (2,a.nr+3) ;   layout( a.valuefield) = cl
+           })
+           
+            cl.grid = (2,15)
+            layout(computebutton) = cl
+     }
      
      val headers = Array("Note","Fifths", "Maj.Thirds", "Min.Thirds", "Cents")
      val data = Array.tabulate[Any](12, 5) {(a,b) => ""}
-     val table = new Table(data, headers)
-  
+     val table = new Table(data, headers)  
      val scroll = new ScrollPane {
+       border = Swing.EmptyBorder(1)
         contents = table
      }
 
     
+     val namefield = new TextField { columns=20 }
+     val namepanel = new FlowPanel {
+       
+       contents += new Label("Name:") 
+       contents += namefield
+     }
+     
+     val explanation = new TextArea {
+       border = Swing.EmptyBorder(5)
+       editable = false
+       text = "Temperament definition using the Circle of Fifths (after Asselin).\n" +
+              "Select the comma, starting fifth and specify per fifth the deviation from pure.\n" +
+              "Use + or -  and a fraction of the comma (or 0 for a pure fifth).\n" +
+              "The left panel shows the resulting deviations from pure intervals in cents." 
+       
+     }
+     
+     val leftarea = new BorderPanel {
+       border = Swing.EmptyBorder(5)
+      layout(namepanel) = North
+      layout(scroll) = Center
+      layout(explanation) = South
+   
+    }
+     
+     
     contents = new BorderPanel {
       layout(scalepanel) = West
-      layout(scroll) = Center
-      
+      layout(leftarea) = Center
+   
     }
    
-      listenTo(button, selectstart.selection, selectcomma.selection) 
+
 
       def clip(d: Double) = (d*10).toInt/10.0
       
-      def getTuning() = {
+    
+      
+      def getFifthTuning() = {
            val input = steps.map(a => a.valuefield.text).mkString(",")
            val comma = selectcomma.item.substring(0,1)
-           FifthTuning(""+selectstart.item + ","+comma+","+input).mappedTuning
+           FifthTuning(""+selectstart.item + ","+comma+","+input, namefield.text)
       }
+      
+      def getTuning() = {
+          getFifthTuning.mappedTuning
+      } 
       
       def compute() = {
        val tuning = getTuning
@@ -114,7 +152,7 @@ object main extends SimpleSwingApplication {
        }
       }
       
-      compute
+      //compute
       
       
       
@@ -122,21 +160,67 @@ object main extends SimpleSwingApplication {
          val start: ClassicNote = selectstart.item
          val sf = start.fifth
          for (i <- 0 to 10) {
-           steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + "-" + ClassicNote.FifthCircle(i + sf+1).toString +  ":"
+           steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + " - " + ClassicNote.FifthCircle(i + sf+1).toString +  ":"
          }
         
       }
       
-      changelabels
-      
-      def load(preset: Preset) {
-        title = "Asselin: "+preset.name
+        
+      def loadpreset(preset: Preset) {
+        namefield.text = preset.name
         preset.steps.split(",").zip(steps).foreach(e => {e._2.valuefield.text = e._1})
         selectstart.selection.item = preset.start
         selectcomma.selection.item = if (preset.comma== "S") "Syntonic" else "Pythagorean"
       }
       
-      load(presets_meantone(0))
+      def useTuning(u: FifthTuning) {
+         namefield.text = u.name
+         u.devs.zipWithIndex.foreach(c => c match {case (a,i) => { 
+            steps(i).valuefield.text = if (a.numer==0) "0" else { if (a.value>0) "+"+a.toString else
+              a.toString} 
+         }})
+         selectstart.selection.item = (ClassicNote.FifthCircle(u.start)).toString
+         selectcomma.selection.item = if (u.comma== PureInterval.SyntonicComma) "Syntonic" else "Pythagorean"
+      }
+      
+      def load() {
+         val chooser = new FileChooser(new File("."))
+         //chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
+         chooser.title = "Open file"      
+         val result = chooser.showOpenDialog(null) 
+                if (result == FileChooser.Result.Approve) {
+                var file = chooser.selectedFile
+                FifthTuning.loadXML(file.getAbsolutePath()) match {
+                  case Right(s) => Dialog.showMessage(null, s, "", Dialog.Message.Error)
+                  case Left(u) => useTuning(u)
+                }
+            }      
+      }
+      
+      def save() {
+         val chooser = new FileChooser(new File("."))
+         chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
+         chooser.title = "Save to dir"
+             val result = chooser.showSaveDialog(null)
+             if (result == FileChooser.Result.Approve) {
+                var dir = chooser.selectedFile.getAbsolutePath()
+                getFifthTuning.save(dir, namefield.text, namefield.text)
+                Dialog.showMessage(null, "Exported to file", "")
+            }
+      }
+      
+      
+      def exportScala() {
+         val chooser = new FileChooser(new File("."))
+         chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
+         chooser.title = "Save to dir"
+             val result = chooser.showSaveDialog(null)
+             if (result == FileChooser.Result.Approve) {
+                var dir = chooser.selectedFile.getAbsolutePath()
+                getTuning.exportScl(dir, namefield.text, namefield.text)
+                Dialog.showMessage(null, "Exported to .scl file", "")
+            }        
+      }
       
       def exportHauptwerk () {
         val d = new Dialog
@@ -148,12 +232,13 @@ object main extends SimpleSwingApplication {
         val cancelbutton = new Button("Cancel")
         val savebutton = new Button("Save")
         
+        nametext.text = namefield.text
+        
         //d.modal = true
         d.open
         d.peer.setLocationRelativeTo(null)
         d.title = "Export to Hauptwerk"
         d.contents = new GridBagPanel { grid =>
-          import GridBagPanel._
           val cl = new Constraints
            cl.fill = Fill.Horizontal
            cl.insets = new Insets(5,5,5,5)
@@ -211,15 +296,15 @@ object main extends SimpleSwingApplication {
       contents += new Menu("Presets") {
         
           contents += new Menu("Meantone") {
-           presets_meantone.foreach(p => {contents += new MenuItem(Action(p.name) {load(p)})})
+           presets_meantone.foreach(p => {contents += new MenuItem(Action(p.name) {loadpreset(p)})})
           }
           
            contents += new Menu("German/Italian") {
-           presets_germanitalian.foreach(p => {contents += new MenuItem(Action(p.name) {load(p)})})
+           presets_germanitalian.foreach(p => {contents += new MenuItem(Action(p.name) {loadpreset(p)})})
           }
            
            contents += new Menu("French") {
-           presets_french.foreach(p => {contents += new MenuItem(Action(p.name) {load(p)})})
+           presets_french.foreach(p => {contents += new MenuItem(Action(p.name) {loadpreset(p)})})
           }           
            
                 
@@ -227,24 +312,36 @@ object main extends SimpleSwingApplication {
       }
       
       contents += new Menu("File") {
+           contents += new MenuItem(Action("Load") {
+                 load()
+             })
+          contents += new MenuItem(Action("Save") {
+                 save()
+             })
           contents += new MenuItem(Action("Export to Hauptwerk") {
                  exportHauptwerk()
+             })
+          contents += new MenuItem(Action("Export to Scala .scl") {
+                 exportScala()
              })
       }
       
       }
+         
       
+   listenTo(computebutton, selectstart.selection, selectcomma.selection) 
+   
   reactions += {
     case WindowClosing(e) => System.exit(0)
-    case ButtonClicked(`button`) => { compute() }
+    case ButtonClicked(`computebutton`) => { compute() }
     case SelectionChanged(`selectstart`) => { 
       changelabels() 
       compute() }
     case SelectionChanged(`selectcomma`) => { compute() }
   }
     
-    
-    this.peer.setSize(500,500)
+    loadpreset(presets_meantone(0))
+    this.peer.setSize(700,500)
     this.peer.setLocationRelativeTo(null)
     
   }

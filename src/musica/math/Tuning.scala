@@ -1,8 +1,9 @@
 package musica.math
 import musica.symbol._
 import scala.xml.XML
+import java.io._
 
-class Tuning(val steplist: List[RealInterval]) {
+class Tuning(val steplist: List[RealInterval], val name: String = "") {
    def step(i: Int): RealInterval = {
      if (size == 0) {
        RealInterval(0)
@@ -52,6 +53,21 @@ class Tuning(val steplist: List[RealInterval]) {
    "UTF-8", true, null)   
    }
    
+   def exportScl(path: String, filetag: String, name: String) {
+      val w = new BufferedWriter(new FileWriter(path+"/"+filetag+".scl"))
+      w.write("! "+filetag+".scl\n")
+      w.write("!\n")
+      w.write(name+"\n")
+      w.write(size+"\n")
+      w.write("!\n")
+      List.range(1,size+1).foreach(i => {
+        step(i) match {
+          case c: CentsInterval => w.write(c.cents+"\n")
+          case r: RealInterval => w.write(r.toString+"\n")
+        }
+      })
+      w.close
+   }
 }
 
 
