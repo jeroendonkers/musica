@@ -49,6 +49,7 @@ object main extends SimpleSwingApplication {
      val selectcomma = new ComboBox(List("Syntonic","Pythagorean"))
      val selectstart = new ComboBox(List("Cb","Gb","Db","Ab","Eb","Bb","F","C"))
      val computebutton = new Button { text = "Compute" }
+     val fillbutton = new Button { text = "Fill" }
      
      class StepPanel(val nr: Int) {
       val label = new Label(""+nr+":") { horizontalAlignment = Alignment.Center }
@@ -74,13 +75,14 @@ object main extends SimpleSwingApplication {
               cl.grid = (1,a.nr+3) ;   layout( a.label) = cl
               cl.grid = (2,a.nr+3) ;   layout( a.valuefield) = cl
            })
-           
+            cl.grid = (1,15)
+            layout(fillbutton) = cl
             cl.grid = (2,15)
             layout(computebutton) = cl
      }
      
-     val headers = Array("Note","Fifths", "Maj.Thirds", "Min.Thirds", "Cents")
-     val data = Array.tabulate[Any](12, 5) {(a,b) => ""}
+     val headers = Array("Note","Fifths", "Maj.Thirds", "Min.Thirds", "H.Sevenths", "Cents")
+     val data = Array.tabulate[Any](14, 6) {(a,b) => ""}
      val table = new Table(data, headers)  
      val scroll = new ScrollPane {
        border = Swing.EmptyBorder(1)
@@ -143,13 +145,15 @@ object main extends SimpleSwingApplication {
           getFifthTuning.mappedTuning
       } 
       
-      def presentDev(d: Double): Double = {
+      def getfac(): Double = {
         selectvalues.selection.index match {
-          case 0 =>  clip(d)
-          case 1 =>  clip(100*d/PureInterval.SyntonicComma.cents)
-          case 2 =>  clip(100*d/PureInterval.PythagoreanComma.cents)
+          case 0 =>  1
+          case 1 =>  100/PureInterval.SyntonicComma.cents
+          case 2 =>  100/PureInterval.PythagoreanComma.cents
         }
       }
+      
+      def presentDev(d: Double): Double = { clip(d * getfac)  }
       
       def orderIndex(c: ClassicNote, i: Int): Int = {
         selectsort.selection.index match {
@@ -158,21 +162,53 @@ object main extends SimpleSwingApplication {
         }
       }
       
+      def average(l: List[Double]): (Double, Double) = {
+        var sum: Double = 0
+        var sumsq: Double = 0
+        val fac = getfac
+
+        for (i <- 0 to 11) { sum += l(i)*fac; sumsq += l(i)*l(i)*fac*fac }
+        (clip(sum/12), clip(Math.sqrt(sumsq/12 - (sum/12)*(sum/12))))
+      }
+      
       def compute() = {
        val tuning = getTuning
        val fc = tuning.compare(ClassicInterval.Fifth,PureInterval.Fifth).centlist
        val tc = tuning.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centlist
        val mc = tuning.compare(ClassicInterval.MinorThird,PureInterval.MinorThird).centlist
+       val sc = tuning.compare(ClassicInterval.MinorSeventh,PureInterval.HarmonicSeventh).centlist
        for (i <- 0 to 11) {
           val step = tuning.mappedStep(i)
           val j = orderIndex(step._1,i)
           data(j)(0) = step._1
-          data(j)(4) = clip(step._2.cents)
+          data(j)(5) = clip(step._2.cents)
           data(j)(1) = presentDev(fc(i))
           data(j)(2) = presentDev(tc(i))
           data(j)(3) = presentDev(mc(i))
-          table.repaint
+          data(j)(4) = presentDev(sc(i))
        }
+       val fav = average(fc)
+       val tav = average(tc)
+       val mav = average(mc)
+       val sav = average(sc)
+       
+       data(12)(0) = "Average"
+       data(13)(0) = "St.Dev"
+       data(12)(5) = ""
+       data(13)(5) = ""
+         
+       data(12)(1) = fav._1
+       data(13)(1) = fav._2
+       data(12)(2) = tav._1
+       data(13)(2) = tav._2
+       data(12)(3) = mav._1
+       data(13)(3) = mav._2
+       data(12)(4) = sav._1
+       data(13)(4) = sav._2
+
+       
+       table.repaint
+       
       }
       
       //compute
@@ -186,6 +222,13 @@ object main extends SimpleSwingApplication {
            steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + " - " + ClassicNote.FifthCircle(i + sf+1).toString +  ":"
          }
         
+      }
+      
+      def fill() {
+         for (i <- 1 to 10) {
+           steps(i).valuefield.text = steps(0).valuefield.text
+         }
+         compute
       }
       
         
@@ -352,12 +395,13 @@ object main extends SimpleSwingApplication {
       }
          
       
-   listenTo(computebutton, selectstart.selection, selectcomma.selection, 
+   listenTo(computebutton, fillbutton, selectstart.selection, selectcomma.selection, 
        selectvalues.selection, selectsort.selection) 
    
   reactions += {
     case WindowClosing(e) => System.exit(0)
     case ButtonClicked(`computebutton`) => { compute() }
+    case ButtonClicked(`fillbutton`) => { fill() }
     case SelectionChanged(`selectstart`) => { 
       changelabels() 
       compute() }

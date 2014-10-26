@@ -53,8 +53,7 @@ object PureInterval {
     val Fourth = PureInterval(4, 3)
     val MajorThird = PureInterval(5, 4)
     val MinorThird = PureInterval(6, 5)
-    val MajorSeventh = PureInterval(7, 6)
-    val MinorSeventh = PureInterval(8, 7)
+    val HarmonicSeventh = PureInterval(7,4)
     val MajorTone = PureInterval(9,8)
     val MinorTone = PureInterval(10,9)
     val SemiTone = PureInterval(16,15)
@@ -64,7 +63,7 @@ object PureInterval {
     val EnharmonicComma = Octave - (MajorThird * 3)
     
    def JILimit7(f3: Int, f5: Int, f7: Int): PureInterval = {
-      (Fifth * f3 + MajorThird * f5 + MajorSeventh * f7).normalize
+      (Fifth * f3 + MajorThird * f5 + HarmonicSeventh * f7).normalize
     }
     
     def JILimit5(f3: Int, f5: Int): PureInterval = {
