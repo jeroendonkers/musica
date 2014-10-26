@@ -89,25 +89,37 @@ object main extends SimpleSwingApplication {
 
     
      val namefield = new TextField { columns=20 }
-     val namepanel = new FlowPanel {
-       
-       contents += new Label("Name:") 
-       contents += namefield
-     }
+     val namepanel = new FlowPanel(scala.swing.FlowPanel.Alignment.Left)(    
+       new Label("Name:"),namefield
+     )
      
      val explanation = new TextArea {
        border = Swing.EmptyBorder(5)
        editable = false
-       text = "Temperament definition using the Circle of Fifths (after Asselin).\n" +
+       text = "Temperament definition using the Circle of Fifths.\n" +
               "Select the comma, starting fifth and specify per fifth the deviation from pure.\n" +
               "Use + or -  and a fraction of the comma (or 0 for a pure fifth).\n" +
-              "The left panel shows the resulting deviations from pure intervals in cents." 
+              "The left panel shows the resulting deviations from pure intervals." 
+       
+     }
+     
+     val selectsort = new ComboBox(List("Scale","Fifths"))
+     val selectvalues = new ComboBox(List("Cents","% Syntonic comma","% Pythagorean comma"))
+     
+     
+     val optionpanel = new FlowPanel(scala.swing.FlowPanel.Alignment.Left)(      
+         new Label("Sort on: "),  selectsort, new Label("Show deviations in: "), selectvalues 
+     )
+     
+     val northpanel = new GridPanel(2,1) {
+       contents += namepanel
+       contents += optionpanel
        
      }
      
      val leftarea = new BorderPanel {
        border = Swing.EmptyBorder(5)
-      layout(namepanel) = North
+      layout(northpanel) = North
       layout(scroll) = Center
       layout(explanation) = South
    
@@ -119,12 +131,7 @@ object main extends SimpleSwingApplication {
       layout(leftarea) = Center
    
     }
-   
-
-
-      def clip(d: Double) = (d*10).toInt/10.0
-      
-    
+      def clip(d: Double) = ((d*10).round/10.0)
       
       def getFifthTuning() = {
            val input = steps.map(a => a.valuefield.text).mkString(",")
@@ -136,6 +143,21 @@ object main extends SimpleSwingApplication {
           getFifthTuning.mappedTuning
       } 
       
+      def presentDev(d: Double): Double = {
+        selectvalues.selection.index match {
+          case 0 =>  clip(d)
+          case 1 =>  clip(100*d/PureInterval.SyntonicComma.cents)
+          case 2 =>  clip(100*d/PureInterval.PythagoreanComma.cents)
+        }
+      }
+      
+      def orderIndex(c: ClassicNote, i: Int): Int = {
+        selectsort.selection.index match {
+          case 0 =>  i
+          case 1 =>  11 - (selectstart.selection.index + 4 - c.fifth)
+        }
+      }
+      
       def compute() = {
        val tuning = getTuning
        val fc = tuning.compare(ClassicInterval.Fifth,PureInterval.Fifth).centlist
@@ -143,11 +165,12 @@ object main extends SimpleSwingApplication {
        val mc = tuning.compare(ClassicInterval.MinorThird,PureInterval.MinorThird).centlist
        for (i <- 0 to 11) {
           val step = tuning.mappedStep(i)
-          data(i)(0) = step._1
-          data(i)(4) = clip(step._2.cents)
-          data(i)(1) = clip(fc(i))
-          data(i)(2) = clip(tc(i))
-          data(i)(3) = clip(mc(i))
+          val j = orderIndex(step._1,i)
+          data(j)(0) = step._1
+          data(j)(4) = clip(step._2.cents)
+          data(j)(1) = presentDev(fc(i))
+          data(j)(2) = presentDev(tc(i))
+          data(j)(3) = presentDev(mc(i))
           table.repaint
        }
       }
@@ -329,7 +352,8 @@ object main extends SimpleSwingApplication {
       }
          
       
-   listenTo(computebutton, selectstart.selection, selectcomma.selection) 
+   listenTo(computebutton, selectstart.selection, selectcomma.selection, 
+       selectvalues.selection, selectsort.selection) 
    
   reactions += {
     case WindowClosing(e) => System.exit(0)
@@ -338,6 +362,8 @@ object main extends SimpleSwingApplication {
       changelabels() 
       compute() }
     case SelectionChanged(`selectcomma`) => { compute() }
+    case SelectionChanged(`selectvalues`) => { compute() }
+    case SelectionChanged(`selectsort`) => { compute() }
   }
     
     loadpreset(presets_meantone(0))
