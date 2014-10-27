@@ -101,7 +101,8 @@ object main extends SimpleSwingApplication {
        text = "Temperament definition using the Circle of Fifths.\n" +
               "Select the comma, starting fifth and specify per fifth the deviation from pure.\n" +
               "Use + or -  and a fraction of the comma (or 0 for a pure fifth).\n" +
-              "The left panel shows the resulting deviations from pure intervals." 
+              "The left panel shows the resulting deviations from pure intervals.\n" +
+              "(Download at github.com/jeroendonkers/musica)"
        
      }
      
@@ -263,29 +264,72 @@ object main extends SimpleSwingApplication {
             }      
       }
       
-      def save() {
-         val chooser = new FileChooser(new File("."))
-         chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
-         chooser.title = "Save to dir"
+      
+      class SaveDialog(val savefunction: (String,String,String) => Unit, val ttl: String) extends Dialog() {
+         val nametext = new TextField(columns = 30)
+         val filetagtext = new TextField(columns = 30)  
+         val cancelbutton = new Button("Cancel")
+         val savebutton = new Button("Save")
+         title = ttl
+         contents = new GridBagPanel { grid =>
+           val cl = new Constraints
+           cl.fill = Fill.Horizontal
+           cl.insets = new Insets(5,5,5,5)
+           cl.anchor = Anchor.West
+           cl.weightx = 1.0
+           cl.weighty = 1.0
+                
+           cl.grid = (1,1) ;   layout( new Label("Description:") { horizontalAlignment = Alignment.Left }) = cl
+           cl.grid = (2,1) ;   layout(nametext) = cl 
+           cl.grid = (1,2) ;   layout(new Label("File name:") { horizontalAlignment = Alignment.Left }) = cl
+           cl.grid = (2,2) ;   layout(filetagtext) = cl 
+          
+           val buttons = new FlowPanel {
+              contents += cancelbutton
+              contents += savebutton
+           }
+           cl.grid = (2,3) ;   layout(buttons) = cl         
+           border = Swing.EmptyBorder(5, 5, 5, 5)
+        }
+        
+        listenTo(savebutton, cancelbutton)
+        reactions += {
+           case ButtonClicked(`cancelbutton`) => { close() }
+           case ButtonClicked(`savebutton`) => {
+            
+             if (nametext.text == "" ||  filetagtext.text == "" ) {
+               
+               Dialog.showMessage(null, "Pleae fill all fields", "", Dialog.Message.Error)
+               
+             }  else {          
+               
+             val chooser = new FileChooser(new File("."))
+             chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
+             chooser.title = "Save to dir"
              val result = chooser.showSaveDialog(null)
              if (result == FileChooser.Result.Approve) {
                 var dir = chooser.selectedFile.getAbsolutePath()
-                getFifthTuning.save(dir, namefield.text, namefield.text)
-                Dialog.showMessage(null, "Exported to file", "")
-            }
+                savefunction(dir, filetagtext.text, nametext.text)
+                close()
+                Dialog.showMessage(null, "File saved", "")
+            }}}
+         }
+         
+        override def open() {
+           super.open
+           nametext.text = namefield.text
+           peer.setLocationRelativeTo(null)
+           filetagtext.text == ""
+             
+         }
       }
       
+      def save() {
+        new SaveDialog(getFifthTuning.save,"Save").open 
+      }
       
       def exportScala() {
-         val chooser = new FileChooser(new File("."))
-         chooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
-         chooser.title = "Save to dir"
-             val result = chooser.showSaveDialog(null)
-             if (result == FileChooser.Result.Approve) {
-                var dir = chooser.selectedFile.getAbsolutePath()
-                getTuning.exportScl(dir, namefield.text, namefield.text)
-                Dialog.showMessage(null, "Exported to .scl file", "")
-            }        
+          new SaveDialog(getTuning.exportScl,"Export to Scala").open
       }
       
       def exportHauptwerk () {
@@ -312,13 +356,13 @@ object main extends SimpleSwingApplication {
            cl.weightx = 1.0
            cl.weighty = 1.0
                 
-           cl.grid = (1,1) ;   layout( new Label("Name:") { horizontalAlignment = Alignment.Left }) = cl
+           cl.grid = (1,1) ;   layout( new Label("Description:") { horizontalAlignment = Alignment.Left }) = cl
            cl.grid = (2,1) ;   layout(nametext) = cl 
            cl.grid = (1,2) ;   layout(new Label("Short name:") { horizontalAlignment = Alignment.Left }) = cl
            cl.grid = (2,2) ;   layout(shortnametext) = cl
-           cl.grid = (1,3) ;   layout(new Label("File name tag:") { horizontalAlignment = Alignment.Left }) = cl
+           cl.grid = (1,3) ;   layout(new Label("File name:") { horizontalAlignment = Alignment.Left }) = cl
            cl.grid = (2,3) ;   layout(filetagtext) = cl 
-           cl.grid = (1,4) ;   layout(new Label("Unique ID:") { horizontalAlignment = Alignment.Left }) = cl
+           cl.grid = (1,4) ;   layout(new Label("Unique ID: (80000-90000)") { horizontalAlignment = Alignment.Left }) = cl
            cl.grid = (2,4) ;   layout(idtext) = cl
            cl.grid = (1,5) ;   layout(new Label("Version:") { horizontalAlignment = Alignment.Left }) = cl
            cl.grid = (2,5) ;   layout(versiontext) = cl 

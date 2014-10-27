@@ -16,22 +16,24 @@ object TuningEx {
       println(eq.steplist)
       println(agricola.steplist)
       println(werckmeister3.steplist)
-      println(architas.steplist) 
+      println(architas.steplist) // List(1/1, 28/27, 32/27, 4/3, 112/81, 128/81, 16/9)
  
       println(eq.centlist)
       println(agricola.centlist)
       println(werckmeister3.centlist)
-      println(architas.centlist) 
+      println(architas.centlist) // List(0.0, 62.96090387296258, 294.13499740383764, 498.04499913461245, ...
       
       println(eq.steplist)
       
       println ((agricola - eq).centlist)  
       println (agricola.intervals(7).steplist)
      
-      println ((werckmeister3 - eq).centlist)
-      println ((werckmeister3.intervals(7) - Tuning(PureInterval.Fifth,12)).centlist)
+      println ((werckmeister3 - eq).centlist) //List(0.0, -7.82128353900292, 3.910001730774866, -3.911281808
+      println ((werckmeister3.intervals(7) - Tuning(PureInterval.Fifth,12)).centlist) //List(-5.376572399178713, 0.0, -5.3765723991
       println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
       
+      
+     
       val qrt = Rational(-1,4)
       val meantone = FifthTuning("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4").mappedTuning
       println(meantone.centmap)
@@ -58,5 +60,14 @@ object TuningEx {
          
        meantone.save("./data","1/4 syntonic comma meantone","quarter_meantone")
         agricola.save("./data","Agricola","agricola")
+        
+       werckmeister3.exportScl("./data","wervkmeisterIII","Werckmeister III") 
+
+       val mp = new ClassicMappedTuning(werckmeister3.steplist, ClassicScale.Chromatic,ClassicNote("C"),"")
+       println(mp.centmap) //List((C,0.0), (Db,92.17871646099708), (D,193.15685693241744), (Eb,294.134
+       println(mp.intervals(ClassicInterval.Fifth).centmap) // List((C,696.5784284662087), (Db,701.9550008653874), (D,696.578
+       println(mp.compare(ClassicInterval.Fifth, PureInterval.Fifth).centmap)  // List((C,-5.376572399178713), (Db,0.0), (D,-5.376572399178599), (Eb,1.
+    
+       println(mp.mappedStep(7)) //(Ab,696.5784284662087c)
     }
 }

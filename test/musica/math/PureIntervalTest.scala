@@ -108,7 +108,7 @@ class PureIntervalTest {
    
    @Test def TestJIlimit7() {
      val a = PureInterval.JILimit7(3,4,2)
-     assertEquals(a,PureInterval(91875,65536))
+     assertEquals(PureInterval(826875,524288),a)
    }
    
 }

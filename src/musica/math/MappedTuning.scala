@@ -145,15 +145,13 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
         new ClassicMappedTuning(intervals, notes, name)
      }
   
-      def save(path: String, name: String, filetag: String, 
-               version: String =  "1.0"): Unit = {
+      def save(path: String, filetag: String, name: String): Unit = {
      
      XML.save(path+"/"+filetag+".FifthTuning_Musica_xml",
          
  <musica FileFormat="FifthTuning" FileFormatVersion="1.00">
   <head>
 	<name>{ name }</name>
-	<version>{ version }</version>
     <size>{ devs.size }</size>
     <comma>{ comma.toString }</comma>
     <start>{ ClassicNote.FifthCircle(start) }</start>
