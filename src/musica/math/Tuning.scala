@@ -30,7 +30,7 @@ class Tuning(val steplist: List[RealInterval], val name: String = "") {
     
  // def mapTo(scale: ClassicScale, base: ClassicNote)  = new MappedTuning(steplist, scale, base)
  
- def save(path: String, name: String, filetag: String, 
+ def saveXML(path: String, filetag: String, name: String, 
                version: String =  "1.0"): Unit = {
      
      XML.save(path+"/"+filetag+".Tuning_Musica_xml",
@@ -42,10 +42,9 @@ class Tuning(val steplist: List[RealInterval], val name: String = "") {
     <size>{ size }</size>
   </head>
   <steplist>
-   { steplist.zipWithIndex.map ( s => 
+   { steplist.map ( s => 
      <step>
-       <index>{ s._2 }</index>
-       <value>{ s._1.toString }</value>
+       <value>{ s.toString }</value>
      </step> )}
   </steplist>
  </musica>,
@@ -53,7 +52,7 @@ class Tuning(val steplist: List[RealInterval], val name: String = "") {
    "UTF-8", true, null)   
    }
    
-   def exportScl(path: String, filetag: String, name: String) {
+   def exportScl(path: String, filetag: String, name: String, version: String) {
       val w = new BufferedWriter(new FileWriter(path+"/"+filetag+".scl"))
       w.write("! "+filetag+".scl\n")
       w.write("!\n")
@@ -76,7 +75,7 @@ object Tuning {
   def apply(i: RealInterval, n: Int) = new Tuning(List.range(1,n+1).map(e => i))
   def apply(step: List[RealInterval]) = new Tuning(step)
   def apply(steps: RealInterval*) = new Tuning(steps.toList)
-  def apply(st: String) = new Tuning(st.split(",").toList.map(s => RealInterval(s)))  
+  def apply(st: String) = new Tuning(st.split(",").toList.map(RealInterval(_)))  
   
   def ET(n: Int) = Tuning(List.range(1,n+1).map(i => CentsInterval((1200.0 * (i-1)) / n))) 
 
@@ -96,15 +95,32 @@ object Tuning {
      fromRatios(st.split(",").toList.map(s => PureInterval(s)))
   }
 
-  def loadXML(filename: String): Tuning = {
+  def loadXML(filename: String): Either[Tuning, String] = {
     
-    val tuningElem = scala.xml.XML.loadFile(filename)
+     try {
+      val tuningElem = scala.xml.XML.loadFile(filename)
+          
+      if ((tuningElem \  "@FileFormat").text != "Tuning") {
+        throw new Exception("Wrong file type \nexpecting Tuning_Musica_xml.")  
+      } 
+      
+      val name = ((tuningElem \ "head") \ "name"). text
+      val size = ((tuningElem \ "head") \ "size"). text. toInt
+ 
+      val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
+       (steplist \ "step").map (step => (step \ "value").text)
+      }}
     
-    val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
-     (steplist \ "step").map (step => (step \ "value").text)
-    }}
-    val steps = stepstoomany(0).map(s => RealInterval(s)).toList
-    new Tuning(steps)
+      if (stepstoomany(0).size != size) {
+         throw new Exception("Error in file: number of steps not equal to size.") 
+      }   
+      
+       val steps = stepstoomany(0).mkString(",")
+    
+      Left(new Tuning(steps.split(",").toList.map(RealInterval(_)),name))
+    } catch {
+      case e: Exception => Right(e.getMessage)
+    } 
   }
 }
 

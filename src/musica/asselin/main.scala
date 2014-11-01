@@ -142,10 +142,7 @@ object main extends SimpleSwingApplication {
            FifthTuning(""+selectstart.item + ","+comma+","+input, namefield.text)
       }
       
-      def getTuning() = {
-          getFifthTuning.mappedTuning
-      } 
-      
+     
       def getfac(): Double = {
         selectvalues.selection.index match {
           case 0 =>  1
@@ -173,7 +170,7 @@ object main extends SimpleSwingApplication {
       }
       
       def compute() = {
-       val tuning = getTuning
+       val tuning = getFifthTuning
        val fc = tuning.compare(ClassicInterval.Fifth,PureInterval.Fifth).centlist
        val tc = tuning.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centlist
        val mc = tuning.compare(ClassicInterval.MinorThird,PureInterval.MinorThird).centlist
@@ -265,7 +262,7 @@ object main extends SimpleSwingApplication {
       }
       
       
-      class SaveDialog(val savefunction: (String,String,String) => Unit, val ttl: String) extends Dialog() {
+      class SaveDialog(val savefunction: (String,String,String, String) => Unit, val ttl: String) extends Dialog() {
          val nametext = new TextField(columns = 30)
          val filetagtext = new TextField(columns = 30)  
          val cancelbutton = new Button("Cancel")
@@ -309,7 +306,7 @@ object main extends SimpleSwingApplication {
              val result = chooser.showSaveDialog(null)
              if (result == FileChooser.Result.Approve) {
                 var dir = chooser.selectedFile.getAbsolutePath()
-                savefunction(dir, filetagtext.text, nametext.text)
+                savefunction(dir, filetagtext.text, nametext.text,"1.0")
                 close()
                 Dialog.showMessage(null, "File saved", "")
             }}}
@@ -325,11 +322,11 @@ object main extends SimpleSwingApplication {
       }
       
       def save() {
-        new SaveDialog(getFifthTuning.save,"Save").open 
+        new SaveDialog(getFifthTuning.saveXML,"Save").open 
       }
       
       def exportScala() {
-          new SaveDialog(getTuning.exportScl,"Export to Scala").open
+          new SaveDialog(getFifthTuning.exportScl,"Export to Scala").open
       }
       
       def exportHauptwerk () {
@@ -392,7 +389,7 @@ object main extends SimpleSwingApplication {
              val result = chooser.showSaveDialog(null)
              if (result == FileChooser.Result.Approve) {
                 var dir = chooser.selectedFile.getAbsolutePath()
-                getTuning.exportHauptwerk(dir, nametext.text, shortnametext.text,
+                getFifthTuning.exportHauptwerk(dir, nametext.text, shortnametext.text,
                  filetagtext.text, idtext.text, versiontext.text)
                 d.close()
                 Dialog.showMessage(null, "Exported to Hauptwerk Temperament file", "")

@@ -11,7 +11,12 @@ object TuningEx {
       val werckmeister3 = Tuning("C^0,C#^-1,D^-1/2,Eb^0,E^-3/4,F^0,F#^-1,G^-1/4,G#^-1,A^-3/4,Bb^0,B^-3/4") 
       val architas = Tuning.fromRatios("28/27,8/7,9/8,28/27,8/7,9/8")
       
+      agricola.saveXML("./data","agricola","Agricola")
       
+       Tuning.loadXML("./data/agricola.Tuning_Musica_xml") match {
+        case Left(t) => println("succes " + t.steplist) 
+        case Right(s) => println(s)
+      }
       
       println(eq.steplist)
       println(agricola.steplist)
@@ -35,13 +40,13 @@ object TuningEx {
       
      
       val qrt = Rational(-1,4)
-      val meantone = FifthTuning("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4").mappedTuning
+      val meantone = FifthTuning("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
       println(meantone.centmap)
-      val sauveur = FifthTuning("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5").mappedTuning
+      val sauveur = FifthTuning("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
       println(sauveur.centmap)
       
       val bachkellner = FifthTuning("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
-      println(bachkellner.mappedTuning.centmap)
+      println(bachkellner.centmap)
       
       println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
       println(sauveur.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
@@ -54,14 +59,21 @@ object TuningEx {
       meantone.exportHauptwerk("./data","1/4 syntonic comma meantone","1/4 meantone", "quarter_meantone",
                      "800001","1.0")
                                  
-      bachkellner.mappedTuning.exportHauptwerk("./data","Bach Kellner proposed","Kellner", "kellner",
+      bachkellner.exportHauptwerk("./data","Bach Kellner proposed","Kellner", "kellner",
                      "800002","1.0")
-      bachkellner.save("./data","Bach Kellner proposed","bachkellner")     
+      bachkellner.saveXML("./data","bachkellner","Bach Kellner proposed")     
          
-       meantone.save("./data","1/4 syntonic comma meantone","quarter_meantone")
-        agricola.save("./data","Agricola","agricola")
+       meantone.saveXML("./data","quarter_meantone","1/4 syntonic comma meantone")
+       
+       val newmeantone = ClassicMappedTuning.loadXML("./data/quarter_meantone.MappedTuning_Musica_xml")
+       newmeantone match {
+        case Left(t) => println("succes " + t.centmap) 
+        case Right(s) => println(s)
+      }
+       
+        agricola.saveXML("./data","agricola","Agricola")
         
-       werckmeister3.exportScl("./data","wervkmeisterIII","Werckmeister III") 
+       werckmeister3.exportScl("./data","werckmeisterIII","Werckmeister III","") 
 
        val mp = new ClassicMappedTuning(werckmeister3.steplist, ClassicScale.Chromatic,ClassicNote("C"),"")
        println(mp.centmap) //List((C,0.0), (Db,92.17871646099708), (D,193.15685693241744), (Eb,294.134

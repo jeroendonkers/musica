@@ -1,6 +1,7 @@
 /bin
 /deploy
-/docs
+/doc
+/scaladoc
 /data
 /.classpath
 /.project

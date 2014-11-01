@@ -41,7 +41,7 @@ abstract class SymbolicNoteBase(stp: Int, val dev: Int,  val octave: Int,  val o
    
    type NN <: SymbolicNoteBase
    def +(that: SymbolicIntervalBase): NN
-   def -(that: SymbolicIntervalBase): NN
+   def -(that: SymbolicIntervalBase): NN 
 }
 
 trait MidiCode extends SymbolicNoteBase {
@@ -103,8 +103,8 @@ extends SymbolicIntervalBase(step,dev, octavesteps, octavesize) {
     def on(c: N) = c + this
     def below(c: N) = c - this
     
-    def on(l: List[SymbolicNoteBase]) = l.map(c => c + this)
-    def below(l: List[SymbolicNoteBase]) =  l.map(c => c - this)  
+    def on(l: List[SymbolicNoteBase]) = l.map(_ + this)
+    def below(l: List[SymbolicNoteBase]) =  l.map(_ - this)  
   
     
     override def equals(that: Any): Boolean = {
@@ -190,7 +190,7 @@ abstract class SymbolicScale[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](
     
     
    def this(stps: I*) { this(stps.toList) }
-   def on(c: N) = new SymbolicNoteSequence[N](steplist.map(e => e.on(c)))
+   def on(c: N) = new SymbolicNoteSequence[N](steplist.map(_.on(c)))
    def step(i: Int): I = {
      if (size==0) prime else {
        val numoctaves = if (i>=0) (i / size) else  ((i+1) / size) - 1  

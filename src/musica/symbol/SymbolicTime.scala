@@ -2,6 +2,9 @@ package musica.symbol
 import musica.math.Rational
 
 class NoteSize(n: Long, m: Long) extends Rational(n,m) {
+  
+  def this(r: Rational) = this(r.numer, r.denom)
+  
   def *(that: Int): NoteSize = { new NoteSize(n*that,m) }
   def /(that: Int): NoteSize = { new NoteSize(n,m*that) }
    
@@ -58,9 +61,9 @@ object ClassicRest {
 
 object HasNoteSize {
  
-   def add(notes: List[HasNoteSize]) = {
-     val sum = (Rational(0,1) :: notes.map(ns => ns.notesize.asInstanceOf[Rational])) reduceLeft {(x,y) => x+y}
-     new NoteSize(sum.numer , sum.denom) 
-   }
+   def add(notes: List[HasNoteSize]) = 
+     new NoteSize((Rational(0,1) :: notes.map(ns => ns.notesize.asInstanceOf[Rational])) 
+                          reduceLeft {(x,y) => x+y})
+
    
 }
