@@ -1,8 +1,10 @@
-package musica.math
+package musica.classic
 
 import org.junit.Assert._
 import org.junit.Test
-import org.junit.Before
+import musica.classic._
+import musica.math._
+
 
 
 class EittzIntervalTest {

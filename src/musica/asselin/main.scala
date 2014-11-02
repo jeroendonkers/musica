@@ -2,14 +2,16 @@ package musica.asselin
 
 import musica.math._
 import musica.symbol._
+import musica.classic._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.GridBagPanel._
 import event._
-import musica.symbol.ClassicNote.fromString
+
 import scala.swing.ComboBox.stringEditor
 import javax.swing.SwingConstants
 import java.io._
+
 
 case class Preset(name: String, start: String, comma: String, steps: String)
 

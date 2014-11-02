@@ -1,4 +1,7 @@
-package musica.symbol
+package musica.classic
+
+import musica.symbol._
+
 
 class ClassicInterval(step: Int, dev: Int=0)
   extends SymbolicInterval[ClassicInterval, ClassicNote](step, dev,7,12) {

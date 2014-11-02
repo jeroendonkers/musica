@@ -1,5 +1,7 @@
-package musica.math
-import musica.symbol.ClassicNote
+package musica.classic
+
+import musica.math._
+
 
 class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) {
   def this(note: ClassicNote) = 
@@ -31,7 +33,9 @@ class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Ration
   override def toString = "" + note + "^"+(if(comma.numer>0) "+" + comma else if (comma.numer<0) comma else "0")
 }
 
-
+class EitzInterval {
+  
+}
 
 object EitzInterval { 
   def apply(s: ClassicNote) = new PureEitzInterval(s)

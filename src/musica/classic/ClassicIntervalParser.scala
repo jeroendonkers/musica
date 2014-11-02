@@ -1,5 +1,7 @@
-package musica.symbol
+package musica.classic
 import scala.util.parsing.combinator._
+import musica.symbol._
+
 
 
 object ClassicNoteParser extends RegexParsers {

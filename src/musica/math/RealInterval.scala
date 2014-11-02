@@ -1,5 +1,9 @@
 package musica.math
 
+import musica.classic.RealEitzInterval
+
+import musica.classic.PureEitzInterval
+
 trait RealInterval {
   protected val ln2 = Math.log(2)
   val value: Double

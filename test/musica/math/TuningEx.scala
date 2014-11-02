@@ -1,5 +1,7 @@
 package musica.math
 import musica.symbol._
+import musica.classic._
+
 
 object TuningEx {
 
@@ -44,6 +46,7 @@ object TuningEx {
       println(meantone.centmap)
       val sauveur = FifthTuning("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
       println(sauveur.centmap)
+      println(sauveur.stepmap)
       
       val bachkellner = FifthTuning("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
       println(bachkellner.centmap)

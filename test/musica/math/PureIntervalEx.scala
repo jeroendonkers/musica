@@ -1,5 +1,5 @@
 package musica.math
-import musica.symbol.ClassicNote
+
 
 object PureIntervalEx {
 

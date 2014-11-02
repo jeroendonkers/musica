@@ -1,5 +1,8 @@
-package musica.math
-import musica.symbol.ClassicNote
+package musica.classic
+
+import musica.math._
+import musica.classic._
+
 
 
 object EitzIntervalEx {

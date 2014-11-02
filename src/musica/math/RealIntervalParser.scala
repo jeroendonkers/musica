@@ -1,6 +1,8 @@
 package musica.math
 import scala.util.parsing.combinator._
-import musica.symbol.ClassicNote
+import musica.classic.ClassicNote
+import musica.classic.PureEitzInterval
+import musica.classic.EitzInterval
 
 object RealIntervalParser  extends RegexParsers {
   

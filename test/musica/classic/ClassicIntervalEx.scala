@@ -1,4 +1,4 @@
-package musica.symbol
+package musica.classic
 
 
 object classicIntervalTry {
