@@ -1,6 +1,7 @@
 package musica.math
 import musica.symbol._
 import scala.xml.XML
+import musica.io._
 import java.io._
 
 class Tuning(val steplist: List[RealInterval], val name: String = "") {
@@ -28,29 +29,15 @@ class Tuning(val steplist: List[RealInterval], val name: String = "") {
     e match {case (a,i) => step(i+stepsize)-a }
     ))
     
- // def mapTo(scale: ClassicScale, base: ClassicNote)  = new MappedTuning(steplist, scale, base)
+  
  
- def saveXML(path: String, filetag: String, name: String, 
-               version: String =  "1.0"): Unit = {
-     
-     XML.save(path+"/"+filetag+".Tuning_Musica_xml",
-         
- <musica FileFormat="Tuning" FileFormatVersion="1.00">
-  <head>
-	<name>{ name }</name>
-	<version>{ version }</version>
-    <size>{ size }</size>
-  </head>
-  <steplist>
-   { steplist.map ( s => 
-     <step>
-       <value>{ s.toString }</value>
-     </step> )}
-  </steplist>
- </musica>,
-                   
-   "UTF-8", true, null)   
-   }
+ def saveXML(path: String, filetag: String, name: String, version: String = "1.0"): Unit = {
+     Tuning.xmlfile.saveXML(path, filetag, new MusicaXmlData(
+        Map("name" -> name, "version" -> version, "size"-> size.toString),
+        Map("value" -> steplist.map(s => s.toString))   
+     ))
+   }   
+  
    
    def exportScl(path: String, filetag: String, name: String, version: String) {
       val w = new BufferedWriter(new FileWriter(path+"/"+filetag+".scl"))
@@ -95,32 +82,23 @@ object Tuning {
      fromRatios(st.split(",").toList.map(s => PureInterval(s)))
   }
 
+  val xmlfile = new MusicaXmlFile("Tuning", "1.0", "steplist", "step") 
+  
   def loadXML(filename: String): Either[Tuning, String] = {
     
-     try {
-      val tuningElem = scala.xml.XML.loadFile(filename)
-          
-      if ((tuningElem \  "@FileFormat").text != "Tuning") {
-        throw new Exception("Wrong file type \nexpecting Tuning_Musica_xml.")  
-      } 
-      
-      val name = ((tuningElem \ "head") \ "name"). text
-      val size = ((tuningElem \ "head") \ "size"). text. toInt
+     xmlfile.loadXML(filename, new MusicaXmlData(
+        Map("name" ->"" , "version" -> "", "size"-> ""),
+        Map("value" -> List()))) match {
+        case Left(m) => {
+           val name = m.header("name")
+           val size = m.header("size").toInt
+           val steps = m.data("value")
+           if (steps.size != size) Right("Error in file: number of steps not equal to size.")
+           Left(new Tuning(steps.map(RealInterval(_)),name))
+       }
+       case Right(s) => Right(s)
+     }
  
-      val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
-       (steplist \ "step").map (step => (step \ "value").text)
-      }}
-    
-      if (stepstoomany(0).size != size) {
-         throw new Exception("Error in file: number of steps not equal to size.") 
-      }   
-      
-       val steps = stepstoomany(0).mkString(",")
-    
-      Left(new Tuning(steps.split(",").toList.map(RealInterval(_)),name))
-    } catch {
-      case e: Exception => Right(e.getMessage)
-    } 
   }
 }
 

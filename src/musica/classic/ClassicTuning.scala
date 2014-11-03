@@ -1,6 +1,7 @@
 package musica.classic
 import musica.symbol._
 import musica.math._
+import musica.io._
 import scala.xml.XML
 
 
@@ -15,25 +16,11 @@ extends MappedTuning(steplist,scale,base,name) {
        
    override def saveXML(path: String, filetag: String, name: String,  
                version: String =  "1.0"): Unit = {
-     
-     XML.save(path+"/"+filetag+".MappedTuning_Musica_xml",
-         
- <musica FileFormat="MappedTuning" FileFormatVersion="1.00">
-  <head>
-	<name>{ name }</name>
-	<version>{ version }</version>
-    <size>{ size }</size>
-  </head>
-  <steplist>
-   { steplist.zip(sequence.notelist).map ( s => 
-     <step>
-        <note>{ s._2.toString }</note>
-       <value>{ s._1.toString }</value>
-     </step> )}
-  </steplist>
- </musica>,
-                   
-   "UTF-8", true, null)   
+         ClassicMappedTuning.xmlfile.saveXML(path, filetag, new MusicaXmlData(
+        Map("name" -> name, "version" -> version, "size"-> size.toString),
+        Map("value" -> steplist.map(s => s.toString), 
+            "note"-> sequence.notelist.map(s => s.toString))   
+     ))
    } 
     
     
@@ -81,40 +68,25 @@ object ClassicMappedTuning {
    def apply(st: String, nts: String, name: String) = new ClassicMappedTuning(
        st.split(",").toList.map(RealInterval(_)),
        new NoteSequence(nts.split(",").toList.map(ClassicNote(_))),
-       name)  
+       name)    
    
-     def loadXML(filename: String): Either[ClassicMappedTuning, String] = {
-    
-    try {
-      val tuningElem = scala.xml.XML.loadFile(filename)
-          
-      if ((tuningElem \  "@FileFormat").text != "MappedTuning") {
-        throw new Exception("Wrong file type \nexpecting MappedTuning_Musica_xml.")  
-      } 
-      
-      val name = ((tuningElem \ "head") \ "name"). text
-      val size = ((tuningElem \ "head") \ "size"). text. toInt
- 
-      val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
-       (steplist \ "step").map (step => (step \ "value").text)
-      }}
-    
-      if (stepstoomany(0).size != size) {
-         throw new Exception("Error in file: number of steps not equal to size.") 
-      }   
-      
-      val notenames  = ( tuningElem \ "steplist" ).map { steplist => { 
-       (steplist \ "step").map (step => (step \ "note").text)
-      }}
-      
-      val steps = stepstoomany(0).mkString(",")
-      val notes = notenames(0).mkString(",")
-    
-      Left(ClassicMappedTuning(steps,notes,name))
-    } catch {
-      case e: Exception => Right(e.getMessage)
-    } 
-  }
+   val xmlfile = new MusicaXmlFile("ClassicMappedTuning", "1.0", "steplist", "step") 
+   
+   def loadXML(filename: String): Either[ClassicMappedTuning, String] = {   
+        xmlfile.loadXML(filename, new MusicaXmlData(
+        Map("name" ->"" , "version" -> "", "size"-> ""),
+        Map("value" -> List(), "note"-> List()))) match {
+        case Left(m) => {
+           val name = m.header("name")
+           val size = m.header("size").toInt
+           val steps = m.data("value")
+           val notes = m.data("note")
+           if (steps.size != size) Right("Error in file: number of steps not equal to size.")
+           Left(ClassicMappedTuning(steps.mkString(","),notes.mkString(","),name))
+       }
+       case Right(s) => Right(s)
+     }
+   }
 }
 
 
@@ -125,28 +97,12 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
       
       override def saveXML(path: String, filetag: String, name: String, 
                version: String =  "1.0"): Unit = {
-     
-     XML.save(path+"/"+filetag+".FifthTuning_Musica_xml",
-         
- <musica FileFormat="FifthTuning" FileFormatVersion="1.00">
-  <head>
-	<name>{ name }</name>
-    <size>{ devs.size }</size>
-    <comma>{ comma.toString }</comma>
-    <start>{ ClassicNote.FifthCircle(start) }</start>
-  </head>
-  <steplist>
-   { devs.map ( s => 
-     <step>
-       <value>{ s.toString }</value>
-     </step> )}
-  </steplist>
- </musica>,
-                   
-   "UTF-8", true, null)   
-   }
-  
-  
+         FifthTuning.xmlfile.saveXML(path, filetag, new MusicaXmlData(
+        Map("name" -> name, "version" -> version,"size"-> devs.size.toString, 
+            "comma" -> { if (comma == PureInterval.SyntonicComma) "S"else "P"} , 
+            "start"-> ClassicNote.FifthCircle(start).toString),
+        Map("value" -> devs.map(s => s.toString) ) ) )       
+      }
 }
 
 
@@ -187,33 +143,23 @@ object FifthTuning {
        h.map(e => (e._1, (e._2-h(0)._2).normalize))     
      }
   
+   val xmlfile = new MusicaXmlFile("FifthTuning", "1.0", "steplist", "step") 
   
    def loadXML(filename: String): Either[FifthTuning, String] = {
     
-    try {
-      val tuningElem = scala.xml.XML.loadFile(filename)
-          
-      if ((tuningElem \  "@FileFormat").text != "FifthTuning") {
-        throw new Exception("Wrong file type \nexpecting FifthTuning_Musica_xml.")  
-      } 
-      
-      val start = ((tuningElem \ "head") \ "start"). text 
-      val comma = ((tuningElem \ "head") \ "comma"). text      
-      val name = ((tuningElem \ "head") \ "name"). text
- 
-      val stepstoomany = ( tuningElem \ "steplist" ).map { steplist => { 
-       (steplist \ "step").map (step => (step \ "value").text)
-      }}
-    
-      if (stepstoomany(0).size != 11) {
-         throw new Exception("Error in file: expected 11 steps.") 
-      }   
-      
-      val steps = stepstoomany(0).mkString(",")
-    
-      Left(FifthTuning(start+","+comma+","+steps,name))
-    } catch {
-      case e: Exception => Right(e.getMessage)
-    } 
+        xmlfile.loadXML(filename, new MusicaXmlData(
+        Map("name" ->"" , "version" -> "", "size"-> "", "start" -> "", "comma"-> ""),
+        Map("value" -> List()))) match {
+        case Left(m) => {
+           val name = m.header("name")
+           val size = m.header("size").toInt
+           val comma = m.header("comma")
+           val start = m.header("start")
+           val steps = m.data("value")
+           if (steps.size != size) Right("Error in file: number of steps not equal to size.")
+           Left(FifthTuning(start+","+comma+","+steps.mkString(","),name))
+       }
+       case Right(s) => Right(s)
+     } 
   }
 }

@@ -1,6 +1,6 @@
 package musica.math
 import musica.symbol._
-import musica.classic._
+
 
 
 object TuningEx {
@@ -39,50 +39,11 @@ object TuningEx {
       println ((werckmeister3.intervals(7) - Tuning(PureInterval.Fifth,12)).centlist) //List(-5.376572399178713, 0.0, -5.3765723991
       println ((werckmeister3.intervals(4) - Tuning(PureInterval.MajorThird,12)).centlist)
       
-      
-     
-      val qrt = Rational(-1,4)
-      val meantone = FifthTuning("Eb,S,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4,-1/4")
-      println(meantone.centmap)
-      val sauveur = FifthTuning("Eb,S,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5,-1/5")
-      println(sauveur.centmap)
-      println(sauveur.stepmap)
-      
-      val bachkellner = FifthTuning("C,P,-1/5,-1/5,-1/5,-1/5,0,-1/5,0,0,0,0,0")
-      println(bachkellner.centmap)
-      
-      println(meantone.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
-      println(sauveur.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centmap )
-      
-      println(meantone.frequency(0, "A",415))
-      
-      println(meantone.frequencies(List.range(0,12), "A",415))
-      
-                      
-      meantone.exportHauptwerk("./data","1/4 syntonic comma meantone","1/4 meantone", "quarter_meantone",
-                     "800001","1.0")
-                                 
-      bachkellner.exportHauptwerk("./data","Bach Kellner proposed","Kellner", "kellner",
-                     "800002","1.0")
-      bachkellner.saveXML("./data","bachkellner","Bach Kellner proposed")     
          
-       meantone.saveXML("./data","quarter_meantone","1/4 syntonic comma meantone")
-       
-       val newmeantone = ClassicMappedTuning.loadXML("./data/quarter_meantone.MappedTuning_Musica_xml")
-       newmeantone match {
-        case Left(t) => println("succes " + t.centmap) 
-        case Right(s) => println(s)
-      }
-       
-        agricola.saveXML("./data","agricola","Agricola")
+      agricola.saveXML("./data","agricola","Agricola")
         
        werckmeister3.exportScl("./data","werckmeisterIII","Werckmeister III","") 
 
-       val mp = new ClassicMappedTuning(werckmeister3.steplist, ClassicScale.Chromatic,ClassicNote("C"),"")
-       println(mp.centmap) //List((C,0.0), (Db,92.17871646099708), (D,193.15685693241744), (Eb,294.134
-       println(mp.intervals(ClassicInterval.Fifth).centmap) // List((C,696.5784284662087), (Db,701.9550008653874), (D,696.578
-       println(mp.compare(ClassicInterval.Fifth, PureInterval.Fifth).centmap)  // List((C,-5.376572399178713), (Db,0.0), (D,-5.376572399178599), (Eb,1.
-    
-       println(mp.mappedStep(7)) //(Ab,696.5784284662087c)
+ 
     }
 }
