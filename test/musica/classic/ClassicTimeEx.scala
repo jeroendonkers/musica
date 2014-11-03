@@ -1,9 +1,9 @@
 package musica.classic
 
-import musica.symbol.HasNoteSize
+import musica.symbol._
 
 
-object SymbolicTimeEx {
+object ClassicTimeEx {
  
   def main(args: Array[String]): Unit = {
    
@@ -11,12 +11,12 @@ object SymbolicTimeEx {
     
     println(ClassicMetrum(6,8))
     println(ClassicMetrum(2,2))
-    println(ClassicMetrum.C)
+    println(MetrumC)
     
     
-    val l = List( WholeRest, QuarterRest)
+    val l = List( WholeRest, QuarterRest, new ClassicVNote("C",Quarter))
     
-    println(HasNoteSize.add(l) * 4)
+    println(new TimeSegList(l).notevalue)
     
   }
 }

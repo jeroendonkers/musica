@@ -17,6 +17,7 @@ class Rational(n: Long, d: Long) {
    def -(that: Rational) = new Rational(numer * that.denom - that.numer * denom,denom * that.denom)
    def *(that: Rational) = new Rational(numer * that.numer, denom * that.denom)
    def /(that: Rational) = new Rational(numer * that.denom, denom * that.numer)
+   def unary_- :Rational = new Rational(-numer, denom)
    
    override def toString = "" + numer + "/" + denom
    
@@ -26,11 +27,30 @@ class Rational(n: Long, d: Long) {
        case _ => false
      }
    }
-   
+ 
    
 }
 
+
+
 object Rational {
   def apply(n: Int, d: Int) = new Rational(n,d) 
-    
+  
+implicit object RationalNumeric extends Numeric[Rational]  {
+   // implementing Numeric trait
+    def compare(x: Rational, y: Rational): Int = {
+      if (x.value < y.value) -1 else +1
+    }
+    def fromInt(x: Int): Rational = Rational(x,1)
+    def minus(x: Rational, y: Rational): Rational = x - y
+    def negate(x: Rational): Rational = -x
+    def plus(x: Rational, y: Rational): Rational = x + y
+    def times(x: Rational, y: Rational): Rational = x*y
+    def toDouble(x: Rational): Double = x.value
+    def toFloat(x: Rational): Float = x.value.toFloat
+    def toInt(x: Rational): Int = x.value.toInt
+    def toLong(x: Rational): Long = x.value.toLong
+   
+   
+}    
 }

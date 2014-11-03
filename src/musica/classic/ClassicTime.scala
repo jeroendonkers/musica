@@ -2,13 +2,12 @@ package musica.classic
 import musica.symbol._
 
 
+class ClassicVNote(note: ClassicNote, notevalue: NoteValue) extends SymbolicVNote[ClassicNote](note, notevalue)
+
 object ClassicMetrum {
   def apply(n: Int, m: Int) =  
     new Metrum( Whole/m, n, ""+ n + "/" + m)
-
-  val C = new Metrum(Quarter,4,"C")
-  val AllaBreva = new Metrum(Quarter,2,"C|")
-       
+  
 }
 
 
