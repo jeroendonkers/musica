@@ -14,9 +14,9 @@ class MappedTuning[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](steplist: 
      (m,s) => m + s 
    } 
    
-   val stepmap = createListMap(sequence.notelist.zip(steplist))
-   val centmap = createListMap(sequence.notelist.zip(centlist))
-   val valuemap = createListMap(sequence.notelist.zip(valuelist))
+   val stepmap = createListMap(sequence.zip(steplist))
+   val centmap = createListMap(sequence.zip(centlist))
+   val valuemap = createListMap(sequence.zip(valuelist))
    
    def intervals(v: SymbolicIntervalBase): MappedTuning[N,I] = 
      new MappedTuning(intervals(v.size).steplist, scale,base,"")

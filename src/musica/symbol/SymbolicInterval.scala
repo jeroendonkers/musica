@@ -175,12 +175,6 @@ extends SymbolicNoteBase(stp, dev, octave, octavesteps, octavesize) {
 }  
 
 
-class SymbolicNoteSequence[N <: SymbolicNoteBase](val notelist: List[N]) {
-  val size = notelist.size
-  override def toString(): String = notelist.toString
- }
-
-
 abstract class SymbolicScale[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](val steplist: List[I]) {
    
    val prime: I  // implement this 
@@ -190,7 +184,7 @@ abstract class SymbolicScale[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](
     
     
    def this(stps: I*) { this(stps.toList) }
-   def on(c: N) = new SymbolicNoteSequence[N](steplist.map(_.on(c)))
+   def on(c: N) = steplist.map(_.on(c).asInstanceOf[N])
    def step(i: Int): I = {
      if (size==0) prime else {
        val numoctaves = if (i>=0) (i / size) else  ((i+1) / size) - 1  

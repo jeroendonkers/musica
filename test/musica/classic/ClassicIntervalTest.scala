@@ -206,7 +206,7 @@ class ClassicIntervalTest {
           val l: List[ClassicInterval] = List("P1","M2","M3","P4","P5","M6","M7")
           val scale3 = ClassicScale(l)
           val a = scale on "C#"
-          assertEquals(a.notelist(1), ClassicNote("D#"))
+          assertEquals(a(1), ClassicNote("D#"))
         
       }
     

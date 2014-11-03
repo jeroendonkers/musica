@@ -124,13 +124,11 @@ object ClassicNote {
 }
 
 
-class NoteSequence(notelist: List[ClassicNote]) extends SymbolicNoteSequence[ClassicNote](notelist)
-
 object NoteSequence {
-  def apply(notes: ClassicNote*) = new NoteSequence(notes.toList)
-  def apply(notes: List[ClassicNote]) = new NoteSequence(notes)
-  def apply(st: String) = new NoteSequence(st.split(",").toList.map(ClassicNote(_)))
-  def apply(scale: ClassicScale, note: ClassicNote) = new NoteSequence(scale.steplist.map(_.on(note)))
+  def apply(notes: ClassicNote*) = notes.toList
+  def apply(notes: List[ClassicNote]) = notes
+  def apply(st: String) = st.split(",").toList.map(ClassicNote(_))
+  def apply(scale: ClassicScale, note: ClassicNote) = scale.steplist.map(_.on(note))
 }
 
 class ClassicScale(steplist: List[ClassicInterval]) 
@@ -144,9 +142,9 @@ object ClassicScale {
   def apply(steps: List[ClassicInterval]) = new ClassicScale(steps)
   def apply(st: String) = new ClassicScale(st.split(",").toList.map(ClassicInterval(_)))
   
-  def apply(notes: NoteSequence) = new ClassicScale(
+  def fromNotes(notes: List[ClassicNote]) = new ClassicScale(
          if (notes.size==0) List() else
-         notes.notelist.map(ClassicInterval(notes.notelist(0),_)))
+         notes.map(ClassicInterval(notes(0),_)))
   
   def Major = ClassicInterval.MajorScale 
   def Minor = ClassicInterval.MinorScale

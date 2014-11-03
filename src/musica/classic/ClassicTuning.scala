@@ -8,18 +8,19 @@ import scala.xml.XML
 class ClassicMappedTuning(steplist: List[RealInterval],  scale: ClassicScale, base:ClassicNote, name: String="")
 extends MappedTuning(steplist,scale,base,name) {
     
-    def this(steplist: List[RealInterval], seq: NoteSequence, name: String) = this(steplist, ClassicScale(seq), 
-       if (seq.size==0) ClassicNote("C") else seq.notelist(0), name)
+    def this(steplist: List[RealInterval], seq: List[ClassicNote], name: String) 
+    = this(steplist, ClassicScale.fromNotes(seq), 
+       if (seq.size==0) ClassicNote("C") else seq(0), name)
        
     // auxillary constructor for fifth tuning   
-    def this(info: List[(ClassicNote, RealInterval)], name: String) = this(info.unzip._2, new NoteSequence(info.unzip._1), name)   
+    def this(info: List[(ClassicNote, RealInterval)], name: String) = this(info.unzip._2, info.unzip._1, name)   
        
    override def saveXML(path: String, filetag: String, name: String,  
                version: String =  "1.0"): Unit = {
          ClassicMappedTuning.xmlfile.saveXML(path, filetag, new MusicaXmlData(
         Map("name" -> name, "version" -> version, "size"-> size.toString),
         Map("value" -> steplist.map(s => s.toString), 
-            "note"-> sequence.notelist.map(s => s.toString))   
+            "note"-> sequence.map(s => s.toString))   
      ))
    } 
     
@@ -67,7 +68,7 @@ object ClassicMappedTuning {
   
    def apply(st: String, nts: String, name: String) = new ClassicMappedTuning(
        st.split(",").toList.map(RealInterval(_)),
-       new NoteSequence(nts.split(",").toList.map(ClassicNote(_))),
+       nts.split(",").toList.map(ClassicNote(_)),
        name)    
    
    val xmlfile = new MusicaXmlFile("ClassicMappedTuning", "1.0", "steplist", "step") 
