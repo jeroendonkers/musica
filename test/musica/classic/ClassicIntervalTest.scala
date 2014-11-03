@@ -60,32 +60,32 @@ class ClassicIntervalTest {
   }
   
    @Test def ClassicIntervalAddTest1() {
-     assertEquals(ClassicInterval.Fifth, ClassicInterval.MinorThird+ClassicInterval.MajorThird)
+     assertEquals(Fifth, MinorThird+MajorThird)
   }
 
   @Test def ClassicIntervalAddTest2() {
-     assertEquals(ClassicInterval.Fifth, ClassicInterval.Prime+ClassicInterval.Fifth)
+     assertEquals(Fifth, Prime+Fifth)
   }
  
    
   @Test def ClassicIntervalSubTest1() {
-     assertEquals(ClassicInterval.MinorThird,ClassicInterval.Fifth-ClassicInterval.MajorThird)
-     assertEquals(-ClassicInterval.MinorThird,ClassicInterval.MajorThird - ClassicInterval.Fifth)
-     assertEquals(-ClassicInterval.Fifth,(-ClassicInterval.MajorThird) - ClassicInterval.MinorThird)
-     assertEquals(ClassicInterval.Fifth,(ClassicInterval.MajorThird) - (-ClassicInterval.MinorThird))
+     assertEquals(MinorThird,Fifth-MajorThird)
+     assertEquals(-MinorThird,MajorThird - Fifth)
+     assertEquals(-Fifth,(-MajorThird) - MinorThird)
+     assertEquals(Fifth,(MajorThird) - (-MinorThird))
      
   }
 
   @Test def ClassicIntervalMulTest1() {
-     val a = ClassicInterval.MajorThird
+     val a = MajorThird
      val b = ClassicInterval(4,1) // augmented fifth
      assertEquals(b, a*2)
   }
   
   @Test def ClassicIntervalNegTest1() {
-     val a = ClassicInterval.Fifth
-     val b = -ClassicInterval.MinorThird 
-     val c = ClassicInterval.MajorThird
+     val a = Fifth
+     val b = -MinorThird 
+     val c = MajorThird
      val d = a+b
      assertEquals(c, d)
   }
@@ -175,8 +175,8 @@ class ClassicIntervalTest {
   
      @Test def circelfifthTest() {
      for (i <- -12 to 12) {  
-        val c = (ClassicInterval.Fifth* i).normalize
-        val d=ClassicNote.FifthCircle(i)
+        val c = (Fifth* i).normalize
+        val d=FifthCircle(i)
         assertEquals(c,ClassicInterval(ClassicNote(0),d))
      } 
      }

@@ -64,27 +64,6 @@ object ClassicInterval {
   def apply(note1: ClassicNote, note2: ClassicNote) = note1.interval(note2)
   def apply(s: String) =  ClassicIntervalParser(s)
   implicit def fromString(s: String): ClassicInterval = ClassicInterval(s)
-   
-  val Prime = ClassicInterval(0)
-  val MinorSecond = ClassicInterval(1,-1)
-  val MajorSecond = ClassicInterval(1)
-  val MinorThird = ClassicInterval(2,-1)
-  val MajorThird = ClassicInterval(2)
-  val Fourth = ClassicInterval(3)
-  val Fifth = ClassicInterval(4)
-  val MinorSixth = ClassicInterval(5,-1)
-  val MajorSixth = ClassicInterval(5)
-  val MinorSeventh = ClassicInterval(6,-1)
-  val MajorSeventh = ClassicInterval(6)
-  val Octave = ClassicInterval(7)
- 
-  
-  val MajorScale = ClassicScale(Prime, MajorSecond, MajorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
-  val MinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MinorSeventh)
-  val HarmonicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MinorSixth, MajorSeventh)
-  val MelodicMinorScale = ClassicScale(Prime, MajorSecond, MinorThird, Fourth, Fifth, MajorSixth, MajorSeventh)
-  val ChromaticScale = ClassicScale(Prime, MinorSecond, MajorSecond, MinorThird, MajorThird,
-                      Fourth, Fifth, MinorSixth, MajorSixth, MinorSeventh, MajorSeventh)
   
 }
 
@@ -120,7 +99,6 @@ object ClassicNote {
   def apply(s: String) =  ClassicNoteParser(s)
   implicit def fromString(s: String): ClassicNote = ClassicNote(s)
   
- def FifthCircle(i: Int) = ClassicNote(0) + (ClassicInterval.Fifth * i). normalize 
 }
 
 
@@ -146,10 +124,5 @@ object ClassicScale {
          if (notes.size==0) List() else
          notes.map(ClassicInterval(notes(0),_)))
   
-  def Major = ClassicInterval.MajorScale 
-  def Minor = ClassicInterval.MinorScale
-  def HarmonicMinor = ClassicInterval.HarmonicMinorScale
-  def MelodicMinor = ClassicInterval.MelodicMinorScale
-  def Chromatic = ClassicInterval.ChromaticScale
   
 }

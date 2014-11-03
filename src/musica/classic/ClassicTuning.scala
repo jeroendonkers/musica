@@ -101,7 +101,7 @@ class FifthTuning(val start: Int, val devs: List[Rational], val comma: RealInter
          FifthTuning.xmlfile.saveXML(path, filetag, new MusicaXmlData(
         Map("name" -> name, "version" -> version,"size"-> devs.size.toString, 
             "comma" -> { if (comma == PureInterval.SyntonicComma) "S"else "P"} , 
-            "start"-> ClassicNote.FifthCircle(start).toString),
+            "start"-> FifthCircle(start).toString),
         Map("value" -> devs.map(s => s.toString) ) ) )       
       }
 }
@@ -131,10 +131,10 @@ object FifthTuning {
          def fsum(f: Int, i: RealInterval, a: List[RealInterval]): List[(ClassicNote, RealInterval)] = {
          a match {
            case List() => List()
-           case x :: b => (ClassicNote.FifthCircle(f), (i+x).normalize) :: fsum(f+1, i+x, b)
+           case x :: b => (FifthCircle(f), (i+x).normalize) :: fsum(f+1, i+x, b)
          }
           }
-        val g = (ClassicNote.FifthCircle(start), RealInterval(0)) :: fsum(start+1,RealInterval(0),f)    
+        val g = (FifthCircle(start), RealInterval(0)) :: fsum(start+1,RealInterval(0),f)    
         val fifths = g.map(e=> e._1)
      
        // sort the fifths on order of the scale

@@ -25,8 +25,8 @@ object classicIntervalTry {
     
     println( n.normalize ) // C#
 
-    println (ClassicNote.FifthCircle(2))  // D
-    println (ClassicNote.FifthCircle(-13))  // Gbb
+    println (FifthCircle(2))  // D
+    println (FifthCircle(-13))  // Gbb
     
     println( a.fifth ) // -11
     

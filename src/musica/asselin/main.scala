@@ -173,10 +173,10 @@ object main extends SimpleSwingApplication {
       
       def compute() = {
        val tuning = getFifthTuning
-       val fc = tuning.compare(ClassicInterval.Fifth,PureInterval.Fifth).centlist
-       val tc = tuning.compare(ClassicInterval.MajorThird,PureInterval.MajorThird).centlist
-       val mc = tuning.compare(ClassicInterval.MinorThird,PureInterval.MinorThird).centlist
-       val sc = tuning.compare(ClassicInterval.MinorSeventh,PureInterval.HarmonicSeventh).centlist
+       val fc = tuning.compare(Fifth,PureInterval.Fifth).centlist
+       val tc = tuning.compare(MajorThird,PureInterval.MajorThird).centlist
+       val mc = tuning.compare(MinorThird,PureInterval.MinorThird).centlist
+       val sc = tuning.compare(MinorSeventh,PureInterval.HarmonicSeventh).centlist
        for (i <- 0 to 11) {
           val step = tuning.mappedStep(i)
           val j = orderIndex(step._1,i)
@@ -219,7 +219,7 @@ object main extends SimpleSwingApplication {
          val start: ClassicNote = selectstart.item
          val sf = start.fifth
          for (i <- 0 to 10) {
-           steps(i).label.text = ClassicNote.FifthCircle(i + sf).toString + " - " + ClassicNote.FifthCircle(i + sf+1).toString +  ":"
+           steps(i).label.text = FifthCircle(i + sf).toString + " - " + FifthCircle(i + sf+1).toString +  ":"
          }
         
       }
@@ -245,7 +245,7 @@ object main extends SimpleSwingApplication {
             steps(i).valuefield.text = if (a.numer==0) "0" else { if (a.value>0) "+"+a.toString else
               a.toString} 
          }})
-         selectstart.selection.item = (ClassicNote.FifthCircle(u.start)).toString
+         selectstart.selection.item = (FifthCircle(u.start)).toString
          selectcomma.selection.item = if (u.comma== PureInterval.SyntonicComma) "Syntonic" else "Pythagorean"
       }
       
