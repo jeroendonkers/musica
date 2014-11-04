@@ -13,6 +13,8 @@ class Rational(n: Long, d: Long) {
    val denom: Long = if (n==0 || d==0) 1 else d/g
    val value: Double = 1.0 * numer/denom;
    val longvalue: Long = numer / denom
+   
+   
 
    def +(that: Rational) = new Rational(numer * that.denom + that.numer * denom,denom * that.denom)
    def -(that: Rational) = new Rational(numer * that.denom - that.numer * denom,denom * that.denom)
@@ -20,6 +22,7 @@ class Rational(n: Long, d: Long) {
    def /(that: Rational) = new Rational(numer * that.denom, denom * that.numer)
    def unary_- :Rational = new Rational(-numer, denom)
    
+   def negative: Boolean = numer < 0
    
    def toInt = longvalue.toInt
    def toILong = longvalue
@@ -41,6 +44,9 @@ class Rational(n: Long, d: Long) {
 
 object Rational {
   def apply(n: Int, d: Int) = new Rational(n,d) 
+  
+  val zero = Rational(0,1)
+  
   
 implicit object RationalNumeric extends Numeric[Rational]  {
    // implementing Numeric trait

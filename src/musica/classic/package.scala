@@ -31,7 +31,7 @@ package object classic {
   
   // time
   
-  val Whole = new NoteValue(1,1)
+  val Whole = new SymbolicTime(1,1)
   val Half = Whole / 2
   val Quarter = Half / 2
   val Eighth = Quarter / 2
