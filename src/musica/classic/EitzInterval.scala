@@ -2,8 +2,12 @@ package musica.classic
 
 import musica.math._
 
+trait EitzInterval {
+  
+  
+}
 
-class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) {
+class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) with EitzInterval {
   def this(note: ClassicNote) = 
      this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note.normalize, note.octave)
     
@@ -23,7 +27,7 @@ class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) e
   override def toString = "" + note + "^"+(if(comma>0) "+" + comma else if (comma<0) comma else "0")
 }
 
-class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) {
+class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) with EitzInterval {
     
   def this(note: ClassicNote, comma: Rational) = 
     this( ((PureInterval.Fifth * note.fifth) +
@@ -33,9 +37,6 @@ class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Ration
   override def toString = "" + note + "^"+(if(comma.numer>0) "+" + comma else if (comma.numer<0) comma else "0")
 }
 
-class EitzInterval {
-  
-}
 
 object EitzInterval { 
   def apply(s: ClassicNote) = new PureEitzInterval(s)

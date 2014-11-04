@@ -2,7 +2,7 @@ package musica.classic
 import musica.symbol._
 
 
-class ClassicVNote(note: ClassicNote, notevalue: NoteValue) extends SymbolicVNote[ClassicNote](note, notevalue)
+class ClassicNoteEvent(note: ClassicNote, value: NoteValue) extends NoteEvent[ClassicNote](note, value)
 
 object ClassicMetrum {
   def apply(n: Int, m: Int) =  

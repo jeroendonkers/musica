@@ -12,6 +12,7 @@ class Rational(n: Long, d: Long) {
    val numer: Long = if (n==0 || d==0) 0 else n/g
    val denom: Long = if (n==0 || d==0) 1 else d/g
    val value: Double = 1.0 * numer/denom;
+   val longvalue: Long = numer / denom
 
    def +(that: Rational) = new Rational(numer * that.denom + that.numer * denom,denom * that.denom)
    def -(that: Rational) = new Rational(numer * that.denom - that.numer * denom,denom * that.denom)
@@ -19,6 +20,11 @@ class Rational(n: Long, d: Long) {
    def /(that: Rational) = new Rational(numer * that.denom, denom * that.numer)
    def unary_- :Rational = new Rational(-numer, denom)
    
+   
+   def toInt = longvalue.toInt
+   def toILong = longvalue
+   def toDouble = value
+   def toFloat = value.toFloat
    override def toString = "" + numer + "/" + denom
    
    override def equals(that: Any): Boolean = {
@@ -46,10 +52,10 @@ implicit object RationalNumeric extends Numeric[Rational]  {
     def negate(x: Rational): Rational = -x
     def plus(x: Rational, y: Rational): Rational = x + y
     def times(x: Rational, y: Rational): Rational = x*y
-    def toDouble(x: Rational): Double = x.value
-    def toFloat(x: Rational): Float = x.value.toFloat
-    def toInt(x: Rational): Int = x.value.toInt
-    def toLong(x: Rational): Long = x.value.toLong
+    def toDouble(x: Rational): Double = x.toDouble
+    def toFloat(x: Rational): Float = x.toFloat
+    def toInt(x: Rational): Int = x.toInt
+    def toLong(x: Rational): Long = x.toLong
    
    
 }    
