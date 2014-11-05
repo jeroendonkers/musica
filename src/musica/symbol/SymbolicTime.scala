@@ -33,13 +33,14 @@ class SymbolicTime(n: Long, m: Long) extends Rational(n,m) {
   lazy val triad: SymbolicTime =  new SymbolicTime(n, m*3) 
   
    override def toString = "[" + super.toString + "]"
-  
 }
 
 object SymbolicTime {
     def apply(n: Long, d: Long = 0) = new SymbolicTime(n, d)  
     def apply(n: Int, d: Int) = new SymbolicTime(n, d) 
     def apply(r: Rational) = new SymbolicTime(r) 
+    
+    val zero = SymbolicTime(0)
   
   implicit object NoteValueNumeric extends Numeric[SymbolicTime]  {
    // implementing Numeric trait
@@ -80,11 +81,48 @@ object Metrum {
     new Metrum( new SymbolicTime(1,m), n, ""+ n + "/" + m)
 }
 
-trait Event {
+abstract class Event {
    type EventType
    val event: EventType
    val value: SymbolicTime
+   val count: Int = 1
    override def toString = event.toString + value
+   
+   def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = {
+      if (o.negative || o >= value) List() else List(TimedEvent(this,-o))
+   }
+   
+   def fixAt(o: SymbolicTime = SymbolicTime.zero): List[TimedEvent] = {
+      List(TimedEvent(this,o))
+   }
+   
+     // operator ::: concatenate events: create or merge EventLists
+     def :::(that: Event): Event = { 
+       this match {
+         case e: EventList => that match {
+            case f: EventList => new EventList(e.event ::: f.event)
+            case f: Event =>  new EventList(e.event ::: List(f))
+           } 
+         case e: Event => that match {
+            case f: EventList => new EventList(List(e) ::: f.event)
+            case f: Event =>  new EventList(List(e,f))
+           }   
+       }
+     }
+   
+     // operator ||| put events into a block
+      def |||(that: Event): Event = { 
+       this match {
+         case e: EventBlock => that match {
+            case f: EventBlock => new EventBlock(e.event ::: f.event)
+            case f: Event =>  new EventBlock(e.event ::: List(f))
+           } 
+         case e: Event => that match {
+            case f: EventBlock => new EventBlock(List(e) ::: f.event)
+            case f: Event =>  new EventBlock(List(e,f))
+           }   
+       }
+     }
 }
 
 class Rest(val value: SymbolicTime) extends Event {
@@ -96,15 +134,53 @@ class NoteEvent[T <: SymbolicNoteBase](val event: T, val value: SymbolicTime) ex
    type EventType = T
 }
 
-class EventList(val event: List[Event]) extends Event {
+abstract class CompositeEvent extends Event
+
+// serial events
+class EventList(val event: List[Event]) extends CompositeEvent {
   
   type EventType = List[Event]
   val incvalue = event.scanLeft(SymbolicTime(0,1)){(a,e) => (a + e.value)}
-  val value = incvalue(incvalue.size-1) 
-  def eventAtOffset(o: SymbolicTime): Option[Event] = {
-    if (o.negative || o >= value) None else
-    Some((event.zip(incvalue).filter({case (e,st) => {o >= st && o<st+e.value}}).map({case (e,st)=> e})).head)
+  val value = incvalue(incvalue.size-1)
+  override val count = event.map(e => e.count).sum
+  
+  override def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+    val (e,st) = (event.zip(incvalue).filter({case (e,st) => {o >= st && o<st+e.value}})).head
+    e.eventsAtOffset(o - st)
+    }
   }
   
+   override def fixAt(o: SymbolicTime): List[TimedEvent] = {
+    event.zip(incvalue).flatMap({case (e,st) => e.fixAt(o+st)})
+  }
 }
 
+// synchronous events
+class EventBlock(val event: List[Event]) extends CompositeEvent {
+  
+  type EventType = List[Event]
+  val value = event.map(e => e.value).max 
+  override val count = event.map(e => e.count).sum
+  
+  override def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+      event.flatMap(e => e.eventsAtOffset(o))
+    }
+  }
+  
+    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
+       event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
+    }
+}
+
+
+class TimedEvent(val event: Event, val start: SymbolicTime = SymbolicTime.zero) {
+   def +(that: SymbolicTime): TimedEvent = new TimedEvent(event, start+that)
+   override def toString = ""+start+":"+event.toString    
+}
+
+object TimedEvent {
+  def apply(event: Event, start: SymbolicTime = SymbolicTime.zero) = new TimedEvent(event,start)
+  def compare(a: TimedEvent, b:  TimedEvent): Boolean = a.start < b.start
+}
