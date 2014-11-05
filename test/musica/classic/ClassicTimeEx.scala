@@ -34,13 +34,26 @@ object ClassicTimeEx {
     println(e.eventsAtOffset(Whole + Sixteenth * 5))
     
     
-    val x =  (e ::: new ClassicNoteEvent("C",Quarter)) ||| (WholeRest ::: e)
+    val x =  (e ++ new ClassicNoteEvent("C",Quarter)) || (WholeRest ++ e)
     
     println(x)
     println(x.eventsAtOffset(Sixteenth * 3))
     
     println(x.fixAt())
     println(x.count)
+    
+    
+     val r1 = WholeRest
+     val r2 = QuarterRest
+     val c1 =  new NoteEvent[ClassicNote]("C",Quarter)
+     val c2 =  new NoteEvent[ClassicNote]("D",Quarter)
+     
+     val event = (c1 ++ r2) || (r1 ++ c2)
+     println(event)
+     
+     val fixed = event.fixAt(SymbolicTime(1,4))
+     
+     println(fixed)
     
   }
 }

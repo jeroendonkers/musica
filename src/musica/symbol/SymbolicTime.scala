@@ -96,29 +96,29 @@ abstract class Event {
       List(TimedEvent(this,o))
    }
    
-     // operator ::: concatenate events: create or merge EventLists
-     def :::(that: Event): Event = { 
+     // operator ++ concatenate events: create or merge EventLists
+     def ++(that: Event): Event = { 
        this match {
          case e: EventList => that match {
-            case f: EventList => new EventList(e.event ::: f.event)
-            case f: Event =>  new EventList(e.event ::: List(f))
+            case f: EventList => new EventList(e.event ++ f.event)
+            case f: Event =>  new EventList(e.event ++ List(f))
            } 
          case e: Event => that match {
-            case f: EventList => new EventList(List(e) ::: f.event)
+            case f: EventList => new EventList(List(e) ++ f.event)
             case f: Event =>  new EventList(List(e,f))
            }   
        }
      }
    
-     // operator ||| put events into a block
-      def |||(that: Event): Event = { 
+     // operator || put events into a block
+      def ||(that: Event): Event = { 
        this match {
          case e: EventBlock => that match {
-            case f: EventBlock => new EventBlock(e.event ::: f.event)
-            case f: Event =>  new EventBlock(e.event ::: List(f))
+            case f: EventBlock => new EventBlock(e.event ++ f.event)
+            case f: Event =>  new EventBlock(e.event ++ List(f))
            } 
          case e: Event => that match {
-            case f: EventBlock => new EventBlock(List(e) ::: f.event)
+            case f: EventBlock => new EventBlock(List(e) ++ f.event)
             case f: Event =>  new EventBlock(List(e,f))
            }   
        }
@@ -169,9 +169,9 @@ class EventBlock(val event: List[Event]) extends CompositeEvent {
     }
   }
   
-    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
-       event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
-    }
+   override def fixAt(o: SymbolicTime): List[TimedEvent] = {
+      event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
+   }
 }
 
 
