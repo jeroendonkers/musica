@@ -49,6 +49,29 @@ class SymbolicTimeTest {
      
      val fixed = event.fixAt(SymbolicTime(1,4))
      assertEquals(SymbolicTime(5,4),fixed(3).start)
+     
+     val empty = new EventList(List())
+     assertEquals(0,empty.count)
+     assertEquals(SymbolicTime.zero,empty.value)
+     
+     assertEquals(8, (event * 2).count)
+     assertEquals(0, (event * -2).count)
+     assertEquals(0, (empty * 10).count)
+     
+     val rep = event ** (r1 ++ r2 ++ c1)
+     
+     assertEquals(SymbolicTime(21,4), rep.value)
+     
+      val repdc = event *** (r1 ++ (r2 ++ c1))
+      
+     assertEquals(SymbolicTime(13,2), repdc.value)
+     assertEquals(19, repdc.count)
+     
+     val repdcc = event *** (r1 ++ !(r2 ++ c1))
+     assertEquals(15, repdcc.count)      
+     assertEquals(SymbolicTime(21,4), repdcc.value)     
   }
+  
+  
   
 }

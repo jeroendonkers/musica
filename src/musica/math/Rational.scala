@@ -47,7 +47,7 @@ object Rational {
   
   val zero = Rational(0,1)
   
-  
+   
 implicit object RationalNumeric extends Numeric[Rational]  {
    // implementing Numeric trait
     def compare(x: Rational, y: Rational): Int = {

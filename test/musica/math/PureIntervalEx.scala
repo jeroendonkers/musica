@@ -30,5 +30,5 @@ object PureIntervalEx {
   	println(f) //  424.364... c
   	
   	val g: PureInterval = "2/3" 
-    	
+  	  
   }}

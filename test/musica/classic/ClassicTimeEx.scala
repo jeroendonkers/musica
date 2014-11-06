@@ -47,13 +47,26 @@ object ClassicTimeEx {
      val r2 = QuarterRest
      val c1 =  new NoteEvent[ClassicNote]("C",Quarter)
      val c2 =  new NoteEvent[ClassicNote]("D",Quarter)
+     val empty = new EventList(List())
      
-     val event = (c1 ++ r2) || (r1 ++ c2)
+     val event = empty ++ ((c1 ++ r2) || (r1 ++ c2 ++ empty)) 
      println(event)
      
      val fixed = event.fixAt(SymbolicTime(1,4))
      
      println(fixed)
+     println(empty.fixAt())
+     
+     println( empty * 5)
+     
+     val rep = x *** (!(r1 ++ r2) ++ c1)
+    
+     println(rep)
+     println(rep.fixAt(Quarter))
+     
+     
+     println( !(r1 ++ r2) ++ !(c1++c2) ++ !(c1++r1) )
+     
     
   }
 }

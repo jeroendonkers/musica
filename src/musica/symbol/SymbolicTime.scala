@@ -96,33 +96,42 @@ abstract class Event {
       List(TimedEvent(this,o))
    }
    
-     // operator ++ concatenate events: create or merge EventLists
-     def ++(that: Event): Event = { 
-       this match {
-         case e: EventList => that match {
-            case f: EventList => new EventList(e.event ++ f.event)
-            case f: Event =>  new EventList(e.event ++ List(f))
-           } 
-         case e: Event => that match {
-            case f: EventList => new EventList(List(e) ++ f.event)
-            case f: Event =>  new EventList(List(e,f))
-           }   
-       }
-     }
+   def getEventList: List[Event] = {
+      this match {
+         case e: EventList => e.event
+         case e: Event => List(e)
+      }   
+   }
    
+   def getEventBlock: List[Event] = {
+      this match {
+         case e: EventBlock => e.event
+         case e: Event => List(e)
+      }   
+   }
+  
+     // operator ++ concatenate events: create or merge EventLists
+     def ++(that: Event): EventList = new EventList(this.getEventList ++ that.getEventList)
+     
+     
+     // keep as list : use this to prevent merging into a list when using ++ operator
+     def unary_! : EventList = new EventList(List(this))
+     
      // operator || put events into a block
-      def ||(that: Event): Event = { 
-       this match {
-         case e: EventBlock => that match {
-            case f: EventBlock => new EventBlock(e.event ++ f.event)
-            case f: Event =>  new EventBlock(e.event ++ List(f))
-           } 
-         case e: Event => that match {
-            case f: EventBlock => new EventBlock(List(e) ++ f.event)
-            case f: Event =>  new EventBlock(List(e,f))
-           }   
-       }
+     def ||(that: Event): EventBlock = new EventBlock(this.getEventBlock ++ that.getEventBlock)
+  
+     // operator *: repeat events (concatenate in case of eventlist)
+     def *(that: Int): EventList = {
+       if (that <=0) new EventList(List()) else 
+       new EventList((List.fill(that)(getEventList)).flatten)         
      }
+     
+     // generate repeat event, no da capo, use ! operator in right-hand expression 
+      def **(that: Event): RepeatEvent = new RepeatEvent(List(this) ++ that.getEventList)
+      
+     // generate repeat event with da capo, use ! operator in right-hand expression
+      def ***(that: Event): RepeatEvent = new RepeatEvent(List(this) ++ that.getEventList, true)
+      
 }
 
 class Rest(val value: SymbolicTime) extends Event {
@@ -156,7 +165,7 @@ class EventList(val event: List[Event]) extends CompositeEvent {
   }
 }
 
-// synchronous events
+// synchronous events: all events start at the same time, but the duration (value) may differ
 class EventBlock(val event: List[Event]) extends CompositeEvent {
   
   type EventType = List[Event]
@@ -172,6 +181,37 @@ class EventBlock(val event: List[Event]) extends CompositeEvent {
    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
       event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
    }
+}
+
+// repeat event. The first element in the list is the (composite) event that needs to repeated
+// the other elements in the list are each merged between the repeats and so determine the amount of repeats.
+// if daCapo is true, the first element is repeated at the end.
+// Useable for repeats, dacapo aria. rounds, rondeau's and so on
+class RepeatEvent(val event: List[Event], val daCapo: Boolean = false) extends CompositeEvent {
+   type EventType = List[Event]
+   
+   lazy val asEventList: EventList = {
+     if (event.size==0) new EventList(List()) else {
+       val head = event.head.getEventList
+       val v = event.tail.map(e => head ++ e.getEventList).flatten ++ (if (daCapo) head else List())
+       new EventList(v)
+     }
+   }
+   val value = {
+       if (event.size==0) SymbolicTime.zero else {
+         event.tail.map(e => e.value).sum + event.head.value * (event.size - (if (daCapo) 0 else 1))
+       }
+   }
+    override val count: Int = {
+       if (event.size==0) 0 else {
+         event.tail.map(e => e.count).sum + event.head.count * (event.size - (if (daCapo) 0 else 1))
+       }
+   }
+     
+    override def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = asEventList.eventsAtOffset(o)
+    
+    override def fixAt(o: SymbolicTime): List[TimedEvent] = asEventList.fixAt(o)
+
 }
 
 
