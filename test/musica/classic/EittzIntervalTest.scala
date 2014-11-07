@@ -20,7 +20,7 @@ class EittzIntervalTest {
     }
   
     @Test def TestCreate3() {
-    val a = EitzInterval("C",Rational(1,2))
+    val a = EitzInterval("C",1\2)
     assertEquals(a.toString,"C^+1/2")
     }
     

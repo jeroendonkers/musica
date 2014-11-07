@@ -1,5 +1,5 @@
 package musica.symbol
-import musica.math.Rational
+import musica.math._
 import scala.collection.immutable.ListMap
 
 class SymbolicTime(n: Long, m: Long) extends Rational(n,m) {
@@ -93,6 +93,15 @@ abstract class Event {
       if (o.negative || o >= value) List() else List(TimedEvent(this,-o))
    }
    
+   def eventsStartAtOffset(o: SymbolicTime): List[TimedEvent] = {
+      if (o != 0) List() else List(TimedEvent(this,0\1))
+   }
+   
+   def eventsEndAtOffset(o: SymbolicTime): List[TimedEvent] = {
+      if (o != value) List() else List(TimedEvent(this,0\1))
+   }
+   
+   
    def fixAt(o: SymbolicTime = SymbolicTime.zero): List[TimedEvent] = {
       List(TimedEvent(this,o))
    }
@@ -154,10 +163,28 @@ class EventList(val event: List[Event]) extends CompositeEvent {
   val value = incvalue(incvalue.size-1)
   override val count = event.map(e => e.count).sum
   
+  private [this] def findEvent(o: SymbolicTime) = {
+     (event.zip(incvalue).filter({case (e,st) => {o >= st && o<st+e.value}})).head
+  }
+  
   override def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = {
     if (o.negative || o >= value) List() else {
-    val (e,st) = (event.zip(incvalue).filter({case (e,st) => {o >= st && o<st+e.value}})).head
+    val (e,st) = findEvent(o)
     e.eventsAtOffset(o - st)
+    }
+  }
+  
+  override def eventsStartAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+    val (e,st) = findEvent(o)
+    e.eventsStartAtOffset(o - st)
+    }
+  }
+  
+   override def eventsEndAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+    val (e,st) = findEvent(o)
+    e.eventsEndAtOffset(o - st)
     }
   }
   
@@ -179,6 +206,18 @@ class EventBlock(val event: List[Event]) extends CompositeEvent {
     }
   }
   
+  override def eventsStartAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+      event.flatMap(e => e.eventsStartAtOffset(o))
+    }
+  }
+  
+   override def eventsEndAtOffset(o: SymbolicTime): List[TimedEvent] = {
+    if (o.negative || o >= value) List() else {
+      event.flatMap(e => e.eventsEndAtOffset(o))
+    }
+  }
+   
    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
       event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
    }
@@ -210,6 +249,8 @@ class RepeatEvent(val event: List[Event], val daCapo: Boolean = false) extends C
    }
      
     override def eventsAtOffset(o: SymbolicTime): List[TimedEvent] = asEventList.eventsAtOffset(o)
+    override def eventsStartAtOffset(o: SymbolicTime): List[TimedEvent] = asEventList.eventsStartAtOffset(o) 
+    override def eventsEndAtOffset(o: SymbolicTime): List[TimedEvent] = asEventList.eventsEndAtOffset(o) 
     
     override def fixAt(o: SymbolicTime): List[TimedEvent] = asEventList.fixAt(o)
 
@@ -218,10 +259,34 @@ class RepeatEvent(val event: List[Event], val daCapo: Boolean = false) extends C
 
 class TimedEvent(val event: Event, val start: SymbolicTime = SymbolicTime.zero) {
    def +(that: SymbolicTime): TimedEvent = new TimedEvent(event, start+that)
+   val end = start + event.value
    override def toString = ""+start+":"+event.toString    
 }
 
 object TimedEvent {
   def apply(event: Event, start: SymbolicTime = SymbolicTime.zero) = new TimedEvent(event,start)
   def compare(a: TimedEvent, b:  TimedEvent): Boolean = a.start < b.start
+}
+
+
+class EventMap(val event: Event)  {
+     private val fixmap = event.fixAt(0)
+     private def condense(l: List[TimedEvent], n: List[(SymbolicTime,List[Event])],
+       f: TimedEvent => SymbolicTime): List[(SymbolicTime,List[Event])] = {
+     l match {
+       case List() => n
+       case h :: t => {
+         val target = f(h) 
+         n match {
+         case List() => condense(t, List((target, List(h.event))),f) 
+         case x :: y => if (x._1 == target) condense(t, List((x._1, x._2 ++ List(h.event))) ::: y,f )
+                        else condense(t, List((target, List(h.event))) ::: n,f )
+       }}       
+     }    
+   }
+   private def createListMap(a: List[(SymbolicTime,List[Event])]) = 
+        a.foldLeft(ListMap[SymbolicTime,List[Event]]()){  (m,s) => m + s } 
+   
+   val startmap = createListMap(condense(fixmap, List(), _.start).reverse)
+   val endmap = createListMap(condense(fixmap, List(), _.end).reverse)
 }
