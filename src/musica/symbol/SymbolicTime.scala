@@ -41,7 +41,8 @@ object SymbolicTime {
     def apply(r: Rational) = new SymbolicTime(r) 
     
     val zero = SymbolicTime(0)
-  
+    
+
   implicit object NoteValueNumeric extends Numeric[SymbolicTime]  {
    // implementing Numeric trait
     def compare(x: SymbolicTime, y: SymbolicTime): Int = {

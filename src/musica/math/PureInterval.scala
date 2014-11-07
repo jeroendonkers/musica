@@ -3,6 +3,7 @@ package musica.math
 class PureInterval(n: Long, d: Long) extends Rational(n: Long, d: Long) with RealInterval {
    
    def this(p: PureInterval) = this(p.numer,p.denom) 
+   def this(p: Rational) = this(p.numer,p.denom) 
    
    private def pwr(base: Long, to: Int): Long = {
          def _pwr(result: Long, exp: Int): Long = {exp match {
@@ -43,6 +44,7 @@ object PureInterval {
     def apply(n: Int, d: Int) = new PureInterval(n, d)
     def apply(n: Long, d: Long) = new PureInterval(n, d)
     def apply(i: PureInterval) = new PureInterval(i.numer, i.denom)
+    def apply(i: Rational) = new PureInterval(i.numer, i.denom)
     def apply(s: String) =  RealIntervalParser.pure(s)
     implicit def fromString(s: String): PureInterval = PureInterval(s)  
     

@@ -30,6 +30,17 @@ class RationalTest {
     assertTrue(a / b == Rational(15,16))
   }
 
+@Test def testimplicits() {
+    var a = 3 \ 4
+    var b = 4 \ 5
+    assertTrue(a * b == 12 \ 20)
+    assertTrue(a / b == 15 \ 16)
+    val c = a + 1
+    assertTrue(c == 7 \ 4)
+  }
+
+
+
 @Test def teststring() {
     var a = Rational(3,4)
     assertEquals(a.toString,"3/4")
