@@ -44,7 +44,7 @@ abstract class SymbolicNoteBase(stp: Int, val dev: Int,  val octave: Int,  val o
    def -(that: SymbolicIntervalBase): NN 
 }
 
-trait MidiCode extends SymbolicNoteBase {
+trait HasMidiCode extends SymbolicNoteBase {
   val midicode: Int
  }
 

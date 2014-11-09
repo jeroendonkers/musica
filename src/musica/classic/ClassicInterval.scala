@@ -69,7 +69,7 @@ object ClassicInterval {
 
 
 class ClassicNote(stp: Int, dev: Int = 0, octave: Int = 0) 
- extends SymbolicNote[ClassicNote, ClassicInterval](stp, dev, octave,7,12) with MidiCode {
+ extends SymbolicNote[ClassicNote, ClassicInterval](stp, dev, octave,7,12) with HasMidiCode {
  
   def create(stp: Int, dv: Int, oct: Int) = new ClassicNote(stp,dv,oct)
   def createInterval(stp: Int, dv: Int) = new ClassicInterval(stp,dv)
