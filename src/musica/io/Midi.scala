@@ -61,7 +61,7 @@ object Midi {
  // manually create the following key:
  // HKEY_LOCAL_MACHINE\Software\JavaSoft\Prefs
  
- def openMidiOut(s: String): Boolean = {
+ def openMidiOut(s: String = "Gervill"): Boolean = {
    closeMidiOut
    midiError = ""
    getDevice(s) match {
@@ -82,6 +82,8 @@ object Midi {
      val v = midiOutput.get.getReceiver()
      if (v!=null) { receiver = Some(v) }
    } 
+   
+   for (i <- 0 to 15) { sendTuningChange(i)} // set all channels to same tuning preset
    receiver.isDefined  
   }
  
@@ -105,7 +107,7 @@ object Midi {
                 val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
                 val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
                 track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
-                track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))               
+                track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
             }		
           }}) 
   		
@@ -132,6 +134,42 @@ object Midi {
        case e: Exception => midiError = e.toString 
      }
     
+  }
+ 
+  
+val tuningpreset = 0  
+  
+def sendTuningChange(channel: Int) = {
+  // Data Entry
+  val sm1 = new ShortMessage(); 
+  sm1.setMessage(ShortMessage.CONTROL_CHANGE, channel, 0x64, 0x03);
+  val sm2 = new ShortMessage();
+  sm2.setMessage(ShortMessage.CONTROL_CHANGE, channel, 0x65, 0x00);
+  // Tuning program
+  val sm3 = new ShortMessage();
+  sm3.setMessage(ShortMessage.CONTROL_CHANGE, channel, 0x06, tuningpreset);
+  // Data Increment
+  val sm4 = new ShortMessage();
+  sm4.setMessage(ShortMessage.CONTROL_CHANGE, channel, 0x60, 0x7F);
+  // Data Decrement
+  val sm5 = new ShortMessage();
+  sm5.setMessage(ShortMessage.CONTROL_CHANGE, channel, 0x61, 0x7F);
+
+  send(sm1, -1);
+  send(sm2, -1);
+  send(sm3, -1);
+  send(sm4, -1);
+  send(sm5, -1);
+ }
+  
+  
+  def singleKeyTuning(data: List[(Int,Int,Double)]): MidiMessage = {
+    val numdata = data.size
+    val head: List[Int] = List[Int](0X7F, 0x7F, 0x08, 0x02, tuningpreset, numdata) ++
+        data.flatMap({ case (k,l,cents) => {List(k,l, (cents*163.84 / 128).toInt, (cents*163.84 % 128).toInt)  } }) ++
+        List(0xF7)
+       // println(head)
+    new SysexMessage(0xF0, head.map(_.toByte).toArray, head.size)
   }
   
 }
