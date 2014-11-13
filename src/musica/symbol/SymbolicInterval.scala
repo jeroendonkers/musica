@@ -44,10 +44,6 @@ abstract class SymbolicNoteBase(stp: Int, val dev: Int,  val octave: Int,  val o
    def -(that: SymbolicIntervalBase): NN 
 }
 
-trait HasMidiCode extends SymbolicNoteBase {
-  val midicode: Int
- }
-
 // you have to extend this
 abstract class SymbolicInterval[I <: SymbolicIntervalBase, N <: SymbolicNoteBase]
 (step: Int, dev: Int, octavesteps: Int, octavesize: Int) 
@@ -197,4 +193,12 @@ abstract class SymbolicScale[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](
      steplist.indexOf(c)
    }
   
+}
+
+trait HasMidiCode {
+  val midicode: Int
+ }
+
+class MidiNote(val midicode: Int) extends HasMidiCode {
+   override def toString ="m" + midicode.toString 
 }

@@ -3,6 +3,7 @@ package musica.asselin
 import musica.math._
 import musica.symbol._
 import musica.classic._
+import musica.io._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.GridBagPanel._
@@ -264,6 +265,29 @@ object main extends SimpleSwingApplication {
       }
       
       
+      var midifile: Option[String] = None
+      
+      def playMidiFile() {
+        if (midifile.isDefined) {
+          Midi.openMidiOut() 
+          Midi.send(Midi.scaleTuning(getFifthTuning()),-1) 
+           Midi.playMidiFile(midifile.get)
+        }
+      }
+      
+      def selectMidiFile() {
+         val chooser = new FileChooser(new File("."))
+         chooser.title = "Select midi file"      
+         val result = chooser.showOpenDialog(null) 
+                if (result == FileChooser.Result.Approve) {
+                var file = chooser.selectedFile
+                midifile = Some(file.getAbsolutePath())
+                playMidiFile()
+            }      
+      }
+        
+   
+      
       class SaveDialog(val savefunction: (String,String,String, String) => Unit, val ttl: String) extends Dialog() {
          val nametext = new TextField(columns = 30)
          val filetagtext = new TextField(columns = 30)  
@@ -433,6 +457,19 @@ object main extends SimpleSwingApplication {
           contents += new MenuItem(Action("Export to Scala .scl") {
                  exportScala()
              })
+      }
+      
+      contents += new Menu("Play") {
+           contents += new MenuItem(Action("Select and play Midi file") {
+                selectMidiFile()
+             })
+             contents += new MenuItem(Action("Replay Midi file") {
+                playMidiFile()
+             })
+             contents += new MenuItem(Action("Stop playing") {
+                Midi.stopPlaying
+             })     
+           
       }
       
       }
