@@ -209,6 +209,7 @@ object main extends SimpleSwingApplication {
 
        
        table.repaint
+        Midi.send(Midi.scaleTuning(tuning),-1) 
        
       }
       
@@ -248,6 +249,7 @@ object main extends SimpleSwingApplication {
          }})
          selectstart.selection.item = (FifthCircle(u.start)).toString
          selectcomma.selection.item = if (u.comma== PureInterval.SyntonicComma) "Syntonic" else "Pythagorean"
+         Midi.send(Midi.scaleTuning(u),-1) 
       }
       
       def load() {

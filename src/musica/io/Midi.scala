@@ -201,11 +201,40 @@ def sendTuningChange(channel: Int) = {
   }
   
   def scaleTuning(tuning: Tuning) = {
-    val cents = (tuning-Tuning.ET12).centlist 
-    val sysex: List[Int] = List[Int](0X7F, 0x7F, 0x08, 0x09, 0x03, 0x7F, 0x7F) ++
-    cents.map(c => (c+100)/2).flatMap(c => List((c*163.84 / 128).toInt, (c*163.84 % 128).toInt)) ++
-    List(0xF7)
-    new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
+    if (tuning.size==12) {
+      // use scale tuning message
+      val cents = (tuning-Tuning.ET12).centlist 
+      val sysex: List[Int] = List[Int](0X7F, 0x7F, 0x08, 0x09, 0x03, 0x7F, 0x7F) ++
+      cents.map(c => (c+100)/2).flatMap(c => List((c*163.84 / 128).toInt, (c*163.84 % 128).toInt)) ++
+      List(0xF7)
+      new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
+      
+    } else {
+      // use tuning bulk message
+      val cents = tuning.centlist
+      val n = tuning.size
+      val d = n - 60 % n // shift so that key 60 is always start point
+      
+      val data = List.range(0, 128).map(i => cents((i + d) % n) + 1200 * ((i+d)/n - 60/n  - 1)).
+      flatMap(c => {
+        val note = (c / 100).floor.toInt 
+        if (note+60 <0  || note+60 >127) {
+          List(0,0,0)
+        } else {
+          val cents = c - note*100
+          List(note + 60, (cents*163.84 / 128).toInt, (cents*163.84 % 128).toInt)}
+        }
+      )
+      val sysexdata: List[Int] = List[Int](0X7E, 0x7F, 0x08, 0x01, tuningpreset) ++ 
+      "0123456789ABCDEF".toArray.map(_.toInt).toList ++ data // add nonsense tuning name
+      
+      val checksum = (sysexdata.tail.foldLeft(0x7E)((a,b) => a^b)) & 0x7F  // compute checksum by XOR
+      
+      val sysex = sysexdata ++ List(checksum, 0x7F)
+      
+      new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
+   
+    }
   }
   
   
