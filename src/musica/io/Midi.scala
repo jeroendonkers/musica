@@ -8,6 +8,17 @@ import scala.collection.JavaConversions._
 import musica.symbol._
 import musica.math._
 
+trait HasMidiCode {
+  val midicode: Int
+ }
+
+trait MidiTunedNote extends HasMidiCode {
+  val midiFrequency: Double
+}
+
+class MidiNote(val midicode: Int) extends HasMidiCode {
+   override def toString ="m" + midicode.toString 
+}
 
 object Midi {
   
@@ -51,6 +62,7 @@ object Midi {
  
  
  def closeMidiOut() = {
+   stopPlaying()
    if (receiver.isDefined) { receiver = None }
    if (midiOutput.isDefined) {
         midiOutput.get.close()
@@ -140,13 +152,22 @@ object Midi {
         val sequence = new Sequence(Sequence.PPQ,ppq);
   		val track = sequence.createTrack();
   		el.foreach(e => {
+         e.event.event match {
+            case  c:  MidiTunedNote => {
+               println(c.midicode+" "+c.midiFrequency)
+               val st = tuneNote(c.midicode, c.midiFrequency)             
+               track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
+            }
+         }  
           e.event.event match {
             case  c:  HasMidiCode => {
                 val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
                 val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
                 track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
                 track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
-            }		
+            }
+            
+            
           }}) 
   		playSequence(sequence, bpm)
  
@@ -191,7 +212,7 @@ def sendTuningChange(channel: Int) = {
   send(sm5, -1);
  }
   
-  
+  // tune (a list) of single notes
   def singleKeyTuning(data: List[(Int,Int,Double)]): MidiMessage = {
     val numdata = data.size
     val sysex: List[Int] = List[Int](0X7F, 0x7F, 0x08, 0x02, tuningpreset, numdata) ++
@@ -200,7 +221,20 @@ def sendTuningChange(channel: Int) = {
     new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
   }
   
-  def scaleTuning(tuning: Tuning) = {
+  
+  // tune a single note to a given frequency
+  def tuneNote(i: Int, freq: Double): MidiMessage = {
+    // determine distance from A = 440
+       val shift = 1200 * Math.log( freq / 440.0 ) / Math.log(2)
+       val numsteps = (shift / 100).floor.toInt
+       val notenum = 69 + numsteps
+       val centshift = shift - 100*numsteps
+       singleKeyTuning(List((i,notenum,centshift)))
+  }
+  
+  
+  // default tuning using 12-tone scale tuning message
+  def scale12Tuning(tuning: Tuning) = {
     if (tuning.size==12) {
       // use scale tuning message
       val cents = (tuning-Tuning.ET12).centlist 
@@ -209,12 +243,24 @@ def sendTuningChange(channel: Int) = {
       List(0xF7)
       new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
       
-    } else {
-      // use tuning bulk message
-      val cents = tuning.centlist
+    } else new SysexMessage()
+  }
+  
+    // compute default frequency of midi note i
+  def baseFrequency(i: Int) = {
+    440.0 * Math.pow(2,(i - 69)/12.0) 
+  }
+  
+  // More complex tuning, allowing more or less than 12 notes and a base frequency.
+  // use tuning bulk message
+  def scaleTuning(tuning: Tuning, reffreq: Double = 440, refnote: Int = 69) = {
+      // get base shift in cents
+      val shift = 1200 * Math.log( reffreq / baseFrequency(refnote) ) / Math.log(2)
+      // get and shift cents of tuning
+      val cents = tuning.centlist.map(_+shift)   
       val n = tuning.size
       val d = n - 60 % n // shift so that key 60 is always start point
-      
+       
       val data = List.range(0, 128).map(i => cents((i + d) % n) + 1200 * ((i+d)/n - 60/n  - 1)).
       flatMap(c => {
         val note = (c / 100).floor.toInt 
@@ -233,8 +279,6 @@ def sendTuningChange(channel: Int) = {
       val sysex = sysexdata ++ List(checksum, 0x7F)
       
       new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
-   
-    }
   }
   
   

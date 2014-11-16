@@ -195,10 +195,3 @@ abstract class SymbolicScale[N <: SymbolicNote[N,I],I <: SymbolicInterval[I,N]](
   
 }
 
-trait HasMidiCode {
-  val midicode: Int
- }
-
-class MidiNote(val midicode: Int) extends HasMidiCode {
-   override def toString ="m" + midicode.toString 
-}

@@ -8,6 +8,13 @@ class EitzEvent(val event: EitzInterval, val value: SymbolicTime) extends Event 
   type EventType = EitzInterval
 }
 
+object EitzEvent {
+  def apply(s: String, value: SymbolicTime) = {
+    new EitzEvent(EitzInterval.pure(s), value)
+  }
+  
+}
+
 object ClassicMetrum {
   def apply(n: Int, m: Int) =  
     new Metrum( Whole/m, n, ""+ n + "/" + m)

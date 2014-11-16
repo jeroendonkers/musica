@@ -1,7 +1,7 @@
 package musica.classic
 
 import musica.symbol._
-
+import musica.io.HasMidiCode
 
 class ClassicInterval(step: Int, dev: Int=0)
   extends SymbolicInterval[ClassicInterval, ClassicNote](step, dev,7,12) {

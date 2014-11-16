@@ -1,13 +1,20 @@
 package musica.classic
 
 import musica.math._
+import musica.io.HasMidiCode
+import musica.io.MidiTunedNote
+import musica.io.Midi
 
-trait EitzInterval {
-  
-  
+
+trait EitzInterval extends HasMidiCode with MidiTunedNote {
+  val basefreq = Midi.baseFrequency(60) // middle C
 }
 
 class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) with EitzInterval {
+  
+  val midicode = note.midicode 
+  val midiFrequency = basefreq * value
+  
   def this(note: ClassicNote) = 
      this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note.normalize, note.octave)
     
@@ -28,7 +35,9 @@ class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) e
 }
 
 class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) with EitzInterval {
-    
+  val midicode = note.midicode  
+  val midiFrequency = basefreq * value
+  
   def this(note: ClassicNote, comma: Rational) = 
     this( ((PureInterval.Fifth * note.fifth) +
          (PureInterval.SyntonicComma * comma.value)).normalize  

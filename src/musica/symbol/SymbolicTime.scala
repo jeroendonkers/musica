@@ -1,5 +1,6 @@
 package musica.symbol
 import musica.math._
+import musica.io.MidiNote
 import scala.collection.immutable.ListMap
 
 class SymbolicTime(n: Long, m: Long) extends Rational(n,m) {
