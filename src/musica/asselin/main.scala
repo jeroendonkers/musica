@@ -51,8 +51,11 @@ object main extends SimpleSwingApplication {
      
      val selectcomma = new ComboBox(List("Syntonic","Pythagorean"))
      val selectstart = new ComboBox(List("Cb","Gb","Db","Ab","Eb","Bb","F","C"))
-     val computebutton = new Button { text = "Compute" }
+     val computebutton = new Button { text = "Run" }
      val fillbutton = new Button { text = "Fill" }
+     val playbutton = new Button { text = "Play" }
+     val stopbutton = new Button { text = "Stop" }
+     
      
      class StepPanel(val nr: Int) {
       val label = new Label(""+nr+":") { horizontalAlignment = Alignment.Center }
@@ -79,9 +82,11 @@ object main extends SimpleSwingApplication {
               cl.grid = (2,a.nr+3) ;   layout( a.valuefield) = cl
            })
             cl.grid = (1,15)
-            layout(fillbutton) = cl
-            cl.grid = (2,15)
-            layout(computebutton) = cl
+            cl.gridwidth = 2
+            val flow = new FlowPanel(scala.swing.FlowPanel.Alignment.Left)(fillbutton, computebutton, playbutton, stopbutton)
+            layout(flow) = cl
+        //    cl.grid = (2,15)
+        //    layout(computebutton) = cl
      }
      
      val headers = Array("Note","Fifths", "Maj.Thirds", "Min.Thirds", "H.Sevenths", "Cents")
@@ -477,13 +482,17 @@ object main extends SimpleSwingApplication {
       }
          
       
-   listenTo(computebutton, fillbutton, selectstart.selection, selectcomma.selection, 
+   listenTo(computebutton, fillbutton, playbutton, stopbutton, selectstart.selection, selectcomma.selection, 
        selectvalues.selection, selectsort.selection) 
    
   reactions += {
     case WindowClosing(e) => System.exit(0)
     case ButtonClicked(`computebutton`) => { compute() }
     case ButtonClicked(`fillbutton`) => { fill() }
+    case ButtonClicked(`playbutton`) => { 
+      if (midifile.isDefined) { playMidiFile() } else { selectMidiFile() }  
+    }
+    case ButtonClicked(`stopbutton`) => { Midi.stopPlaying }  
     case SelectionChanged(`selectstart`) => { 
       changelabels() 
       compute() }

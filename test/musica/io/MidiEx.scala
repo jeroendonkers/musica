@@ -2,10 +2,17 @@ package musica.io
 import musica.math._
 import musica.symbol._
 import musica.classic._
+import javax.sound.sampled._;
+import java.io.File;
+
+
 
 
 object MidEx extends App {
 
+  
+  
+  
     Midi.openMidiOut() 
   
      val c1 = EitzEvent("C",1\4)
@@ -29,9 +36,28 @@ object MidEx extends App {
      println(event)
      val el = event.fixAt(0)
    //  for( i<- (0 to 13)) {Midi.send(Midi.tuneNote(59+i,440+i*5),-1)}
+     
+    val info  = AudioSystem.getMixerInfo()
+    info.foreach(i => println(i.getDescription().toString))
+     
+     
+  /*   
+    val record = new Recorder("data/test.wav")
+     
+    record.startRecording()
+    println("started")
+   // AudioSystem.write(new AudioInputStream(line), AudioFileFormat.Type.WAVE, new File("data/test.wav"))
+
+     
      Midi.play(el)
+
      
+     println("press enter...");
+     System.in.read();
+     record.stopRecording()
+*/
      
+ /*    
    //   println(el)
 
    
@@ -50,6 +76,6 @@ object MidEx extends App {
    // Midi.send(Midi.scaleTuning(agricola,415),-1)
     
  //  Midi.playMidiFile("data/bwv988.mid",70) 
-
+*/
     
 }

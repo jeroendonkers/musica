@@ -133,7 +133,7 @@ object Midi {
    		
   	    seqTransmitter.setReceiver(receiver.get);
   	    recseq.setSequence(seq);
-  	    recseq.setTempoInBPM(bpm)
+  	    if (bpm>0) { recseq.setTempoInBPM(bpm) }
   	    recseq.start();
   }
   
@@ -178,7 +178,7 @@ object Midi {
   }
  
   
-def playMidiFile(s: String, bpm: Float = 120) = {
+def playMidiFile(s: String, bpm: Float = -1) = {
    val file = new FileInputStream(s)
    val is = new BufferedInputStream(file); 
    val sequence = MidiSystem.getSequence(is);
@@ -280,6 +280,9 @@ def sendTuningChange(channel: Int) = {
       
       new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
   }
+  
+  
+  
   
   
 }
