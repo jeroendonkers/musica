@@ -154,7 +154,7 @@ object Midi {
   		el.foreach(e => {
          e.event.event match {
             case  c:  MidiTunedNote => {
-               println(c.midicode+" "+c.midiFrequency)
+           //   println(c.midicode+" "+c.midiFrequency)
                val st = tuneNote(c.midicode, c.midiFrequency)             
                track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
             }

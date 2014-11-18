@@ -33,29 +33,32 @@ object MidEx extends App {
     
     
      val event = c1 ++ c2 ++ c3 ++ (( c1 || c2 || c3) * 3)
-     println(event)
+   //  println(event)
      val el = event.fixAt(0)
    //  for( i<- (0 to 13)) {Midi.send(Midi.tuneNote(59+i,440+i*5),-1)}
      
-    val info  = AudioSystem.getMixerInfo()
-    info.foreach(i => println(i.getDescription().toString))
+ //   val info  = AudioSystem.getMixerInfo()
+   // info.foreach(i => println(i.getDescription().toString))
+     
+    // Recorder.showMixers
+    // Recorder.probePort
      
      
-  /*   
-    val record = new Recorder("data/test.wav")
-     
-    record.startRecording()
-    println("started")
-   // AudioSystem.write(new AudioInputStream(line), AudioFileFormat.Type.WAVE, new File("data/test.wav"))
+    
+    
 
-     
+    Recorder.startRecording("data/test.wav")
+    println("started")
+ 
+    
      Midi.play(el)
 
      
      println("press enter...");
      System.in.read();
-     record.stopRecording()
-*/
+     Recorder.stopRecording()
+ 
+     
      
  /*    
    //   println(el)
