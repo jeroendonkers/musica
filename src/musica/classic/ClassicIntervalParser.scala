@@ -1,7 +1,7 @@
 package musica.classic
 import scala.util.parsing.combinator._
 import musica.symbol._
-
+import musica.math.RealIntervalParser
 
 
 object ClassicNoteParser extends RegexParsers {
@@ -91,3 +91,4 @@ object ClassicIntervalParser extends RegexParsers {
   case failure : NoSuccess => ClassicInterval(0)
   }
 }
+

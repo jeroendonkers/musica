@@ -2,16 +2,12 @@ package musica.io
 import musica.math._
 import musica.symbol._
 import musica.classic._
-import javax.sound.sampled._;
 import java.io.File;
 
 
 
 
 object MidEx extends App {
-
-  
-  
   
     Midi.openMidiOut() 
   
@@ -40,25 +36,8 @@ object MidEx extends App {
  //   val info  = AudioSystem.getMixerInfo()
    // info.foreach(i => println(i.getDescription().toString))
      
-    // Recorder.showMixers
-    // Recorder.probePort
-     
-     
-    
-    
 
-    Recorder.startRecording("data/test.wav")
-    println("started")
  
-    
-     Midi.play(el)
-
-     
-     println("press enter...");
-     System.in.read();
-     Recorder.stopRecording()
- 
-     
      
  /*    
    //   println(el)

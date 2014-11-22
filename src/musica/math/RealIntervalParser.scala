@@ -3,38 +3,16 @@ import scala.util.parsing.combinator._
 import musica.classic.ClassicNote
 import musica.classic.PureEitzInterval
 import musica.classic.EitzInterval
+import musica.classic.ClassicNoteParser
 
 object RealIntervalParser  extends RegexParsers {
+
+   // borrow octave and note parsers from ClassicNoteParser
   
-   def notename: Parser[Int] = """[A-G]""".r ^^ {
-    case a => ((a.charAt(0).toInt - 'A'.toInt) + 5) % 7 
-  }
+  def octave: Parser[Int] = ClassicNoteParser.octave.asInstanceOf[Parser[Int]]
   
-  def sharp: Parser[Int] = "#+".r ^^ {
-    case a => a.length
-  }
- 
-  def flat: Parser[Int] = "b+".r ^^ {
-    case a => -(a.length)
-  }
-  
-  def octave: Parser[Int] = """\+\d+""".r ^^ {
-    case a => a.toInt
-  }  | """-\d+""".r ^^ {
-    case a => a.toInt
-  }  | "0" ^^ { case _ => 0 }
-  
-  def note: Parser[ClassicNote] = notename ~ (sharp | flat) ~ octave^^ { 
-    case a ~ b ~ c  => ClassicNote(a,b,c)
-  } | notename ~ (sharp | flat) ^^ { 
-    case a ~ b => ClassicNote(a,b)
-  } | notename ~  octave^^ { 
-    case a ~ c  => ClassicNote(a,0,c)
-  } | notename ^^ { 
-    case a  => ClassicNote(a)
-  }
-  
-  
+  def note: Parser[ClassicNote] = ClassicNoteParser.note.asInstanceOf[Parser[ClassicNote]]
+    
   def slash: Parser[String] = "/"
   def hat: Parser[String] = "^"   
     

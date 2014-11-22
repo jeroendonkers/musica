@@ -113,14 +113,14 @@ class Recorder(strFilename: String) extends Thread {
     	  println("=> Source Line Supported:");
     	  mixer.getSourceLineInfo().foreach(srcInfo => {
     		val pi =   srcInfo.asInstanceOf[Port.Info];
-    		print ("; " + pi.getName() +
+    		println (" ==> " + pi.getName() +
     			", " + (if (pi.isSource()) "source" else "target"));
     		showControls(mixer.getLine(srcInfo));
     	   })
     	println("=> Target Line Supported:");
         mixer.getTargetLineInfo().foreach(targetInfo => {
     		val pi = targetInfo.asInstanceOf[Port.Info];
-    		print("; " + pi.getName()
+    		println(" ==> " + pi.getName()
     			+ ", " +
     			(if (pi.isSource()) "source" else "taget"));
     		showControls(mixer.getLine(targetInfo));
@@ -131,9 +131,9 @@ class Recorder(strFilename: String) extends Thread {
  
     private def showControls(inLine: Line)  {
       inLine.open();
-      print(" Available controls:");
+      println("    ====> Available controls:");
       inLine.getControls().foreach( ctrl => {
-    	print( " " + ctrl.toString());
+    	println( "        " + ctrl.toString());
     	if (ctrl.isInstanceOf[CompoundControl])  {
     	  val cc = ctrl.asInstanceOf[CompoundControl]
     	  cc.getMemberControls().foreach(ictrl => println(" "+ ictrl.toString()))
