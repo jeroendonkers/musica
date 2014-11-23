@@ -1,7 +1,7 @@
 package musica.symbol
 import musica.classic._
 import musica.math._
-
+import scala.util.parsing.combinator._
 
 object SymbolicTimeEx {
     def main(args: Array[String]): Unit = {
@@ -20,5 +20,9 @@ object SymbolicTimeEx {
       println(event.fixAt(0))
       println (x.startmap)
       println (x.endmap)
+      
+      
+      println(EventParser("(C,D[1/4],C^+1)"))
+      
     }
 }

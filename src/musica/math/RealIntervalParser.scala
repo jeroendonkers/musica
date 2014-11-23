@@ -5,22 +5,16 @@ import musica.classic.PureEitzInterval
 import musica.classic.EitzInterval
 import musica.classic.ClassicNoteParser
 
-object RealIntervalParser  extends RegexParsers {
 
-   // borrow octave and note parsers from ClassicNoteParser
+trait EitzIntervalParser extends ClassicNoteParser {
   
-  def octave: Parser[Int] = ClassicNoteParser.octave.asInstanceOf[Parser[Int]]
-  
-  def note: Parser[ClassicNote] = ClassicNoteParser.note.asInstanceOf[Parser[ClassicNote]]
-    
-  def slash: Parser[String] = "/"
-  def hat: Parser[String] = "^"   
+   def slash: Parser[String] = "/"
+   def hat: Parser[String] = "^"   
     
     
-  def int: Parser[Int] = """\d+""".r ^^ {
-    case a => a.toInt
-  } 
-  
+    def int: Parser[Int] = """\d+""".r ^^ {
+     case a => a.toInt
+   } 
   
     def eitzpureimpl: Parser[PureEitzInterval] =  note  ^^ { 
     case n  => EitzInterval(n)
@@ -31,9 +25,14 @@ object RealIntervalParser  extends RegexParsers {
     } | eitzpureimpl
      
   
-    def eitz: Parser[RealInterval] = note ~ hat ~ octave ~ slash ~ int ^^ { 
+    def eitzall: Parser[RealInterval] = note ~ hat ~ octave ~ slash ~ int ^^ { 
     case n ~ h ~ u ~s ~ t => EitzInterval(n, Rational(u, t))
     } | eitzpure | eitzpureimpl
+  
+}
+
+
+trait RealIntervalParser  extends EitzIntervalParser {
   
     def ratio: Parser[PureInterval] = int ~ slash ~ int  ^^ {
       case n ~ s ~ m =>  PureInterval(n,m)
@@ -56,16 +55,21 @@ object RealIntervalParser  extends RegexParsers {
       case a ~ c => CentsInterval(a)
     }
     
-    def interval: Parser[RealInterval] = eitz | ratio | cents
+    def interval: Parser[RealInterval] = eitzall | ratio | cents
     
-    def pure: Parser[PureInterval] = eitzpure | ratio
+    def pureall: Parser[PureInterval] = eitzpure | ratio
         
+}
+
+object RealIntervalParser  extends RealIntervalParser {
+
+       
     def apply(input: String): RealInterval = parseAll(interval, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => RealInterval(1)
     }
     
-    def eitz(input: String): RealInterval = parseAll(eitz, input) match {
+    def eitz(input: String): RealInterval = parseAll(eitzall, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => PureInterval(1,1)
     }   
@@ -75,7 +79,7 @@ object RealIntervalParser  extends RegexParsers {
     case failure : NoSuccess => EitzInterval("C")
     }   
     
-    def pure(input: String): PureInterval = parseAll(pure, input) match {
+    def pure(input: String): PureInterval = parseAll(pureall, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => PureInterval(1,1)
     }

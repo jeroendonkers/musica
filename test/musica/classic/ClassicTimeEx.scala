@@ -67,6 +67,6 @@ object ClassicTimeEx {
      
      println( !(r1 ++ r2) ++ !(c1++c2) ++ !(c1++r1) )
      
-    
+    println(ClassicEventParser.eitz("C# ^ -1"))
   }
 }

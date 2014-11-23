@@ -1,11 +1,10 @@
 package musica.classic
 import scala.util.parsing.combinator._
 import musica.symbol._
-import musica.math.RealIntervalParser
+import musica.math.EitzIntervalParser
 
-
-object ClassicNoteParser extends RegexParsers {
-  def notename: Parser[Int] = """[A-G]""".r ^^ {
+trait ClassicNoteParser extends RegexParsers {
+   def notename: Parser[Int] = """[A-G]""".r ^^ {
     case a => ((a.charAt(0).toInt - 'A'.toInt) + 5) % 7 
   }
   
@@ -33,6 +32,11 @@ object ClassicNoteParser extends RegexParsers {
     case a  => ClassicNote(a)
   }
   
+}
+
+
+object ClassicNoteParser extends ClassicNoteParser {
+  
   def apply(input: String): ClassicNote = parseAll(note, input) match {
   case Success(result, _) => result
   case failure : NoSuccess => ClassicNote(0)
@@ -40,7 +44,7 @@ object ClassicNoteParser extends RegexParsers {
 }
 
 
-object ClassicIntervalParser extends RegexParsers {
+trait ClassicIntervalParser extends RegexParsers {
   def devname: Parser[String] = """[PMmAd]""".r
  
   def negirregular:  Parser[Int] = "i(" ~> """\d+""".r <~")" ^^ {
@@ -49,8 +53,7 @@ object ClassicIntervalParser extends RegexParsers {
   
   def posirregular:  Parser[Int] = "I(" ~> """\d+""".r <~")" ^^ {
     case a => a.toInt+100
-  }
-   
+  }   
  
   def negsign: Parser[String] = "-"
   
@@ -85,6 +88,10 @@ object ClassicIntervalParser extends RegexParsers {
   } | dev ~ step ^^ { 
     case d ~ s => ClassicInterval(s-1,getdev(s-1,d) )
   } 
+ 
+}
+
+object ClassicIntervalParser extends ClassicIntervalParser {
   
   def apply(input: String): ClassicInterval = parseAll(interval, input) match {
   case Success(result, _) => result
@@ -92,3 +99,48 @@ object ClassicIntervalParser extends RegexParsers {
   }
 }
 
+
+
+trait ClassicEventParser extends EitzIntervalParser {
+  
+    def time: Parser[SymbolicTime] = "[" ~> int ~ slash ~ int <~ "]" ^^ {
+      case n ~ s ~ m =>  SymbolicTime(n,m)
+    }
+     
+    def classicevent: Parser[ClassicNoteEvent] = note ~ time ^^ {
+      case n ~ t => new ClassicNoteEvent(n,t)
+    } | note ^^ {
+      case n  => new ClassicNoteEvent(n,0)
+    }
+    
+    def eitzevent: Parser[EitzEvent] = eitzpure ~ time ^^ {
+      case n ~ t => new EitzEvent(n,t)
+    } | eitzpure ^^ {
+      case n  => new EitzEvent(n,0)
+    }
+  
+    def event: Parser[Event] = eitzevent | classicevent
+ 
+}
+
+
+object ClassicEventParser extends ClassicEventParser {
+  
+     
+    def apply(input: String): Event = parseAll(event, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => new ClassicNoteEvent("C",0)
+    }
+    
+    def eitz(input: String): Event = parseAll(eitzevent, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => new EitzEvent(EitzInterval("C"),0)
+    }
+    
+    def note(input: String): Event = parseAll(classicevent, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => new ClassicNoteEvent("C",0)
+    }
+    
+    
+}
