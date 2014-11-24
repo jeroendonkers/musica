@@ -2,30 +2,40 @@ package musica.symbol
 import scala.util.parsing.combinator._
 import musica.classic.ClassicEventParser
 
-trait EventParser extends RegexParsers {
+trait EventListParser extends JavaTokenParsers {
   
-   def event: Parser[Event]  // needs to be specified!
+   def basicevent: Parser[Event]  // needs to be specified!
   
-   def chainevents: Parser[EventList]= "("~>repsep(event,",")<~")" ^^ {
-      case ss => new EventList(ss)
+  
+   def expr : Parser[Event] = chainl1(event, 
+        "," ^^^ {(a: Event, b: Event) => a ++ b} |   
+        "++" ^^^ {(a: Event, b: Event) => a ++ b} |       
+        "|" ^^^ {(a: Event, b: Event) => a || b} 
+   ) 
+   
+   def brexp: Parser[Event] = "("~>expr<~")" ^^ {
+      case e => e
     }
+   
+  def event: Parser[Event] =   basicevent | brexp
+  
+   
+  def apply(input: String): Option[EventList] = {
+     
+    parseAll(expr, input) match {
+      case Success(result, _) => Some(new EventList(result.getEventList))
+      case failure : NoSuccess => None
+    }
+  }
    
 }
 
 
 
-object EventParser extends EventParser with  ClassicEventParser{
+object EventListParser extends EventListParser with  ClassicEventParser{
 
-  
+  def basicevent = classicevent
    
    
-  def apply(input: String): Option[EventList] = {
 
-    
-     
-  parseAll(chainevents, input) match {
-  case Success(result, _) => Some(result)
-  case failure : NoSuccess => None
-  }
-  }
 }

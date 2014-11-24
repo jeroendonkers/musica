@@ -1,11 +1,11 @@
 package musica.symbol
 import musica.classic._
 import musica.math._
-import scala.util.parsing.combinator._
+import musica.io.Midi
 
 object SymbolicTimeEx {
     def main(args: Array[String]): Unit = {
-      
+     /* 
      val r1 = WholeRest
      val r2 = QuarterRest
      val c1 =  new NoteEvent[ClassicNote]("C",Quarter)
@@ -20,9 +20,21 @@ object SymbolicTimeEx {
       println(event.fixAt(0))
       println (x.startmap)
       println (x.endmap)
+      */
       
       
-      println(EventParser("(C,D[1/4],C^+1)"))
+       Midi.openMidiOut() 
+  
+      val e = EventListParser("(C[1/4] | E^-1[1/4] | G[1/4]),"+  
+                              "(C[1/4] | F[1/4] | A^-1[1/4]),"+
+                              "(D^-1[1/4] | F[1/4] | A^-1[1/4]),"+
+                              "(D[1/4] | F[1/4] | G[1/4] | B^-1[1/4]),"+
+                              "(C[1/2] | E^-1[1/2] | G[1/2] | C+1[1/2])"
+      )
       
+      
+      
+      if (e.isDefined) { Midi.play(e.get.fixAt(0),60)}
+      // println(e)
     }
 }

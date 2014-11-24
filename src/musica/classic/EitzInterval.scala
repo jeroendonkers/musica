@@ -15,10 +15,7 @@ class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) e
   val midicode = note.midicode 
   val midiFrequency = basefreq * value
   
-  def this(note: ClassicNote) = 
-     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * note.octave)).normalize, note.normalize, note.octave)
-    
-  def this(note: ClassicNote, comma: Int) = 
+ def this(note: ClassicNote, comma: Int = 0) = 
      this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * comma)).normalize, note, comma)
     
   override def equals(that: Any): Boolean = {
