@@ -1,7 +1,7 @@
 package musica.symbol
 import musica.classic._
 import musica.math._
-import musica.io.Midi
+import musica.io._
 
 object SymbolicTimeEx {
     def main(args: Array[String]): Unit = {
@@ -34,7 +34,11 @@ object SymbolicTimeEx {
       
       
       
-      if (e.isDefined) { Midi.play(e.get.fixAt(0),60)}
-      // println(e)
+      if (e.isDefined) { 
+        val f = new InstrumentEvent(GeneralMidi.Instrument("Violin")) ++ e.get
+        //val f = (new EitzEvent(EitzInterval.pure("D"),1\4)) ++ e.get
+        Midi.play(f.fixAt(0),60)
+       println(f.fixAt(0))
+      }
     }
 }

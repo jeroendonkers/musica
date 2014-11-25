@@ -28,10 +28,15 @@ object MidEx extends App {
   //   val event = new EventList(List.range(1,12).map(i => new MidiNoteEvent(59+i,1\4)))
     
     
-     val event = c1 ++ c2 ++ c3 ++ (( c1 || c2 || c3) * 3)
-   //  println(event)
+     val inst = new InstrumentEvent(GeneralMidi.Instrument("Violin")) 
+     val event = inst ++ c1 ++ c2 ++ c3 ++ (( c1 || c2 || c3) * 3)
+    // println(event)
      val el = event.fixAt(0)
    //  for( i<- (0 to 13)) {Midi.send(Midi.tuneNote(59+i,440+i*5),-1)}
+     
+     Midi.play(el)
+     
+     
      
  //   val info  = AudioSystem.getMixerInfo()
    // info.foreach(i => println(i.getDescription().toString))

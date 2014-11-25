@@ -20,6 +20,28 @@ class MidiNote(val midicode: Int) extends HasMidiCode {
    override def toString ="m" + midicode.toString 
 }
 
+trait HasMidiInstrument {
+  val instcode: Int
+}
+
+class MidiInstrument(val instcode: Int) extends HasMidiInstrument {
+  override def toString ="instr" + instcode.toString
+}
+
+// midi related events
+
+class MidiNoteEvent(i: Int, val value: SymbolicTime) extends Event {
+   val event = new MidiNote(i)
+   type EventType = MidiNote
+}
+
+
+class InstrumentEvent(i: Int) extends Event {
+  val event = new MidiInstrument(i)
+  type EventType = MidiInstrument
+  val value: SymbolicTime = 0
+}
+
 object Midi {
   
   def listDevices(forInput: Boolean): List[String] = {
@@ -155,20 +177,28 @@ object Midi {
          e.event.event match {
             case  c:  MidiTunedNote => {
            //   println(c.midicode+" "+c.midiFrequency)
-               val st = tuneNote(c.midicode, c.midiFrequency)             
-               track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
+               val tun = tuneNote(c.midicode, c.midiFrequency)             
+                track.add(new MidiEvent(tun,(e.start.value * (ppq / beat)).toLong))
+                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
+                val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
+                track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
+                track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
+            
             }
-         }  
-          e.event.event match {
             case  c:  HasMidiCode => {
                 val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
                 val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
                 track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
                 track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
+              
             }
-            
-            
-          }}) 
+            case  m:  HasMidiInstrument => {
+              //  println(m.instcode)
+                val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, m.instcode,0)
+                track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
+            }            
+          };  
+         }) 
   		playSequence(sequence, bpm)
  
      } catch {
@@ -282,7 +312,139 @@ def sendTuningChange(channel: Int) = {
   }
   
   
-  
-  
-  
 }
+
+
+object GeneralMidi {
+ val Instrument = Map( 
+	 "Piano 1" -> 0,
+	 "Piano 2" -> 1,
+	 "Piano 3" -> 2,
+	 "Honky Tonk" -> 3,
+	 "E.Piano 1" -> 4,
+	 "E.Piano 2" -> 5,
+	 "Harpsichord" -> 6,
+	 "Clavinet" -> 7,
+	 "Celesta" -> 8,
+	 "Glockenspiel" -> 9,
+	 "Music Box" -> 10,
+	 "Vibraphone" -> 11,
+	 "Marimba" -> 12,
+	 "Xylophone" -> 13,
+	 "Tubular Bells" -> 14,
+	 "Dulcimer" -> 15,
+	 "Organ 1" -> 16,
+	 "Organ 2" -> 17,
+	 "Organ 3" -> 18,
+	 "Church Organ" -> 19,
+	 "Reed Organ" -> 20,
+	 "Accordion" -> 21,
+	 "Harmonica" -> 22,
+	 "Bandoneon" -> 23,
+	 "Nylon Guitar" -> 24,
+	 "Steel Guitar" -> 25,
+	 "Jazz Guitar" -> 26,
+	 "Clean Guitar" -> 27,
+	 "Guitar Mutes" -> 28,
+	 "Overdrive Guitar" -> 29,
+	 "DistortionGuitar" -> 30,
+	 "Guitar Harmonics" -> 31,
+	 "Acoustic Bass" -> 32,
+	 "Fingered Bass" -> 33,
+	 "Picked Bass" -> 34,
+	 "Fretless Bass" -> 35,
+	 "Slap Bass 1" -> 36,
+	 "Slap Bass 2" -> 37,
+	 "Synth Bass 1" -> 38,
+	 "Synth Bass 2" -> 39,
+	 "Violin" -> 40,
+	 "Viola" -> 41,
+	 "Cello" -> 42,
+	 "Contrabass" -> 43,
+	 "Tremolo Strings" -> 44,
+	 "Pizzicato" -> 45,
+	 "Harp" -> 46,
+	 "Timpani" -> 47,
+	 "Strings" -> 48,
+	 "Slow Strings" -> 49,
+	 "Synth Strings 1" -> 50,
+	 "Synth Strings 2" -> 51,
+	 "Choir Aahs" -> 52,
+	 "Voice Oohs" -> 53,
+	 "Synth Vox" -> 54,
+	 "Orchestra Hit" -> 55,
+	 "Trumpet" -> 56,
+	 "Trombone" -> 57,
+	 "Tuba" -> 58,
+	 "Mute Trumpet" -> 59,
+	 "French Horns" -> 60,
+	 "Brass" -> 61,
+	 "Synth Brass 1" -> 62,
+	 "Synth Brass 2" -> 63,
+	 "Soprano Sax" -> 64,
+	 "Alto Sax" -> 65,
+	 "Tenor Sax" -> 66,
+	 "Baritone Sax" -> 67,
+	 "Oboe" -> 68,
+	 "English Horn" -> 69,
+	 "Bassoon" -> 70,
+	 "Clarinet" -> 71,
+	 "Piccolo" -> 72,
+	 "Flute" -> 73,
+	 "Recorder" -> 74,
+	 "Pan Flute" -> 75,
+	 "Bottle Chiff" -> 76,
+	 "Shakuhachi" -> 77,
+	 "Whistle" -> 78,
+	 "Ocarina" -> 79,
+	 "Square Wave" -> 80,
+	 "Saw Wave" -> 81,
+	 "Synth Calliope" -> 82,
+	 "Chiffer Lead" -> 83,
+	 "Charang" -> 84,
+	 "Solo Vox" -> 85,
+	 "5th Saw Wave" -> 86,
+	 "Bass & Lead" -> 87,
+	 "Fantasia" -> 88,
+	 "Warm Pad" -> 89,
+	 "Poly Synth" -> 90,
+	 "Space Voice" -> 91,
+	 "Bowed Glass" -> 92,
+	 "Metal Pad" -> 93,
+	 "Halo Pad" -> 94,
+	 "Sweep Pad" -> 95,
+	 "Ice Rain" -> 96,
+	 "Soundtrack" -> 97,
+	 "Crystal" -> 98,
+	 "Atmosphere" -> 99,
+	 "Brightness" -> 100,
+	 "Goblin" -> 101,
+	 "Echo Drops" -> 102,
+	 "Star Theme" -> 103,
+	 "Sitar" -> 104,
+	 "Banjo" -> 105,
+	 "Shamisen" -> 106,
+	 "Koto" -> 107,
+	 "Kalimba" -> 108,
+	 "Bagpipe" -> 109,
+	 "Fiddle" -> 110,
+	 "Shenai" -> 111,
+	 "Tinker Bell" -> 112,
+	 "Agogo" -> 113,
+	 "Steel Drum" -> 114,
+	 "Wood Block" -> 115,
+	 "Taiko Drum" -> 116,
+	 "Melodic Tom" -> 117,
+	 "Synth Drum" -> 118,
+	 "Reverse Cymbal" -> 119,
+	 "Fret Noise" -> 120,
+	 "Breath Noise" -> 121,
+	 "Seashore" -> 122,
+	 "Bird" -> 123,
+	 "Telephone" -> 124,
+	 "Helicopter" -> 125,
+	 "Applause" -> 126,
+	 "Gun Shot" -> 127);
+}
+
+  

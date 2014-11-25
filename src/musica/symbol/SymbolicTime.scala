@@ -155,13 +155,6 @@ class NoteEvent[T <: SymbolicNoteBase](val event: T, val value: SymbolicTime) ex
 }
 
 
-class MidiNoteEvent(i: Int, val value: SymbolicTime) extends Event {
-   val event = new MidiNote(i)
-   type EventType = MidiNote
-}
-
-
-
 abstract class CompositeEvent extends Event
 
 // serial events
