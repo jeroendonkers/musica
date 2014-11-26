@@ -10,13 +10,14 @@ trait EitzInterval extends HasMidiCode with MidiTunedNote {
   val basefreq = Midi.baseFrequency(60) // middle C
 }
 
-class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) with EitzInterval {
+class PureEitzInterval private (p: PureInterval, val note: ClassicNote, val comma: Int) extends PureInterval(p) with EitzInterval {
   
   val midicode = note.midicode 
   val midiFrequency = basefreq * value
   
  def this(note: ClassicNote, comma: Int = 0) = 
-     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * comma)).normalize, note, comma)
+     this( ((PureInterval.Fifth * note.fifth) + (PureInterval.SyntonicComma * comma)).normalize
+         + PureInterval.Octave * note.octave, note, comma)
     
   override def equals(that: Any): Boolean = {
   that match {
@@ -31,7 +32,7 @@ class PureEitzInterval(p: PureInterval, val note: ClassicNote, val comma: Int) e
   override def toString = "" + note + "^"+(if(comma>0) "+" + comma else if (comma<0) comma else "0")
 }
 
-class RealEitzInterval(r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) with EitzInterval {
+class RealEitzInterval private (r: RealInterval, val note: ClassicNote, val comma: Rational) extends CentsInterval(r) with EitzInterval {
   val midicode = note.midicode  
   val midiFrequency = basefreq * value
   
