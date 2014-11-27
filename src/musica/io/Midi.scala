@@ -179,14 +179,14 @@ object Midi {
            //   println(c.midicode+" "+c.midiFrequency)
                val tun = tuneNote(c.midicode, c.midiFrequency)             
                 track.add(new MidiEvent(tun,(e.start.value * (ppq / beat)).toLong))
-                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
+                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 100)
                 val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
                 track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
                 track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
             
             }
             case  c:  HasMidiCode => {
-                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 127)
+                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 100)
                 val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
                 track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
                 track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
@@ -196,7 +196,8 @@ object Midi {
               //  println(m.instcode)
                 val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, m.instcode,0)
                 track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
-            }            
+            }
+            case _ => {}
           };  
          }) 
   		playSequence(sequence, bpm)
