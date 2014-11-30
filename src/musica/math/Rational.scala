@@ -33,6 +33,7 @@ class Rational(n: Long, d: Long) {
    override def equals(that: Any): Boolean = {
      that match {
        case that: Rational => this.numer == that.numer && this.denom == that.denom
+       case that: Int => this.numer == that && this.denom == 1
        case _ => false
      }
    }

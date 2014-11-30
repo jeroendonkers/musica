@@ -3,7 +3,7 @@ import scala.util.parsing.combinator._
 import musica.symbol._
 import musica.math.EitzIntervalParser
 
-trait ClassicNoteParser extends RegexParsers {
+trait ClassicNoteParser extends BasicParser {
    def notename: Parser[Int] = """[A-G]""".r ^^ {
     case a => ((a.charAt(0).toInt - 'A'.toInt) + 5) % 7 
   }
@@ -103,10 +103,7 @@ object ClassicIntervalParser extends ClassicIntervalParser {
 
 trait ClassicEventParser extends EitzIntervalParser {
   
-    def time: Parser[SymbolicTime] = "[" ~> int ~ slash ~ int <~ "]" ^^ {
-      case n ~ s ~ m =>  SymbolicTime(n,m)
-    }
-     
+  
     def classicnoteevent: Parser[ClassicNoteEvent] = note ~ time ^^ {
       case n ~ t => new ClassicNoteEvent(n,t)
     } | note ^^ {

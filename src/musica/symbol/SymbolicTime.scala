@@ -19,12 +19,13 @@ class SymbolicTime(n: Long, m: Long) extends Rational(n,m) {
    
    override def unary_- :SymbolicTime = new SymbolicTime(super.unary_-)
   
-      override def equals(that: Any): Boolean = {
+ /*  override def equals(that: Any): Boolean = {
      that match {
-       case that: SymbolicTime => this.numer == that.numer && this.denom == that.denom
+       case that: Rational => {
+        this.numer == that.numer && this.denom == that.denom }
        case _ => false
      }
-   }
+   }*/
    
   def *(that: Int): SymbolicTime = { new SymbolicTime(n*that, m) }
   def /(that: Int): SymbolicTime = { new SymbolicTime(n, m*that) }
@@ -87,6 +88,10 @@ abstract class Event {
    type EventType
    val event: EventType
    val value: SymbolicTime
+   
+   def changeValue(t: SymbolicTime): Event
+   
+   
    val count: Int = 1
    override def toString = event.toString + value
    
@@ -148,14 +153,30 @@ abstract class Event {
 class Rest(val value: SymbolicTime) extends Event {
    type EventType = String
    val event: String = "R"
+   def changeValue(t: SymbolicTime) = {
+     new Rest(t)
+   }
 }
 
 class NoteEvent[T <: SymbolicNoteBase](val event: T, val value: SymbolicTime) extends Event {
    type EventType = T
+    def changeValue(t: SymbolicTime) = {
+     new NoteEvent[T](event,t)
+   }
 }
 
+abstract class NoTimeEvent extends Event {
+   def changeValue(t: SymbolicTime) = {
+     this
+   }
+}
 
-abstract class CompositeEvent extends Event
+abstract class CompositeEvent extends Event {
+   def changeValue(t: SymbolicTime) = {
+     this
+   }
+  
+}
 
 // serial events
 class EventList(val event: List[Event]) extends CompositeEvent {
@@ -193,6 +214,17 @@ class EventList(val event: List[Event]) extends CompositeEvent {
    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
     event.zip(incvalue).flatMap({case (e,st) => e.fixAt(o+st)})
   }
+   
+   override def changeValue(t: SymbolicTime) = {
+     if (event.size ==0 ) this else
+     if (value == 0 ) {
+       new EventList(event.map{e => e.changeValue(t/event.size)})
+     } else { 
+       val r = t / value
+        new EventList(event.map{e => e.changeValue(e.value * r)})
+     }
+   }
+   
 }
 
 // synchronous events: all events start at the same time, but the duration (value) may differ
@@ -223,6 +255,18 @@ class EventBlock(val event: List[Event]) extends CompositeEvent {
    override def fixAt(o: SymbolicTime): List[TimedEvent] = {
       event.flatMap(e => e.fixAt(o)).sortWith(TimedEvent.compare)
    }
+   
+   override def changeValue(t: SymbolicTime) = {
+     if (event.size ==0 ) this else
+     if (value == 0 ) {
+       new EventList(event.map{e => e.changeValue(t)})
+     } else { 
+       val r = t / value
+        new EventList(event.map{e => e.changeValue(e.value * r)})
+     }
+   }
+ 
+   
 }
 
 // repeat event. The first element in the list is the (composite) event that needs to repeated
@@ -256,6 +300,19 @@ class RepeatEvent(val event: List[Event], val daCapo: Boolean = false) extends C
     
     override def fixAt(o: SymbolicTime): List[TimedEvent] = asEventList.fixAt(o)
 
+    override def changeValue(t: SymbolicTime) = {
+     if (event.size ==0 ) this else
+     if (value == 0\1 ) {
+       val n = event.size + (if (daCapo) 1 else 0)
+       new EventList(event.map{e => e.changeValue(t/n)})
+     } else { 
+       val r = t / value
+       new EventList(event.map{e => e.changeValue(e.value * r)})
+     }
+   }
+ 
+    
+    
 }
 
 

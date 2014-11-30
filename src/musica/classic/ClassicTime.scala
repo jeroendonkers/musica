@@ -6,6 +6,9 @@ class ClassicNoteEvent(note: ClassicNote, value: SymbolicTime) extends NoteEvent
 
 class EitzEvent(val event: EitzInterval, val value: SymbolicTime) extends Event {
   type EventType = EitzInterval
+  def changeValue(t: SymbolicTime) = {
+     new EitzEvent(event,t)
+  }
 }
 
 object EitzEvent {

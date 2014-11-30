@@ -2,6 +2,7 @@ package musica.io
 import javax.sound.midi._
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import scala.collection.JavaConversions._
@@ -33,10 +34,13 @@ class MidiInstrument(val instcode: Int) extends HasMidiInstrument {
 class MidiNoteEvent(i: Int, val value: SymbolicTime) extends Event {
    val event = new MidiNote(i)
    type EventType = MidiNote
+   def changeValue(t: SymbolicTime) = {
+     new MidiNoteEvent(event.midicode ,t)
+  }
 }
 
 
-class InstrumentEvent(i: Int) extends Event {
+class InstrumentEvent(i: Int) extends NoTimeEvent {
   val event = new MidiInstrument(i)
   type EventType = MidiInstrument
   val value: SymbolicTime = 0
@@ -159,6 +163,12 @@ object Midi {
   	    recseq.start();
   }
   
+  def changeSpeed(bpm: Float) {
+     if (sequencer.isDefined) {
+       sequencer.get.setTempoInBPM(bpm)
+     }
+  }
+  
   def stopPlaying() {
      if (sequencer.isDefined) {
        sequencer.get.close()
@@ -166,6 +176,11 @@ object Midi {
      }
     
   }
+  
+  def changeInstrument(program: Int, channel: Int = 0) {
+    send(new ShortMessage(ShortMessage.PROGRAM_CHANGE,  channel, program,0),-1)
+  }
+  
   
   def play(el: List[TimedEvent], bpm: Float =120, beat: Double = 0.25) = {
     
@@ -311,8 +326,26 @@ def sendTuningChange(channel: Int) = {
       
       new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
   }
+ /* 
   
-  
+  def loadSoundBank(path: String) {
+    
+    val synth = MidiSystem.getSynthesizer()
+    val soundbank = MidiSystem.getSoundbank(new File(path))
+    
+    println("soundbank supported: " + synth.isSoundbankSupported(soundbank));
+ //   val loaded = synth.getInstrument(soundbank);
+  //    println("soundbank loaded: " + loaded);
+    //println(soundbank)
+    
+    val inst =  soundbank.getInstruments();
+   // println (inst.size)
+   // inst.foreach(i => println(i.getName()) )
+    synth.unloadAllInstruments(synth.getDefaultSoundbank())
+    synth.loadInstrument(inst(0))
+   
+  }
+  */
 }
 
 

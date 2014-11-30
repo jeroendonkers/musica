@@ -8,14 +8,6 @@ import musica.classic.ClassicNoteParser
 
 trait EitzIntervalParser extends ClassicNoteParser {
   
-   def slash: Parser[String] = "/"
-   def hat: Parser[String] = "^"   
-    
-    
-    def int: Parser[Int] = """\d+""".r ^^ {
-     case a => a.toInt
-   } 
-  
     def eitzpureimpl: Parser[PureEitzInterval] =  note  ^^ { 
     case n  => EitzInterval(n)
     } 
