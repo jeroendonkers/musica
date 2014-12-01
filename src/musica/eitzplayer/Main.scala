@@ -22,7 +22,7 @@ object main extends SimpleSwingApplication {
   var changed = false
   var file: Option[File] = None
   var filename = "None"
-  var instrument = "Bowed Glass"  
+  var instrument = 0  
   var bpm = 80
     
   def makeTitle() = {
@@ -31,10 +31,18 @@ object main extends SimpleSwingApplication {
    makeTitle
    
    peer.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE)  
+  
    
-    val ins = GeneralMidi.Instrument.toSeq.sortBy(_._2).map{ case (n,i) => n}   
+    Midi.openMidiOut() 
+    Midi.loadSoundBank("c:/soundfont/WST25FStein_00Sep22.SF2")
+     
+     
+    val ins = if (Midi.getInstruments.size ==0)
+           GeneralMidi.Instrument.toSeq.sortBy(_._2).map{ case (n,i) => n}  
+         else
+           Midi.getInstruments
     val instruments = new ComboBox(ins)
-    instruments.selection.item = instrument
+    instruments.selection.index = instrument
     
     val speedslider = new Slider() {
       min = 0 
@@ -177,12 +185,13 @@ object main extends SimpleSwingApplication {
   
     
    def play() {
-     Midi.openMidiOut() 
-  
+  //   Midi.openMidiOut() 
+    //   Midi.loadSoundBank("c:/soundfont/harpsichord hubbe.SF2")
+       
      val e = EitzEventListParser(textArea.text)
      
      if (e.isDefined) { 
-        val f = new InstrumentEvent(GeneralMidi.Instrument(instrument)) ++
+        val f = new InstrumentEvent(instrument) ++
            e.get
         Midi.play(f.fixAt(0),bpm)
      } else {
@@ -199,9 +208,9 @@ object main extends SimpleSwingApplication {
      Midi.changeSpeed(bpm)
    }
    
-   def setInstrument(ins: String) {
+   def setInstrument(ins: Int) {
      instrument = ins
-     Midi.changeInstrument(GeneralMidi.Instrument(ins))
+     Midi.changeInstrument(ins)
    }
     
     listenTo(playbutton, stopbutton, textArea, instruments.selection, speedslider)
@@ -214,13 +223,11 @@ object main extends SimpleSwingApplication {
            makeTitle()
        }
      case ValueChanged(`speedslider`) => setSpeed(speedslider.value)    
-     case SelectionChanged( `instruments`) => setInstrument(instruments.selection.item)
+     case SelectionChanged( `instruments`) => setInstrument(instruments.selection.index)
     }
     
     override def closeOperation() { if (changed) { if (checkSave()) sys.exit(0) } else sys.exit(0) }
    
- /*   println( Midi.listOutputDevices )
-    Midi.openMidiOut()
-    Midi.loadSoundBank("c:/soundfont/Jeux14.SF2") */
+
   } 
 }

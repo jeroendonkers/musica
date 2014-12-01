@@ -81,8 +81,11 @@ object Midi {
  def getMidiError = midiError;
  
  private var midiOutput: Option[MidiDevice] = None
+ private var synth: Option[Synthesizer] = None
  private var receiver:  Option[Receiver] = None
  private var sequencer: Option[Sequencer] = None
+ private var soundbank: Option[Soundbank] =  None
+ private var instruments: List[String] =  List()
   
  def midiOutIsOpen =  receiver.isDefined 
  
@@ -92,7 +95,8 @@ object Midi {
    if (receiver.isDefined) { receiver = None }
    if (midiOutput.isDefined) {
         midiOutput.get.close()
-        midiOutput = None     
+        midiOutput = None  
+        synth = None
    }
  }
  
@@ -105,14 +109,23 @@ object Midi {
  // manually create the following key:
  // HKEY_LOCAL_MACHINE\Software\JavaSoft\Prefs
  
- def openMidiOut(s: String = "Gervill"): Boolean = {
+ def openMidiOut(s: String = ""): Boolean = {
    closeMidiOut
-   midiError = ""
-   getDevice(s) match {
-     case Left(d) => midiOutput = Some(d)
-     case Right(err) => { midiError= err; midiOutput == None }
-   }  
    
+   midiError = ""
+   if (s =="" ) {
+     synth = Some(MidiSystem.getSynthesizer())
+     midiOutput = Some(synth.get)
+     soundbank = Some(synth.get.getDefaultSoundbank())
+     instruments = synth.get.getAvailableInstruments().map{ i => i.getName}.toList
+   } else { 
+     
+     getDevice(s) match {
+       case Left(d) => midiOutput = Some(d)
+       case Right(err) => { midiError= err; midiOutput == None }
+   }}  
+   
+  
    if (midiOutput.isDefined) {
      try {
 	   midiOutput.get.open()
@@ -326,26 +339,22 @@ def sendTuningChange(channel: Int) = {
       
       new SysexMessage(0xF0, sysex.map(_.toByte).toArray, sysex.size)
   }
- /* 
+ 
   
   def loadSoundBank(path: String) {
     
-    val synth = MidiSystem.getSynthesizer()
-    val soundbank = MidiSystem.getSoundbank(new File(path))
+    if (synth.isDefined) {
     
-    println("soundbank supported: " + synth.isSoundbankSupported(soundbank));
- //   val loaded = synth.getInstrument(soundbank);
-  //    println("soundbank loaded: " + loaded);
-    //println(soundbank)
-    
-    val inst =  soundbank.getInstruments();
-   // println (inst.size)
-   // inst.foreach(i => println(i.getName()) )
-    synth.unloadAllInstruments(synth.getDefaultSoundbank())
-    synth.loadInstrument(inst(0))
-   
+    val defsoundbank = synth.get.getDefaultSoundbank()
+    synth.get.unloadAllInstruments(defsoundbank)
+    soundbank = Some(MidiSystem.getSoundbank(new File(path)))
+    synth.get.loadAllInstruments(soundbank.get)
+    //instruments = soundbank.get.getInstruments().map{ i => i.getName}.toList
+    instruments = synth.get.getLoadedInstruments().map{ i => i.getName}.toList
+    }
   }
-  */
+
+  def getInstruments = { instruments }
 }
 
 

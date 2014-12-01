@@ -11,6 +11,11 @@ object MidEx extends App {
   
     Midi.openMidiOut() 
   
+ 
+    Midi.loadSoundBank("c:/soundfont/Jeux14.SF2")
+ 
+    
+    
      val c1 = EitzEvent("C",1\4)
      val c2 = EitzEvent("E^-1",1\4)
      val c3 = EitzEvent("G^0",1\4)
@@ -28,7 +33,7 @@ object MidEx extends App {
   //   val event = new EventList(List.range(1,12).map(i => new MidiNoteEvent(59+i,1\4)))
     
     
-     val inst = new InstrumentEvent(GeneralMidi.Instrument("Violin")) 
+     val inst = new InstrumentEvent(12) 
      val event = inst ++ c1 ++ c2 ++ c3 ++ (( c1 || c2 || c3) * 3)
     // println(event)
      val el = event.fixAt(0)
