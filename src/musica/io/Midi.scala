@@ -85,7 +85,9 @@ object Midi {
  private var receiver:  Option[Receiver] = None
  private var sequencer: Option[Sequencer] = None
  private var soundbank: Option[Soundbank] =  None
- private var instruments: List[String] =  List()
+ private var instrumentnames: List[String] =  List()
+ private var instruments: List[Instrument] =  List()
+ 
   
  def midiOutIsOpen =  receiver.isDefined 
  
@@ -117,7 +119,8 @@ object Midi {
      synth = Some(MidiSystem.getSynthesizer())
      midiOutput = Some(synth.get)
      soundbank = Some(synth.get.getDefaultSoundbank())
-     instruments = synth.get.getAvailableInstruments().map{ i => i.getName}.toList
+     instruments = synth.get.getAvailableInstruments().toList
+     instrumentnames = instruments.map{ i => i.getName}
    } else { 
      
      getDevice(s) match {
@@ -191,7 +194,15 @@ object Midi {
   }
   
   def changeInstrument(program: Int, channel: Int = 0) {
-    send(new ShortMessage(ShortMessage.PROGRAM_CHANGE,  channel, program,0),-1)
+         if (instruments.size==0) {              
+               send(new ShortMessage(ShortMessage.PROGRAM_CHANGE,  channel, program,0),-1)
+          } else {
+              val myinst = instruments(program)
+              val bank = myinst.getPatch().getBank()
+              send(new ShortMessage(ShortMessage.CONTROL_CHANGE,  channel, 0, bank / 128),-1)
+              send(new ShortMessage(ShortMessage.CONTROL_CHANGE,  channel, 32, bank % 128),-1)
+              send(new ShortMessage(ShortMessage.PROGRAM_CHANGE,  channel, myinst.getPatch().getProgram(),0),-1)
+          }
   }
   
   
@@ -222,8 +233,22 @@ object Midi {
             }
             case  m:  HasMidiInstrument => {
               //  println(m.instcode)
-                val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, m.instcode,0)
-                track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
+              
+                if (instruments.size==0) {              
+                  val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, m.instcode,0)
+                  track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
+                } else {
+                  val myinst = instruments(m.instcode)
+                  val bank = myinst.getPatch().getBank()
+                  val bank1 = new ShortMessage(ShortMessage.CONTROL_CHANGE,  0,  0, bank / 128)
+                  track.add(new MidiEvent(bank1,(e.start.value * (ppq / beat)).toLong))
+                  val bank2 = new ShortMessage(ShortMessage.CONTROL_CHANGE,  0,  0, bank % 128)
+                  track.add(new MidiEvent(bank2,(e.start.value * (ppq / beat)).toLong))
+                        
+                  
+                  val ins = new ShortMessage(176,  0, myinst.getPatch().getProgram(),0)
+                  track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
+                }   
             }
             case _ => {}
           };  
@@ -345,16 +370,19 @@ def sendTuningChange(channel: Int) = {
     
     if (synth.isDefined) {
     
-    val defsoundbank = synth.get.getDefaultSoundbank()
-    synth.get.unloadAllInstruments(defsoundbank)
+    if (soundbank.isDefined) {
+        synth.get.unloadAllInstruments(soundbank.get)
+    }    
     soundbank = Some(MidiSystem.getSoundbank(new File(path)))
     synth.get.loadAllInstruments(soundbank.get)
-    //instruments = soundbank.get.getInstruments().map{ i => i.getName}.toList
-    instruments = synth.get.getLoadedInstruments().map{ i => i.getName}.toList
+    instruments = synth.get.getLoadedInstruments().toList
+    instrumentnames = instruments.map{ i => i.getName}
     }
   }
 
   def getInstruments = { instruments }
+  
+  def getInstrumentnames = { instrumentnames }
 }
 
 

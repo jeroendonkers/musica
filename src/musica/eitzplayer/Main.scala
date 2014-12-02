@@ -34,15 +34,31 @@ object main extends SimpleSwingApplication {
   
    
     Midi.openMidiOut() 
-    Midi.loadSoundBank("c:/soundfont/WST25FStein_00Sep22.SF2")
+    
      
      
-    val ins = if (Midi.getInstruments.size ==0)
-           GeneralMidi.Instrument.toSeq.sortBy(_._2).map{ case (n,i) => n}  
-         else
-           Midi.getInstruments
-    val instruments = new ComboBox(ins)
-    instruments.selection.index = instrument
+    var instruments = new ComboBox(GeneralMidi.Instrument.toSeq.sortBy(_._2).map{ case (n,i) => n})
+    instruments.selection.index = instrument  
+    val instrumentpane = new FlowPanel(instruments)   
+   
+    def loadSoundbank() = {
+         val chooser = new FileChooser(new File(""))
+         chooser.title = "Select Soundbank"
+         val result = chooser.showOpenDialog(null)
+         if (result == FileChooser.Result.Approve) {
+           Midi.loadSoundBank(chooser.selectedFile.getAbsolutePath())
+           deafTo(instruments.selection)
+           instruments = new ComboBox(Midi.getInstrumentnames)  
+           listenTo(instruments.selection)
+           instruments.selection.index = 0
+           instrumentpane.contents.clear
+           instrumentpane.contents.append(instruments)
+           instrumentpane.revalidate
+           
+         }   
+     }
+    
+    
     
     val speedslider = new Slider() {
       min = 0 
@@ -79,7 +95,7 @@ object main extends SimpleSwingApplication {
     val buttonbar = new FlowPanel(scala.swing.FlowPanel.Alignment.Left)() {
       contents+=playbutton
       contents+=stopbutton     
-      contents+=instruments
+      contents+=instrumentpane
       contents += speedslider
     }
 
@@ -180,13 +196,18 @@ object main extends SimpleSwingApplication {
               mnemonic = Key.E
             }
        }   
+       contents += new Menu("Soundbank") {
+         contents += new MenuItem(Action("Load") {
+              loadSoundbank()
+            })
+       }  
   
     } 
   
     
    def play() {
   //   Midi.openMidiOut() 
-    //   Midi.loadSoundBank("c:/soundfont/harpsichord hubbe.SF2")
+    //   Midi.loadSoundBank("c:/soundfont/jeux14.SF2")
        
      val e = EitzEventListParser(textArea.text)
      
@@ -223,7 +244,7 @@ object main extends SimpleSwingApplication {
            makeTitle()
        }
      case ValueChanged(`speedslider`) => setSpeed(speedslider.value)    
-     case SelectionChanged( `instruments`) => setInstrument(instruments.selection.index)
+     case SelectionChanged(x) => setInstrument(instruments.selection.index)
     }
     
     override def closeOperation() { if (changed) { if (checkSave()) sys.exit(0) } else sys.exit(0) }
