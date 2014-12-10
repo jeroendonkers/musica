@@ -31,12 +31,16 @@ class MidiInstrument(val instcode: Int) extends HasMidiInstrument {
 
 // midi related events
 
-class MidiNoteEvent(i: Int, val value: SymbolicTime) extends Event {
+class MidiNoteEvent(i: Int, val value: SymbolicTime, override val duration: SymbolicTime = 1) extends Event {
    val event = new MidiNote(i)
    type EventType = MidiNote
    def changeValue(t: SymbolicTime) = {
-     new MidiNoteEvent(event.midicode ,t)
+     new MidiNoteEvent(event.midicode ,t, duration)
   }
+    def changeDuration(d: SymbolicTime) = {
+     new MidiNoteEvent(event.midicode ,value, d)
+  }  
+   
 }
 
 
@@ -209,27 +213,30 @@ object Midi {
   def play(el: List[TimedEvent], bpm: Float =120, beat: Double = 0.25) = {
     
      val ppq = 10000;
+     
+
      if (receiver.isDefined) try {
         val sequence = new Sequence(Sequence.PPQ,ppq);
   		val track = sequence.createTrack();
+  		
+  	     def noteonoff(code: Int, start: Double, end: Double) = {
+          val st = new ShortMessage(ShortMessage.NOTE_ON,  0, code, 100)
+          val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, code, 0)
+          track.add(new MidiEvent(st,(start * (ppq / beat)).toLong))
+          track.add(new MidiEvent(nd,(end * (ppq / beat)).toLong))       
+        }
+     	
+  		
   		el.foreach(e => {
          e.event.event match {
             case  c:  MidiTunedNote => {
            //   println(c.midicode+" "+c.midiFrequency)
-               val tun = tuneNote(c.midicode, c.midiFrequency)             
+                val tun = tuneNote(c.midicode, c.midiFrequency)             
                 track.add(new MidiEvent(tun,(e.start.value * (ppq / beat)).toLong))
-                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 100)
-                val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
-                track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
-                track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
-            
+                noteonoff(c.midicode, e.start.value, (e.start+ (e.event.value * e.event.duration)).value )         
             }
             case  c:  HasMidiCode => {
-                val st = new ShortMessage(ShortMessage.NOTE_ON,  0, c.midicode, 100)
-                val nd = new ShortMessage(ShortMessage.NOTE_OFF,  0, c.midicode, 0)
-                track.add(new MidiEvent(st,(e.start.value * (ppq / beat)).toLong))
-                track.add(new MidiEvent(nd,((e.start+e.event.value).value * (ppq / beat)).toLong))   
-              
+                noteonoff(c.midicode, e.start.value, (e.start+(e.event.value * e.event.duration)).value) 
             }
             case  m:  HasMidiInstrument => {
               //  println(m.instcode)

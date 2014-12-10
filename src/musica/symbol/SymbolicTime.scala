@@ -88,9 +88,10 @@ abstract class Event {
    type EventType
    val event: EventType
    val value: SymbolicTime
+   val duration: SymbolicTime = 1
    
    def changeValue(t: SymbolicTime): Event
-   
+   def changeDuration(d: SymbolicTime): Event
    
    val count: Int = 1
    override def toString = event.toString + value
@@ -156,26 +157,45 @@ class Rest(val value: SymbolicTime) extends Event {
    def changeValue(t: SymbolicTime) = {
      new Rest(t)
    }
+   def changeDuration(d: SymbolicTime) = {
+     this
+   }
+   
 }
 
-class NoteEvent[T <: SymbolicNoteBase](val event: T, val value: SymbolicTime) extends Event {
+
+
+
+class NoteEvent[T <: SymbolicNoteBase](val event: T, val value: SymbolicTime, override val duration: SymbolicTime) extends Event {
    type EventType = T
     def changeValue(t: SymbolicTime) = {
-     new NoteEvent[T](event,t)
+     new NoteEvent[T](event,t, duration)
    }
+    def changeDuration(d: SymbolicTime) = {
+     new NoteEvent[T](event,value, d)
+   }
+   
+   
 }
 
 abstract class NoTimeEvent extends Event {
    def changeValue(t: SymbolicTime) = {
      this
    }
+   def changeDuration(d: SymbolicTime) = {
+     this
+   }   
+   
 }
 
 abstract class CompositeEvent extends Event {
    def changeValue(t: SymbolicTime) = {
      this
    }
-  
+   def changeDuration(d: SymbolicTime) = {
+     this
+   }
+   
 }
 
 // serial events

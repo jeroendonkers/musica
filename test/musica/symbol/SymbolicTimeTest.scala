@@ -51,8 +51,8 @@ class SymbolicTimeTest {
   @Test def eventtest() {
      val r1 = WholeRest
      val r2 = QuarterRest
-     val c1 =  new NoteEvent[ClassicNote]("C",Quarter)
-     val c2 =  new NoteEvent[ClassicNote]("D",1\4)
+     val c1 =  new NoteEvent[ClassicNote]("C",Quarter,1)
+     val c2 =  new NoteEvent[ClassicNote]("D",1\4,1)
      
      val event = (c1 ++ r2) || (r1 ++ c2)
      

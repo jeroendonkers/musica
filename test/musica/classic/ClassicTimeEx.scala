@@ -14,7 +14,7 @@ object ClassicTimeEx {
     println(MetrumC)
     
     
-    val l = List( new EitzEvent(EitzInterval.pure("C^+1"), Whole), QuarterRest, new ClassicNoteEvent("C",Quarter))
+    val l = List( new EitzEvent(EitzInterval.pure("C^+1"), Whole,1 ), QuarterRest, new ClassicNoteEvent("C",Quarter))
     val e = new EventList(l)
    
     
@@ -45,8 +45,8 @@ object ClassicTimeEx {
     
      val r1 = WholeRest
      val r2 = QuarterRest
-     val c1 =  new NoteEvent[ClassicNote]("C",Quarter)
-     val c2 =  new NoteEvent[ClassicNote]("D",Quarter)
+     val c1 =  new NoteEvent[ClassicNote]("C",Quarter,1)
+     val c2 =  new NoteEvent[ClassicNote]("D",Quarter,1)
      val empty = new EventList(List())
      
      val event = empty ++ ((c1 ++ r2) || (r1 ++ c2 ++ empty)) 

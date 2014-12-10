@@ -104,16 +104,20 @@ object ClassicIntervalParser extends ClassicIntervalParser {
 trait ClassicEventParser extends EitzIntervalParser {
   
   
-    def classicnoteevent: Parser[ClassicNoteEvent] = note ~ time ^^ {
-      case n ~ t => new ClassicNoteEvent(n,t)
+    def classicnoteevent: Parser[ClassicNoteEvent] = note ~ time ~ time ^^ {
+      case n ~ t ~ d => new ClassicNoteEvent(n,t,d)
+    } | note ~ time ^^ {
+      case n ~ t => new ClassicNoteEvent(n,t,1)
     } | note ^^ {
-      case n  => new ClassicNoteEvent(n,0)
+      case n  => new ClassicNoteEvent(n,0,1)
     }
     
-    def eitzevent: Parser[EitzEvent] = eitzpure ~ time ^^ {
-      case n ~ t => new EitzEvent(n,t)
+    def eitzevent: Parser[EitzEvent] =  eitzpure ~ time ~ time ^^ {
+      case n ~ t ~ d => new EitzEvent(n,t,d)
+    } |  eitzpure ~ time ^^ {
+      case n ~ t => new EitzEvent(n,t,1)
     } | eitzpure ^^ {
-      case n  => new EitzEvent(n,0)
+      case n  => new EitzEvent(n,0,1)
     }
   
     def classicevent: Parser[Event] = eitzevent | classicnoteevent
@@ -131,12 +135,12 @@ object ClassicEventParser extends ClassicEventParser {
     
     def eitz(input: String): Event = parseAll(eitzevent, input) match {
     case Success(result, _) => result
-    case failure : NoSuccess => new EitzEvent(EitzInterval("C"),0)
+    case failure : NoSuccess => new EitzEvent(EitzInterval("C"),0,1)
     }
     
     def note(input: String): Event = parseAll(classicnoteevent, input) match {
     case Success(result, _) => result
-    case failure : NoSuccess => new ClassicNoteEvent("C",0)
+    case failure : NoSuccess => new ClassicNoteEvent("C",0,1)
     }
     
     
