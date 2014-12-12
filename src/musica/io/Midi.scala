@@ -239,21 +239,20 @@ object Midi {
                 noteonoff(c.midicode, e.start.value, (e.start+(e.event.value * e.event.duration)).value) 
             }
             case  m:  HasMidiInstrument => {
-              //  println(m.instcode)
+              //println(m.instcode+" "+instruments.size)
               
                 if (instruments.size==0) {              
                   val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, m.instcode,0)
                   track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
                 } else {
                   val myinst = instruments(m.instcode)
+                  
                   val bank = myinst.getPatch().getBank()
                   val bank1 = new ShortMessage(ShortMessage.CONTROL_CHANGE,  0,  0, bank / 128)
                   track.add(new MidiEvent(bank1,(e.start.value * (ppq / beat)).toLong))
-                  val bank2 = new ShortMessage(ShortMessage.CONTROL_CHANGE,  0,  0, bank % 128)
-                  track.add(new MidiEvent(bank2,(e.start.value * (ppq / beat)).toLong))
-                        
-                  
-                  val ins = new ShortMessage(176,  0, myinst.getPatch().getProgram(),0)
+                  val bank2 = new ShortMessage(ShortMessage.CONTROL_CHANGE,  0,  32, bank % 128)
+                  track.add(new MidiEvent(bank2,(e.start.value * (ppq / beat)).toLong))   
+                  val ins = new ShortMessage(ShortMessage.PROGRAM_CHANGE,  0, myinst.getPatch().getProgram(),0)
                   track.add(new MidiEvent(ins,(e.start.value * (ppq / beat)).toLong))
                 }   
             }

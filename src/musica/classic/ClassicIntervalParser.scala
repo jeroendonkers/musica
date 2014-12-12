@@ -112,10 +112,12 @@ trait ClassicEventParser extends EitzIntervalParser {
       case n  => new ClassicNoteEvent(n,0,1)
     }
     
-    def eitzevent: Parser[EitzEvent] =  eitzpure ~ time ~ time ^^ {
+    def eitzevent: Parser[EitzEvent] =  eitzpure ~ time ~ duration ^^ {
       case n ~ t ~ d => new EitzEvent(n,t,d)
     } |  eitzpure ~ time ^^ {
       case n ~ t => new EitzEvent(n,t,1)
+    } |  eitzpure ~ duration ^^ {
+      case n ~ d => new EitzEvent(n,0,d)
     } | eitzpure ^^ {
       case n  => new EitzEvent(n,0,1)
     }

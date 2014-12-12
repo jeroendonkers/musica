@@ -13,9 +13,37 @@ trait BasicParser extends RegexParsers {
      case a => a.toInt
    } 
   
-   def time: Parser[SymbolicTime] = "[" ~> int ~ slash ~ int <~ "]" ^^ {
+   def timecode: Parser[SymbolicTime] = """:[WHQ8624]""".r ^^ {
+     case ":W" => 1\1
+     case ":H" => 1\2
+     case ":Q" => 1\4
+     case ":8" => 1\8
+     case ":6" => 1\16
+     case ":2" => 1\32
+     case ":4" => 1\64
+   } 
+   
+    def timecodedot: Parser[SymbolicTime] = timecode ~ "." ^^ {
+     case t ~ "." => t * 3\2
+   }
+   def timecodedotdot: Parser[SymbolicTime] = timecode ~ ".." ^^ {
+      case t ~ ".." => t * 7\4
+   }
+   
+   def timeexpr: Parser[SymbolicTime] = "[" ~> int ~ slash ~ int <~ "]" ^^ {
       case n ~ s ~ m =>  SymbolicTime(n,m)
    }
+   
+   def time: Parser[SymbolicTime] = timecodedotdot | timecodedot | timecode | timeexpr
+      
+   def durationcode: Parser[SymbolicTime] = 
+     "_" ^^^ SymbolicTime(1\1) | 
+     "-" ^^^ SymbolicTime(3\4) |
+     "*" ^^^ SymbolicTime(1\2) |
+     "'" ^^^ SymbolicTime(1\4)
+   
+     
+  def duration: Parser[SymbolicTime] =  durationcode | timeexpr    
      
    def rest = "R"
      

@@ -25,18 +25,18 @@ object SymbolicTimeEx {
       
        Midi.openMidiOut() 
   
-      val e = EventListParser("(C[1/8] | E^-1[1/8] | G[1/8]),"+  
-                              "(C[1/8] | E^-1[1/8] | G[1/8]),"+
-                              "(C[25/100] | F[1/4] | A^-1[1/4]),"+
-                              "(D^-1[1/4] | F[1/4] | A^-1[1/4]),"+
-                              "(D[1/4] | F[1/4] | G[1/4] | B^-1[1/4]),"+
-                              "(C[1/2] | E^-1[1/2] | G[1/2] | C+1[1/2])"
+      val e = EitzEventListParser("(C:8..- | E^-1- | G-),"+  
+                              "(C:2- | E^-1- | G-),"+
+                              "(C:Q- | F- | A^-1-),"+
+                              "(D^-1:Q' | F' | A^-1'),"+
+                              "(D:Q* | F* | G* | B^-1*),"+
+                              "(C:H_ | E^-1_ | G_ | C+1_)"
       )
       
       
       
       if (e.isDefined) { 
-        val f = new InstrumentEvent(GeneralMidi.Instrument("Nylon Guitar")) ++
+        val f = new InstrumentEvent(GeneralMidi.Instrument("Viola")) ++
            new Rest(1\8) ++ e.get
         //val f = (new EitzEvent(EitzInterval.pure("D"),1\4)) ++ e.get
         Midi.play(f.fixAt(0),60)
