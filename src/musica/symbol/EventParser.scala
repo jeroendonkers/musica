@@ -13,7 +13,7 @@ trait BasicParser extends RegexParsers {
      case a => a.toInt
    } 
   
-   def timecode: Parser[SymbolicTime] = """:[WHQ8624]""".r ^^ {
+   def valuecode: Parser[SymbolicTime] = """:[WHQ8624]""".r ^^ {
      case ":W" => 1\1
      case ":H" => 1\2
      case ":Q" => 1\4
@@ -23,10 +23,10 @@ trait BasicParser extends RegexParsers {
      case ":4" => 1\64
    } 
    
-    def timecodedot: Parser[SymbolicTime] = timecode ~ "." ^^ {
+    def valuecodedot: Parser[SymbolicTime] = valuecode ~ "." ^^ {
      case t ~ "." => t * 3\2
    }
-   def timecodedotdot: Parser[SymbolicTime] = timecode ~ ".." ^^ {
+   def valuecodedotdot: Parser[SymbolicTime] = valuecode ~ ".." ^^ {
       case t ~ ".." => t * 7\4
    }
    
@@ -34,7 +34,15 @@ trait BasicParser extends RegexParsers {
       case n ~ s ~ m =>  SymbolicTime(n,m)
    }
    
-   def time: Parser[SymbolicTime] = timecodedotdot | timecodedot | timecode | timeexpr
+   def valueexpr: Parser[SymbolicTime] = "v" ~ timeexpr ^^ {
+     case "v" ~ t => t
+   }
+   
+   def durationexpr: Parser[SymbolicTime] = "d" ~ timeexpr ^^ {
+     case "d" ~ t => t
+   }
+   
+   def value: Parser[SymbolicTime] = valuecodedotdot | valuecodedot | valuecode | valueexpr
       
    def durationcode: Parser[SymbolicTime] = 
      "_" ^^^ SymbolicTime(1\1) | 
@@ -43,11 +51,11 @@ trait BasicParser extends RegexParsers {
      "'" ^^^ SymbolicTime(1\4)
    
      
-  def duration: Parser[SymbolicTime] =  durationcode | timeexpr    
+  def duration: Parser[SymbolicTime] =  durationcode | durationexpr    
      
    def rest = "R"
      
-   def restevent: Parser[Rest] = rest ~ time ^^ {
+   def restevent: Parser[Rest] = rest ~ value ^^ {
      case r ~ t =>  new Rest(t) 
    } | rest ^^ {
      case r => new Rest(0/1)
