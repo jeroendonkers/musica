@@ -112,6 +112,7 @@ object main extends SimpleSwingApplication {
          w.close()
          changed=false
          filename = file.get.getName()
+         loaded=true
          makeTitle()
     }
     
@@ -126,6 +127,7 @@ object main extends SimpleSwingApplication {
                w.close()
               changed=false
               filename = file.get.getName()
+              loaded=true
               makeTitle()
          }    
     }
@@ -209,7 +211,7 @@ object main extends SimpleSwingApplication {
   //   Midi.openMidiOut() 
     //   Midi.loadSoundBank("c:/soundfont/jeux14.SF2")
        
-     val e = EitzEventListParser(textArea.text)
+     val e = EventListParser(textArea.text)
      
      if (e.isDefined) { 
         val f = new InstrumentEvent(instrument) ++

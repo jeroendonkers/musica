@@ -2,6 +2,7 @@ package musica.symbol
 import scala.util.parsing.combinator._
 import musica.classic.ClassicEventParser
 import musica.math._
+import scala.collection.mutable.Map 
 
 
 trait BasicParser extends RegexParsers {
@@ -66,7 +67,40 @@ trait BasicParser extends RegexParsers {
 
 trait EventListParser extends JavaTokenParsers  with BasicParser {
   
-   def basicevent: Parser[Event]  // needs to be specified!
+  
+   def selectBasicEvent(s: String): Parser[Event] // too
+     
+   private var basicevent = selectBasicEvent("")
+   
+   private val eventmap:Map[String,Event] = Map()  
+   
+   def define(s: String, e: Event) = {
+    if (isdefined(s)) eventmap(s.toLowerCase) = e 
+    else eventmap += (s.toLowerCase -> e)
+  }
+   
+  def isdefined(s: String) = {
+   eventmap.isDefinedAt(s.toLowerCase)
+  }
+  
+  def getevent(s: String): Event = {
+    if (eventmap.isDefinedAt(s.toLowerCase)) eventmap(s.toLowerCase) else null
+  }
+  
+  def clearmap() = { 
+    eventmap.clear()
+  }
+   
+  def idfactor : Parser[Event] = ident ^^ { 
+      case id => 
+        if (isdefined(id)) getevent(id) 
+        else {
+          null
+        }  
+    }
+  
+
+
   
   
    def after(a: Event, b: Event): Event  = {
@@ -100,15 +134,35 @@ trait EventListParser extends JavaTokenParsers  with BasicParser {
       case e => e
     }
    
-  def event: Parser[Event] =   basicevent | restevent | brexp
+  def event: Parser[Event] =   basicevent | restevent | brexp | idfactor
   
-   
-  def apply(input: String): Option[EventList] = {
+  
+  def command: Parser[String] = ">"~ident ^^{
+    case ">"~id => {
+      if (id == "eitz") { basicevent = selectBasicEvent("eitz"); ""}
+      else ""
+    }
+  }
+  
+  def statement: Parser[String] = ident~"="~event ^^ {
+      case id ~ "=" ~expr => { if (!isdefined(id)) { define(id,expr)}; id }
+  }  | command
+  
+  def script: Parser[List[String]] = repsep(statement,";") <~ ";" | repsep(statement,";")
+  
+  def apply(input: String, bselect: String = ""): Option[EventList] = {
      
     val newinput =  input.split("\n").map(_.split("//")(0)).mkString("\n")
+    clearmap()
     
-    parseAll(expr, newinput) match {
-      case Success(result, _) => Some(new EventList(result.getEventList))
+    basicevent = selectBasicEvent(bselect)
+    
+    parseAll(script, newinput) match {
+      case Success(result, _) => {
+        val result = getevent("play")
+        if (result == null) None else
+        Some(new EventList(result.getEventList))
+      }
       case failure : NoSuccess => None
     }
   }
@@ -119,14 +173,15 @@ trait EventListParser extends JavaTokenParsers  with BasicParser {
 
 object EventListParser extends EventListParser with  ClassicEventParser{
 
-  def basicevent = classicnoteevent
+  def selectBasicEvent(s: String): Parser[Event] = {
+    s match {
+      case "eitz" => eitzevent
+      case _ => classicnoteevent 
+    }
+  }
 
 }
 
 
-object EitzEventListParser extends EventListParser with  ClassicEventParser{
 
-  def basicevent = eitzevent
-
-}
 

@@ -25,12 +25,13 @@ object SymbolicTimeEx {
       
        Midi.openMidiOut() 
   
-      val e = EitzEventListParser("(C:8..- | E^-1- | G-),"+  
+      val e = EventListParser("(C:8..- | E^-1- | G-),"+  
                               "(C:2- | E^-1- | G-),"+
                               "(C:Q- | F- | A^-1-),"+
                               "(D^-1:Q' | F' | A^-1'),"+
                               "(D:Q* | F* | G* | B^-1*),"+
-                              "(C:H_ | E^-1d[1/1]v[1/2] | G_ | C+1_)"
+                              "(C:H_ | E^-1d[1/1]v[1/2] | G_ | C+1_)",
+                              "eitz"
       )
       
       
