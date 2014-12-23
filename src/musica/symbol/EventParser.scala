@@ -137,10 +137,14 @@ trait EventListParser extends JavaTokenParsers  with BasicParser {
   def event: Parser[Event] =   basicevent | restevent | brexp | idfactor
   
   
-  def command: Parser[String] = ">"~ident ^^{
-    case ">"~id => {
-      if (id == "eitz") { basicevent = selectBasicEvent("eitz"); ""}
-      else ""
+  def command: Parser[String] = ">"~ident~stringLiteral ^^{
+    case ">"~comm~value => {
+      val v = value.substring(1,value.length-1)
+    //  println("command: "+comm+" value =["+v+"]")
+      comm match {
+        case "event" => { basicevent = selectBasicEvent(v); ""}
+        case _ => {  "" }
+      }
     }
   }
   
@@ -150,7 +154,7 @@ trait EventListParser extends JavaTokenParsers  with BasicParser {
   
   def script: Parser[List[String]] = repsep(statement,";") <~ ";" | repsep(statement,";")
   
-  def apply(input: String, bselect: String = ""): Option[EventList] = {
+  def apply(input: String, bselect: String = ""): Either[EventList,String] = {
      
     val newinput =  input.split("\n").map(_.split("//")(0)).mkString("\n")
     clearmap()
@@ -160,10 +164,10 @@ trait EventListParser extends JavaTokenParsers  with BasicParser {
     parseAll(script, newinput) match {
       case Success(result, _) => {
         val result = getevent("play")
-        if (result == null) None else
-        Some(new EventList(result.getEventList))
+        if (result == null) Right("Cannot find 'play'") else
+        Left(new EventList(result.getEventList))
       }
-      case failure : NoSuccess => None
+      case failure : NoSuccess => Right(failure.toString)
     }
   }
    

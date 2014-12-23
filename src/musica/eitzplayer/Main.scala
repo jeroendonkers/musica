@@ -211,14 +211,14 @@ object main extends SimpleSwingApplication {
   //   Midi.openMidiOut() 
     //   Midi.loadSoundBank("c:/soundfont/jeux14.SF2")
        
-     val e = EventListParser(textArea.text)
-     
-     if (e.isDefined) { 
-        val f = new InstrumentEvent(instrument) ++
-           e.get
+     val result = EventListParser(textArea.text)
+     result match {
+       case Left(e) => { 
+        val f = new InstrumentEvent(instrument) ++ e
         Midi.play(f.fixAt(0),bpm)
-     } else {
-       Dialog.showMessage(contents.head, "Syntax error")
+        } 
+       case Right(m) =>  
+       Dialog.showMessage(contents.head, m)
      } 
    }
     
