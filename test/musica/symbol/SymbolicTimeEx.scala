@@ -24,22 +24,28 @@ object SymbolicTimeEx {
       
       
        Midi.openMidiOut() 
+       
+       Recorder.showMixers
   
-      val result = EventListParser("(C:8..- | E^-1- | G-),"+  
+      val result = EventListParser("play = ((C:8..- | E^-1- | G-),"+  
                               "(C:2- | E^-1- | G-),"+
                               "(C:Q- | F- | A^-1-),"+
                               "(D^-1:Q' | F' | A^-1'),"+
                               "(D:Q* | F* | G* | B^-1*),"+
-                              "(C:H_ | E^-1d[1/1]v[1/2] | G_ | C+1_)",
+                              "(C:H_ | E^-1d[1/1]v[1/2] | G_ | C+1_))",
                               "eitz"
       )
       
       
       result match {
          case Left(e) => { 
+            Recorder.startRecording("out.wav")
             val f = new InstrumentEvent(GeneralMidi.Instrument("Viola")) ++ new Rest(1\8) ++ e
                 Midi.play(f.fixAt(0),60)
             println(f.fixAt(0))
+           Thread.sleep(10000)
+          Recorder.stopRecording
+            println("klaar")
          }
          case Right(m) => println(m)
        }  

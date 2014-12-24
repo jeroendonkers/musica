@@ -2,6 +2,11 @@ package musica.io
 import javax.sound.sampled._;
 import java.io.File
 
+
+// to enable recording on Windows 8: make sure stereo-mixer is enabled as a recording device 
+// see: http://manual.audacityteam.org/o/man/tutorial_recording_computer_playback_on_windows.html
+
+
 class Recorder(strFilename: String) extends Thread {
 
      private var dataTargetLine: TargetDataLine = null
@@ -22,6 +27,8 @@ class Recorder(strFilename: String) extends Thread {
            //    mixer = AudioSystem.getMixer(mixerinfo)
               // val port = mixer.getLine(info).asInstanceOf[Port];
                dataTargetLine =  AudioSystem.getLine(info).asInstanceOf[TargetDataLine];
+              // dataTargetLine =  AudioSystem.getTargetDataLine(audioFormat, AudioSystem.getMixerInfo()(3));
+               
                dataTargetLine.open(audioFormat);
           }
           catch {
